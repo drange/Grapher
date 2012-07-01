@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!--
+         Single menu item
+         Set id, icon and Title for each menu item
+    -->
+    <!-- android:icon="@drawable/icon_search" -->
+
+    <item
+        android:id="@+id/compute_vertex_cover"
+        android:title="Vertex Cover"/>
+
+    <item
+        android:id="@+id/compute_maximum_clique"
+        android:title="Maximum Clique"/>
+
+    <item
+        android:id="@+id/compute_maximum_independent_set"
+        android:title="Maximum Independent Set"/>
+
+    <item
+        android:id="@+id/compute_minimum_dominating_set"
+        android:title="Minimum Dominating Set"/>
+
+    <item
+        android:id="@+id/compute_mst"
+        android:title="Minimum Spanning Tree"/>
+
+    <item
+        android:id="@+id/compute_diameter"
+        android:title="Diameter"/>
+
+    <item
+        android:id="@+id/compute_girth"
+        android:title="Girth"/>
+
+    <item
+        android:id="@+id/spring"
+        android:title="Spring"/>
+
+    <item
+        android:id="@+id/path"
+        android:title="Path"/>
+
+    <item
+        android:id="@+id/tikz_to_clipboard"
+        android:title="Copy Tikz to clipboard"/>
+
+    <item
+        android:id="@+id/metapost_to_clipboard"
+        android:title="Copy Metapost to clipboard"/>
+
+    <item
+        android:id="@+id/share_tikz"
+        android:title="Share tikz"/>
+
+    <item
+        android:id="@+id/share_metapost"
+        android:title="Share metapost"/>
+
+</menu>
