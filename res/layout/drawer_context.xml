@@ -35,6 +35,26 @@
         android:id="@+id/compute_girth"
         android:title="Girth"/>
 
+    <!--
+         <item
+        android:id="@+id/compute_cut"
+        android:title="Cut vertex"/>
+    -->
+
+    <item
+        android:id="@+id/compute_all_cuts"
+        android:title="All cut vertices"/>
+
+    <!--
+          <item
+        android:id="@+id/compute_bridge"
+        android:title="Bridge"/>
+    -->
+
+    <item
+        android:id="@+id/compute_all_bridges"
+        android:title="All bridges"/>
+
     <item
         android:id="@+id/spring"
         android:title="Spring"/>

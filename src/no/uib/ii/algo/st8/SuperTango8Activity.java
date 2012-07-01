@@ -266,6 +266,52 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+			// case R.id.compute_cut:
+			// boolean hascut = controller.showCutVertex();
+			// if (!hascut)
+			// Toast.makeText(SuperTango8Activity.this, "No cut vertices",
+			// Toast.LENGTH_SHORT).show();
+			// controller.redraw();
+			// return true;
+
+		case R.id.compute_all_cuts:
+			int cuts = controller.showAllCutVertices();
+			if (cuts == 0)
+				Toast.makeText(SuperTango8Activity.this, "No cut vertices",
+						Toast.LENGTH_SHORT).show();
+
+			else if (cuts == 1)
+				Toast.makeText(SuperTango8Activity.this, "1 cut vertex",
+						Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(SuperTango8Activity.this,
+						cuts + " cut vertices", Toast.LENGTH_SHORT).show();
+			controller.redraw();
+			return true;
+
+			// case R.id.compute_bridge:
+			// boolean hasbridge = controller.showBridge();
+			// if (!hasbridge)
+			// Toast.makeText(SuperTango8Activity.this, "No bridges",
+			// Toast.LENGTH_SHORT).show();
+			// controller.redraw();
+			// return true;
+
+		case R.id.compute_all_bridges:
+			int bridges = controller.showAllBridges();
+			if (bridges == 0)
+				Toast.makeText(SuperTango8Activity.this, "No bridges",
+						Toast.LENGTH_SHORT).show();
+			else if (bridges == 1)
+				Toast.makeText(SuperTango8Activity.this, "1 bridge",
+						Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(SuperTango8Activity.this, bridges + " bridges",
+						Toast.LENGTH_SHORT).show();
+
+			controller.redraw();
+			return true;
+
 		case R.id.metapost_to_clipboard:
 			if (copyMetapostToClipboard()) {
 				Toast.makeText(SuperTango8Activity.this,

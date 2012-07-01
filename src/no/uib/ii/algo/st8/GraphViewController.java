@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
 import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
@@ -240,6 +241,40 @@ public class GraphViewController {
 		Set<UnEdge> spanning = mst.getEdgeSet();
 		clearAll();
 		markedEdges.addAll(spanning);
+	}
+
+	public boolean showCutVertex() {
+		clearAll();
+		UnVertex v = CutAndBridgeInspector.findCutVertex(graph.getGraph());
+		if (v == null)
+			return false;
+		markedVertices.add(v);
+		return true;
+	}
+
+	public int showAllCutVertices() {
+		clearAll();
+		Set<UnVertex> cuts = CutAndBridgeInspector.findAllCutVertices(graph
+				.getGraph());
+		markedVertices.addAll(cuts);
+		return cuts.size();
+	}
+
+	public boolean showBridge() {
+		clearAll();
+		UnEdge e = CutAndBridgeInspector.findBridge(graph.getGraph());
+		if (e == null)
+			return false;
+		markedEdges.add(e);
+		return true;
+	}
+
+	public int showAllBridges() {
+		clearAll();
+		Set<UnEdge> bridges = CutAndBridgeInspector.findAllBridges(graph
+				.getGraph());
+		markedEdges.addAll(bridges);
+		return bridges.size();
 	}
 
 	public View getView() {

@@ -17,6 +17,17 @@ public class UnGraph extends SimpleGraph<UnVertex, UnEdge> {
 		});
 	}
 
+	public UnGraph shallowCopy() {
+		UnGraph g = new UnGraph();
+		for (UnVertex v : vertexSet())
+			g.addVertex(v);
+
+		for (UnEdge e : edgeSet())
+			g.addEdge(e.getSource(), e.getTarget());
+
+		return g;
+	}
+
 	public Set<UnVertex> getNeighbourhood(UnVertex vertex) {
 		Set<UnVertex> ret = new HashSet<UnVertex>();
 		for (UnEdge e : edgeSet()) {
