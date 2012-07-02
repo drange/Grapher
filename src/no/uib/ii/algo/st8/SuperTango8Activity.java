@@ -193,6 +193,16 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		}
 	}
 
+	private void shortToast(String toast) {
+		Toast.makeText(SuperTango8Activity.this, toast, Toast.LENGTH_SHORT)
+				.show();
+	}
+
+	// private void longToast(String toast) {
+	// Toast.makeText(SuperTango8Activity.this, toast, Toast.LENGTH_LONG)
+	// .show();
+	// }
+
 	/**
 	 * Event Handling for Individual menu item selected Identify single menu
 	 * item by it's id
@@ -200,40 +210,41 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.compute_vertex_cover:
-			controller.showVertexCover();
+			int vc = controller.showVertexCover();
 			controller.redraw();
+			shortToast("Vertex Cover Number " + vc);
 			return true;
 
 		case R.id.compute_maximum_independent_set:
-			controller.showMaximumIndependentSet();
+			int mis = controller.showMaximumIndependentSet();
 			controller.redraw();
+			shortToast("Independent Set Number " + mis);
 			return true;
 
 		case R.id.compute_maximum_clique:
-			controller.showMaximumClique();
+			int mc = controller.showMaximumClique();
 			controller.redraw();
+			shortToast("Clique Number " + mc);
 			return true;
 
 		case R.id.compute_minimum_dominating_set:
-			controller.showDominatingSet();
+			int ds = controller.showDominatingSet();
 			controller.redraw();
+			shortToast("Dominating Set Number " + ds);
 			return true;
 
 		case R.id.spring:
-			controller.longShake(50);
+			controller.longShake(100);
 			controller.redraw();
+			shortToast("Shaken, not stirred");
 			return true;
 
 		case R.id.path:
 			int res = controller.showPath();
 			if (res < 0)
-				Toast.makeText(SuperTango8Activity.this, "No path!",
-						Toast.LENGTH_SHORT).show();
-
+				shortToast("No path!");
 			else
-				Toast.makeText(SuperTango8Activity.this, "Path length " + res,
-						Toast.LENGTH_SHORT).show();
-
+				shortToast("Path length " + res);
 			controller.redraw();
 			return true;
 
@@ -277,15 +288,12 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		case R.id.compute_all_cuts:
 			int cuts = controller.showAllCutVertices();
 			if (cuts == 0)
-				Toast.makeText(SuperTango8Activity.this, "No cut vertices",
-						Toast.LENGTH_SHORT).show();
+				shortToast("No cut vertices");
 
 			else if (cuts == 1)
-				Toast.makeText(SuperTango8Activity.this, "1 cut vertex",
-						Toast.LENGTH_SHORT).show();
+				shortToast("1 cut vertex");
 			else
-				Toast.makeText(SuperTango8Activity.this,
-						cuts + " cut vertices", Toast.LENGTH_SHORT).show();
+				shortToast(cuts + " cut vertices");
 			controller.redraw();
 			return true;
 
@@ -300,37 +308,28 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		case R.id.compute_all_bridges:
 			int bridges = controller.showAllBridges();
 			if (bridges == 0)
-				Toast.makeText(SuperTango8Activity.this, "No bridges",
-						Toast.LENGTH_SHORT).show();
+				shortToast("No bridges");
 			else if (bridges == 1)
-				Toast.makeText(SuperTango8Activity.this, "1 bridge",
-						Toast.LENGTH_SHORT).show();
+				shortToast("1 bridge");
 			else
-				Toast.makeText(SuperTango8Activity.this, bridges + " bridges",
-						Toast.LENGTH_SHORT).show();
+				shortToast(bridges + " bridges");
 
 			controller.redraw();
 			return true;
 
 		case R.id.metapost_to_clipboard:
 			if (copyMetapostToClipboard()) {
-				Toast.makeText(SuperTango8Activity.this,
-						controller.graphInfo(), Toast.LENGTH_SHORT).show();
+				shortToast("Copied info on " + controller.graphInfo());
 			} else {
-				Toast.makeText(SuperTango8Activity.this,
-						"An error occured copying to clipboard!",
-						Toast.LENGTH_SHORT).show();
+				shortToast("An error occured copying to clipboard!");
 			}
 			return true;
 
 		case R.id.tikz_to_clipboard:
 			if (copyTikzToClipboard()) {
-				Toast.makeText(SuperTango8Activity.this,
-						controller.graphInfo(), Toast.LENGTH_SHORT).show();
+				shortToast("Copied info on " + controller.graphInfo());
 			} else {
-				Toast.makeText(SuperTango8Activity.this,
-						"An error occured copying to clipboard!",
-						Toast.LENGTH_SHORT).show();
+				shortToast("An error occured copying to clipboard!");
 			}
 			return true;
 

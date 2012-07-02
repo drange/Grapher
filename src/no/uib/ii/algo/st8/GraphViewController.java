@@ -371,7 +371,7 @@ public class GraphViewController {
 		UnVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
 		UnVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
-		if (fromVertex != null && toVertex != null) {
+		if (fromVertex != null && toVertex != null && fromVertex != toVertex) {
 			// someone tried to move a vertex onto another, let's make an edge
 			toggleEdge(fromVertex, toVertex);
 		} else if (fromVertex != null) {
@@ -423,39 +423,39 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public void showVertexCover() {
+	public int showVertexCover() {
 		Set<UnVertex> cover = ExactVertexCover.findExactVertexCover(graph
 				.getGraph());
-		if (cover != null) {
-			clearAll();
-			markedVertices.addAll(cover);
-		}
+		clearAll();
+		markedVertices.addAll(cover);
+		return cover.size();
 	}
 
-	public void showMaximumIndependentSet() {
+	public int showMaximumIndependentSet() {
 		Set<UnVertex> cover = ExactVertexCover.findExactVertexCover(graph
 				.getGraph());
-		if (cover != null) {
-			clearAll();
-			markedVertices.addAll(graph.getVertices());
-			markedVertices.removeAll(cover);
-		}
+		clearAll();
+		markedVertices.addAll(graph.getVertices());
+		markedVertices.removeAll(cover);
+		return markedVertices.size();
 	}
 
-	public void showMaximumClique() {
+	public int showMaximumClique() {
 		Set<UnVertex> clique = MaximalClique.findExactMaximumClique(graph
 				.getGraph());
 		clearAll();
 		markedVertices.addAll(clique);
 		redraw();
+		return clique.size();
 	}
 
-	public void showDominatingSet() {
+	public int showDominatingSet() {
 		Set<UnVertex> domset = ExactDominatingSet.exactDominatingSet(graph
 				.getGraph());
 		clearAll();
 		markedVertices.addAll(domset);
 		redraw();
+		return domset.size();
 	}
 
 	public void insertClique(int n) {
