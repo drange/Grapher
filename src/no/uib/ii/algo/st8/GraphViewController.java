@@ -226,13 +226,18 @@ public class GraphViewController {
 		return gp.getEdgeList().size() + 1;
 	}
 
+	/**
+	 * Returns negative number if acyclic.
+	 * 
+	 * @return girth of graph or -1 if acyclic.
+	 */
 	public int girth() {
 		clearAll();
-		int g = GirthInspector.girth(graph.getGraph());
+		int girth = GirthInspector.girth(graph.getGraph());
 
 		redraw();
 
-		return g;
+		return girth;
 	}
 
 	public void showSpanningTree() {
@@ -281,6 +286,21 @@ public class GraphViewController {
 		return view;
 	}
 
+	/**
+	 * Toggles edges between given vertex. Redraws as well!
+	 * 
+	 * @param v
+	 *            vertex v
+	 * @param u
+	 *            vertex u
+	 */
+	private void toggleEdge(UnVertex v, UnVertex u) {
+		if (!graph.removeEdge(v, u)) {
+			graph.createEdge(v, u, new StandardEdgeConfiguration());
+		}
+		redraw();
+	}
+
 	public void userClicked(Coordinate coordinate) {
 		StandardVertexConfiguration config = new StandardVertexConfiguration(
 				coordinate);
@@ -289,9 +309,11 @@ public class GraphViewController {
 
 		if (hit != null) {
 			if (prevTouch != null) {
-				if (prevTouch != hit)
-					graph.createEdge(hit, prevTouch,
-							new StandardEdgeConfiguration());
+				if (prevTouch != hit) {
+					toggleEdge(hit, prevTouch);
+				} else {
+					prevTouch = null;
+				}
 			} else {
 				prevTouch = hit;
 			}
@@ -347,8 +369,12 @@ public class GraphViewController {
 		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 
 		UnVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
+		UnVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
-		if (fromVertex != null) {
+		if (fromVertex != null && toVertex != null) {
+			// someone tried to move a vertex onto another, let's make an edge
+			toggleEdge(fromVertex, toVertex);
+		} else if (fromVertex != null) {
 			// we move a vertex
 			StandardVertexConfiguration c = graph
 					.getVertexConfiguration(fromVertex);
@@ -356,10 +382,13 @@ public class GraphViewController {
 			redraw();
 		} else {
 			// user missed vertex, did user try to navigate?
-			fromVertex = getClosestVertex(from, 2 * USER_MISS_RADIUS);
-			if (fromVertex != null)
-				return;
-			// user was quite far away from any vertex
+
+			// We simply assume user tried to navigate
+
+			// fromVertex = getClosestVertex(from, 2 * USER_MISS_RADIUS);
+			// if (fromVertex != null)
+			// return;
+			// // user was quite far away from any vertex
 
 			Coordinate difference = from.moveVector(to);
 			moveView(difference);

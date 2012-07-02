@@ -257,7 +257,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		case R.id.compute_girth:
 			int girth = controller.girth();
 			if (girth < 0)
-				Toast.makeText(SuperTango8Activity.this, "No cycles",
+				Toast.makeText(SuperTango8Activity.this, "Acyclic",
 						Toast.LENGTH_SHORT).show();
 			else
 				Toast.makeText(SuperTango8Activity.this, "Girth " + girth,

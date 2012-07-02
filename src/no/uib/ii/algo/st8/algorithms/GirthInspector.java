@@ -10,7 +10,7 @@ import no.uib.ii.algo.st8.start.VisualGraph;
 
 public class GirthInspector {
 	public static int girth(UnGraph graph) {
-		int girth = graph.vertexSet().size();
+		int girth = graph.vertexSet().size() + 1;
 		VisualGraph<PathVertex, PathEdge> g = new VisualGraph<PathVertex, PathEdge>();
 
 		for (UnVertex v : graph.vertexSet()) {
@@ -55,6 +55,8 @@ public class GirthInspector {
 				}
 			}
 		}
+		if (girth > graph.vertexSet().size())
+			return -1;
 		return girth;
 	}
 

@@ -43,7 +43,7 @@
 
     <item
         android:id="@+id/compute_all_cuts"
-        android:title="All cut vertices"/>
+        android:title="Cut vertices"/>
 
     <!--
           <item
@@ -53,7 +53,7 @@
 
     <item
         android:id="@+id/compute_all_bridges"
-        android:title="All bridges"/>
+        android:title="Bridges"/>
 
     <item
         android:id="@+id/spring"
