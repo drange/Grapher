@@ -1,13 +1,17 @@
 package no.uib.ii.algo.st8.algorithms;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import no.uib.ii.algo.st8.DefaultEdge;
 import no.uib.ii.algo.st8.DefaultEdgeFactory;
+import no.uib.ii.algo.st8.DefaultVertex;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
 
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -22,11 +26,15 @@ public class SpringLayout {
 	public static final float SPRING_CONSTANT = .000001f;
 	public static final float TIME_CONSTANT = 400f;
 
-	private final SimpleGraph<Geometric, DefaultEdge<Geometric>> graph;
+	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>> layout;
 
-	public SpringLayout(SimpleGraph<Geometric, DefaultEdge<Geometric>> graph) {
+	private Map<DefaultVertex, Integer> vertexToComponent;
+
+	public SpringLayout(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.graph = graph;
+		vertexToComponent = new HashMap<DefaultVertex, Integer>();
 		initialize();
 	}
 
@@ -100,17 +108,29 @@ public class SpringLayout {
 	private void initialize() {
 		fromGraphToLayout.clear();
 		fromLayoutToGraph.clear();
+		vertexToComponent.clear();
+
+		// computes which connected components the different vertices belong to.
+		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		List<Set<DefaultVertex>> ccs = ci.connectedSets();
+		for (int i = 0; i < ccs.size(); i++) {
+			for (DefaultVertex v : ccs.get(i)) {
+				vertexToComponent.put(v, i + 1);
+			}
+		}
+
 		layout = new SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>>(
 				new DefaultEdgeFactory<SpringVertex>());
 
 		for (Geometric v : graph.vertexSet()) {
-			SpringVertex sp = new SpringVertex(v, 1);
+			SpringVertex sp = new SpringVertex(v, vertexToComponent.get(v));
 			layout.addVertex(sp);
 			fromGraphToLayout.put(v, sp);
 			fromLayoutToGraph.put(sp, v);
 		}
 
-		for (DefaultEdge<Geometric> e : graph.edgeSet()) {
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			Geometric source = e.getSource();
 			Geometric target = e.getTarget();
 

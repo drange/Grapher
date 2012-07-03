@@ -10,6 +10,9 @@ import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
+import no.uib.ii.algo.st8.algorithms.Neighbors;
+import no.uib.ii.algo.st8.algorithms.SpringLayout;
+import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
 
 import org.jgrapht.GraphPath;
@@ -26,6 +29,8 @@ public class GraphViewController {
 
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
+
+	private SpringLayout layout = null;
 
 	private Set<DefaultVertex> markedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
@@ -285,25 +290,13 @@ public class GraphViewController {
 	 *            vertex u
 	 */
 	private void toggleEdge(DefaultVertex v, DefaultVertex u) {
-		System.out.println("Toggle");
-
-		System.out.println("\tu = " + u);
-		System.out.println("\tv = " + v);
-
 		DefaultEdge<DefaultVertex> edge = null;
-		try {
-			edge = graph.getEdge(v, u);
-			if (edge != null) {
-				System.out.println("Remove edge " + edge);
-				graph.removeEdge(edge);
-			} else {
-				System.out.println("Create edge ... ");
+		edge = graph.getEdge(v, u);
+		if (edge != null) {
+			graph.removeEdge(edge);
+		} else {
 
-				graph.addEdge(v, u);
-				System.out.println("Made edge " + graph.getEdge(v, u));
-			}
-		} catch (NullPointerException npe) {
-			System.err.println("NullPointerException: " + npe.getMessage());
+			graph.addEdge(v, u);
 		}
 
 		redraw();
@@ -315,12 +308,6 @@ public class GraphViewController {
 		if (hit != null) {
 			if (prevTouch != null) {
 				if (prevTouch != hit) {
-					System.out.println("Toggle");
-
-					System.out.println("\t" + graph.vertexSet().contains(hit));
-					System.out.println("\t"
-							+ graph.vertexSet().contains(prevTouch));
-
 					toggleEdge(hit, prevTouch);
 				} else {
 					prevTouch = null;
@@ -333,8 +320,6 @@ public class GraphViewController {
 				graph.addVertex(new DefaultVertex(coordinate));
 			prevTouch = null;
 		}
-		System.out.println("Vertices (" + graph.vertexSet().size() + "): "
-				+ graph.vertexSet());
 		redraw();
 	}
 
@@ -379,6 +364,8 @@ public class GraphViewController {
 		Coordinate from = new Coordinate(e1.getX(), e1.getY());
 		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 
+		Coordinate move = from.moveVector(to);
+
 		DefaultVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
 		DefaultVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
@@ -388,31 +375,30 @@ public class GraphViewController {
 		} else if (fromVertex != null) {
 			// we move a vertex
 
-			// TODO if hit in userSelected, move all userselected
-			// TODO if hit is prevTouch, move neighborhood as well
-
-			// Coordinate move = from.moveVector(to);
-
 			if (userSelectedVertices.contains(fromVertex)) {
 				// move all userselected
+				for (Geometric v : userSelectedVertices) {
+					v.setCoordinate(v.getCoordinate().add(move));
+				}
+
 			} else if (fromVertex == prevTouch) {
-				// move neighb
+				// move neighborhood of prevtouch
+				prevTouch.setCoordinate(prevTouch.getCoordinate().add(move));
+				for (Geometric v : Neighbors.neighborhood(graph, prevTouch)) {
+					v.setCoordinate(v.getCoordinate().add(move));
+				}
+
 			} else {
-				fromVertex.setCoordinate(to);
+				// move only the hit vertex
+				fromVertex.setCoordinate(fromVertex.getCoordinate().add(move));
 			}
 			redraw();
 		} else {
 			// user missed vertex, did user try to navigate?
-
 			// We simply assume user tried to navigate
 
-			// fromVertex = getClosestVertex(from, 2 * USER_MISS_RADIUS);
-			// if (fromVertex != null)
-			// return;
-			// // user was quite far away from any vertex
-
-			Coordinate difference = from.moveVector(to);
-			moveView(difference);
+			// Coordinate difference = from.moveVector(to);
+			moveView(move);
 		}
 	}
 
@@ -429,17 +415,17 @@ public class GraphViewController {
 	}
 
 	public void longShake(int n) {
-		// if (layout == null)
-		// layout = new SpringLayout(graph);
-		// layout.iterate(n);
+		if (layout == null)
+			layout = new SpringLayout(graph);
+		layout.iterate(n);
 		fixPositions();
 		redraw();
 	}
 
 	public void shake() {
-		// if (layout == null)
-		// layout = new SpringLayout(graph);
-		// layout.iterate();
+		if (layout == null)
+			layout = new SpringLayout(graph);
+		layout.iterate();
 		fixPositions();
 		redraw();
 	}
