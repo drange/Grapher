@@ -1,9 +1,7 @@
 package no.uib.ii.algo.st8;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
@@ -12,16 +10,12 @@ import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
-import no.uib.ii.algo.st8.algorithms.SpringLayout;
-import no.uib.ii.algo.st8.start.CenterPositioning;
 import no.uib.ii.algo.st8.start.Coordinate;
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnVertex;
-import no.uib.ii.algo.st8.start.VisualGraph;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
+import org.jgrapht.graph.SimpleGraph;
 
 import android.graphics.Color;
 import android.view.MotionEvent;
@@ -31,22 +25,21 @@ import android.view.View.OnTouchListener;
 public class GraphViewController {
 
 	private GraphView view;
-	private VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph;
+	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 
-	private SpringLayout layout;
+	private Set<DefaultVertex> markedVertices = new HashSet<DefaultVertex>();
+	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
+	private Set<DefaultEdge<DefaultVertex>> markedEdges = new HashSet<DefaultEdge<DefaultVertex>>();
 
-	private Set<UnVertex> markedVertices = new HashSet<UnVertex>();
-	private Set<UnVertex> userSelectedVertices = new HashSet<UnVertex>();
-	private Set<UnEdge> markedEdges = new HashSet<UnEdge>();
-
-	private UnVertex prevTouch;
+	private DefaultVertex prevTouch;
 
 	public final static float USER_MISS_RADIUS = 30;
 
 	public GraphViewController(SuperTango8Activity activity,
 			OnTouchListener listener) {
 
-		graph = new VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration>();
+		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				new DefaultEdgeFactory<DefaultVertex>());
 
 		view = new GraphView(activity);
 
@@ -55,7 +48,7 @@ public class GraphViewController {
 		// insertPetersen();
 	}
 
-	public VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> getGraph() {
+	public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getGraph() {
 		return graph;
 	}
 
@@ -72,19 +65,18 @@ public class GraphViewController {
 	 * @param radius
 	 * @return the vertex closest to coordinate constrained to radius, or null
 	 */
-	public UnVertex getClosestVertex(Coordinate coordinate, float radius) {
-		Set<UnVertex> vertices = graph.getVertices();
+	public DefaultVertex getClosestVertex(Coordinate coordinate, float radius) {
+		Set<DefaultVertex> vertices = graph.vertexSet();
 		if (vertices.isEmpty())
 			return null;
 
 		float bestDistance = radius;
-		UnVertex bestVertex = null;
+		DefaultVertex bestVertex = null;
 
 		// int debug_vertices_within_radi = 0;
 
-		for (UnVertex currentVertex : vertices) {
-			Coordinate pos = graph.getVertexConfiguration(currentVertex)
-					.getCoordinate();
+		for (DefaultVertex currentVertex : vertices) {
+			Coordinate pos = currentVertex.getCoordinate();
 			float currentDistance = pos.distance(coordinate);
 			if (currentDistance < bestDistance) {
 				bestVertex = currentVertex;
@@ -102,8 +94,8 @@ public class GraphViewController {
 
 		boolean sane = true;
 
-		for (UnVertex v : graph.getVertices()) {
-			Coordinate c = graph.getVertexConfiguration(v).getCoordinate();
+		for (DefaultVertex v : graph.vertexSet()) {
+			Coordinate c = v.getCoordinate();
 			if (c.getX() < 0 || c.getX() > width) {
 				sane = false;
 				break;
@@ -118,8 +110,8 @@ public class GraphViewController {
 			return;
 
 		float xmin = width, xmax = 0, ymin = height, ymax = 0;
-		for (UnVertex v : graph.getVertices()) {
-			Coordinate c = graph.getVertexConfiguration(v).getCoordinate();
+		for (DefaultVertex v : graph.vertexSet()) {
+			Coordinate c = v.getCoordinate();
 			xmin = Math.min(xmin, c.getX());
 			xmax = Math.max(xmax, c.getX());
 
@@ -127,24 +119,20 @@ public class GraphViewController {
 			ymax = Math.max(ymax, c.getY());
 		}
 
-		for (UnVertex v : graph.getVertices()) {
-			Coordinate c = graph.getVertexConfiguration(v).getCoordinate();
+		for (DefaultVertex v : graph.vertexSet()) {
+			Coordinate c = v.getCoordinate();
 			if (xmin < 0) {
-				graph.getVertexConfiguration(v).setCoordinate(
-						c.add(new Coordinate(-xmin, 0)));
+				v.setCoordinate(c.add(new Coordinate(-xmin, 0)));
 			}
 			if (xmax > width) {
-				graph.getVertexConfiguration(v).setCoordinate(
-						c.add(new Coordinate(width - xmax, 0)));
+				v.setCoordinate(c.add(new Coordinate(width - xmax, 0)));
 			}
 
 			if (ymin < 0) {
-				graph.getVertexConfiguration(v).setCoordinate(
-						c.add(new Coordinate(0, -ymin)));
+				v.setCoordinate(c.add(new Coordinate(0, -ymin)));
 			}
 			if (ymax > height) {
-				graph.getVertexConfiguration(v).setCoordinate(
-						c.add(new Coordinate(0, height - ymax)));
+				v.setCoordinate(c.add(new Coordinate(0, height - ymax)));
 			}
 		}
 
@@ -167,16 +155,17 @@ public class GraphViewController {
 			return -1;
 		}
 
-		Iterator<UnVertex> ite = userSelectedVertices.iterator();
-		UnVertex s = ite.next();
-		UnVertex t = ite.next();
+		Iterator<DefaultVertex> ite = userSelectedVertices.iterator();
+		DefaultVertex s = ite.next();
+		DefaultVertex t = ite.next();
 
 		clearAll();
 
-		DijkstraShortestPath<UnVertex, UnEdge> dp = new DijkstraShortestPath<UnVertex, UnEdge>(
-				graph.getGraph(), s, t);
+		DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>> dp = new DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph, s, t);
 
-		GraphPath<UnVertex, UnEdge> path = dp.getPath();
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> path = dp
+				.getPath();
 		if (path == null || path.getEdgeList() == null)
 			return -1;
 		if (path.getEdgeList().size() == 0)
@@ -194,8 +183,9 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void hightlightPath(GraphPath<UnVertex, UnEdge> gp) {
-		for (UnEdge e : gp.getEdgeList()) {
+	private void hightlightPath(
+			GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
+		for (DefaultEdge<DefaultVertex> e : gp.getEdgeList()) {
 			markedEdges.add(e);
 			markedVertices.add(e.getSource());
 			markedVertices.add(e.getTarget());
@@ -211,8 +201,8 @@ public class GraphViewController {
 
 		clearAll();
 
-		GraphPath<UnVertex, UnEdge> gp = DiameterInspector.diameterPath(graph
-				.getGraph());
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector
+				.diameterPath(graph);
 
 		if (gp == null || gp.getEdgeList() == null)
 			return -1;
@@ -233,7 +223,7 @@ public class GraphViewController {
 	 */
 	public int girth() {
 		clearAll();
-		int girth = GirthInspector.girth(graph.getGraph());
+		int girth = GirthInspector.girth(graph);
 
 		redraw();
 
@@ -241,16 +231,16 @@ public class GraphViewController {
 	}
 
 	public void showSpanningTree() {
-		KruskalMinimumSpanningTree<UnVertex, UnEdge> mst = new KruskalMinimumSpanningTree<UnVertex, UnEdge>(
-				graph.getGraph());
-		Set<UnEdge> spanning = mst.getEdgeSet();
+		KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>> mst = new KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		Set<DefaultEdge<DefaultVertex>> spanning = mst.getEdgeSet();
 		clearAll();
 		markedEdges.addAll(spanning);
 	}
 
 	public boolean showCutVertex() {
 		clearAll();
-		UnVertex v = CutAndBridgeInspector.findCutVertex(graph.getGraph());
+		DefaultVertex v = CutAndBridgeInspector.findCutVertex(graph);
 		if (v == null)
 			return false;
 		markedVertices.add(v);
@@ -259,15 +249,15 @@ public class GraphViewController {
 
 	public int showAllCutVertices() {
 		clearAll();
-		Set<UnVertex> cuts = CutAndBridgeInspector.findAllCutVertices(graph
-				.getGraph());
+		Set<DefaultVertex> cuts = CutAndBridgeInspector
+				.findAllCutVertices(graph);
 		markedVertices.addAll(cuts);
 		return cuts.size();
 	}
 
 	public boolean showBridge() {
 		clearAll();
-		UnEdge e = CutAndBridgeInspector.findBridge(graph.getGraph());
+		DefaultEdge<DefaultVertex> e = CutAndBridgeInspector.findBridge(graph);
 		if (e == null)
 			return false;
 		markedEdges.add(e);
@@ -276,8 +266,8 @@ public class GraphViewController {
 
 	public int showAllBridges() {
 		clearAll();
-		Set<UnEdge> bridges = CutAndBridgeInspector.findAllBridges(graph
-				.getGraph());
+		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector
+				.findAllBridges(graph);
 		markedEdges.addAll(bridges);
 		return bridges.size();
 	}
@@ -294,22 +284,43 @@ public class GraphViewController {
 	 * @param u
 	 *            vertex u
 	 */
-	private void toggleEdge(UnVertex v, UnVertex u) {
-		if (!graph.removeEdge(v, u)) {
-			graph.createEdge(v, u, new StandardEdgeConfiguration());
+	private void toggleEdge(DefaultVertex v, DefaultVertex u) {
+		System.out.println("Toggle");
+
+		System.out.println("\tu = " + u);
+		System.out.println("\tv = " + v);
+
+		DefaultEdge<DefaultVertex> edge = null;
+		try {
+			edge = graph.getEdge(v, u);
+			if (edge != null) {
+				System.out.println("Remove edge " + edge);
+				graph.removeEdge(edge);
+			} else {
+				System.out.println("Create edge ... ");
+
+				graph.addEdge(v, u);
+				System.out.println("Made edge " + graph.getEdge(v, u));
+			}
+		} catch (NullPointerException npe) {
+			System.err.println("NullPointerException: " + npe.getMessage());
 		}
+
 		redraw();
 	}
 
 	public void userClicked(Coordinate coordinate) {
-		StandardVertexConfiguration config = new StandardVertexConfiguration(
-				coordinate);
-
-		UnVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
+		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
 
 		if (hit != null) {
 			if (prevTouch != null) {
 				if (prevTouch != hit) {
+					System.out.println("Toggle");
+
+					System.out.println("\t" + graph.vertexSet().contains(hit));
+					System.out.println("\t"
+							+ graph.vertexSet().contains(prevTouch));
+
 					toggleEdge(hit, prevTouch);
 				} else {
 					prevTouch = null;
@@ -319,15 +330,17 @@ public class GraphViewController {
 			}
 		} else {
 			if (prevTouch == null)
-				graph.createVertex(config);
+				graph.addVertex(new DefaultVertex(coordinate));
 			prevTouch = null;
 		}
+		System.out.println("Vertices (" + graph.vertexSet().size() + "): "
+				+ graph.vertexSet());
 		redraw();
 	}
 
 	public void userLongPress(Coordinate coordinate) {
 
-		UnVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
+		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
 
 		if (hit != null) {
 			if (userSelectedVertices.contains(hit)) {
@@ -340,7 +353,7 @@ public class GraphViewController {
 	}
 
 	public boolean userDoubleTap(Coordinate coordinate) {
-		UnVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
+		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
 
 		if (hit != null) {
 			graph.removeVertex(hit);
@@ -354,10 +367,8 @@ public class GraphViewController {
 	public void moveView(Coordinate difference) {
 		// System.out.println("Redrawing, moving everything by " + difference);
 
-		for (UnVertex vertex : graph.getVertices()) {
-			StandardVertexConfiguration c = graph
-					.getVertexConfiguration(vertex);
-			c.setCoordinate(c.getCoordinate().add(difference));
+		for (DefaultVertex vertex : graph.vertexSet()) {
+			vertex.setCoordinate(vertex.getCoordinate().add(difference));
 		}
 		redraw();
 
@@ -368,17 +379,27 @@ public class GraphViewController {
 		Coordinate from = new Coordinate(e1.getX(), e1.getY());
 		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 
-		UnVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
-		UnVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
+		DefaultVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
+		DefaultVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
 		if (fromVertex != null && toVertex != null && fromVertex != toVertex) {
 			// someone tried to move a vertex onto another, let's make an edge
 			toggleEdge(fromVertex, toVertex);
 		} else if (fromVertex != null) {
 			// we move a vertex
-			StandardVertexConfiguration c = graph
-					.getVertexConfiguration(fromVertex);
-			c.setCoordinate(to);
+
+			// TODO if hit in userSelected, move all userselected
+			// TODO if hit is prevTouch, move neighborhood as well
+
+			// Coordinate move = from.moveVector(to);
+
+			if (userSelectedVertices.contains(fromVertex)) {
+				// move all userselected
+			} else if (fromVertex == prevTouch) {
+				// move neighb
+			} else {
+				fromVertex.setCoordinate(to);
+			}
 			redraw();
 		} else {
 			// user missed vertex, did user try to navigate?
@@ -408,41 +429,38 @@ public class GraphViewController {
 	}
 
 	public void longShake(int n) {
-		if (layout == null)
-			layout = new SpringLayout(graph);
-		layout.iterate(n);
+		// if (layout == null)
+		// layout = new SpringLayout(graph);
+		// layout.iterate(n);
 		fixPositions();
 		redraw();
 	}
 
 	public void shake() {
-		if (layout == null)
-			layout = new SpringLayout(graph);
-		layout.iterate();
+		// if (layout == null)
+		// layout = new SpringLayout(graph);
+		// layout.iterate();
 		fixPositions();
 		redraw();
 	}
 
 	public int showVertexCover() {
-		Set<UnVertex> cover = ExactVertexCover.findExactVertexCover(graph
-				.getGraph());
+		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		clearAll();
 		markedVertices.addAll(cover);
 		return cover.size();
 	}
 
 	public int showMaximumIndependentSet() {
-		Set<UnVertex> cover = ExactVertexCover.findExactVertexCover(graph
-				.getGraph());
+		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		clearAll();
-		markedVertices.addAll(graph.getVertices());
+		markedVertices.addAll(graph.vertexSet());
 		markedVertices.removeAll(cover);
 		return markedVertices.size();
 	}
 
 	public int showMaximumClique() {
-		Set<UnVertex> clique = MaximalClique.findExactMaximumClique(graph
-				.getGraph());
+		Set<DefaultVertex> clique = MaximalClique.findExactMaximumClique(graph);
 		clearAll();
 		markedVertices.addAll(clique);
 		redraw();
@@ -450,96 +468,96 @@ public class GraphViewController {
 	}
 
 	public int showDominatingSet() {
-		Set<UnVertex> domset = ExactDominatingSet.exactDominatingSet(graph
-				.getGraph());
+		Set<DefaultVertex> domset = ExactDominatingSet
+				.exactDominatingSet(graph);
 		clearAll();
 		markedVertices.addAll(domset);
 		redraw();
 		return domset.size();
 	}
 
-	public void insertClique(int n) {
-		// TODO this should get a rectangle to draw it in, maybe?
-		CenterPositioning cp = new CenterPositioning(n);
-		for (Coordinate c : cp.getPoints()) {
-			c = c.multiply(100);
-			c = c.add(new Coordinate(120, 200));
-			graph.createVertex(new StandardVertexConfiguration(c.add(c)));
-		}
-		for (UnVertex v : graph.getVertices()) {
-			for (UnVertex u : graph.getVertices()) {
-				if (u != v)
-					graph.createEdge(u, v, new StandardEdgeConfiguration());
-			}
-		}
-		redraw();
-	}
+	// public void insertClique(int n) {
+	// // TODO this should get a rectangle to draw it in, maybe?
+	// CenterPositioning cp = new CenterPositioning(n);
+	// for (Coordinate c : cp.getPoints()) {
+	// c = c.multiply(100);
+	// c = c.add(new Coordinate(120, 200));
+	// graph.createVertex(new StandardVertexConfiguration(c.add(c)));
+	// }
+	// for (DefaultVertex v : graph.vertexSet()) {
+	// for (DefaultVertex u : graph.vertexSet()) {
+	// if (u != v)
+	// graph.createEdge(u, v, new StandardEdgeConfiguration());
+	// }
+	// }
+	// redraw();
+	// }
 
-	public void insertPetersen() {
-		CenterPositioning cp = new CenterPositioning(5);
-		List<UnVertex> vertices = new ArrayList<UnVertex>(10);
+	// public void insertPetersen() {
+	// CenterPositioning cp = new CenterPositioning(5);
+	// List<DefaultVertex> vertices = new ArrayList<DefaultVertex>(10);
+	//
+	// // inner
+	// for (Coordinate c : cp.getPoints()) {
+	// // System.out.println(c.getX() + "," + c.getY());
+	// c = c.multiply(100);
+	// c = c.add(new Coordinate(220, 250));
+	// vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
+	// }
+	//
+	// // outer
+	// for (Coordinate c : cp.getPoints()) {
+	// // System.out.println(c.getX() + "," + c.getY());
+	// c = c.multiply(200);
+	// c = c.add(new Coordinate(220, 250));
+	// vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
+	// }
+	//
+	// redraw();
+	// }
 
-		// inner
-		for (Coordinate c : cp.getPoints()) {
-			// System.out.println(c.getX() + "," + c.getY());
-			c = c.multiply(100);
-			c = c.add(new Coordinate(220, 250));
-			vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
-		}
-
-		// outer
-		for (Coordinate c : cp.getPoints()) {
-			// System.out.println(c.getX() + "," + c.getY());
-			c = c.multiply(200);
-			c = c.add(new Coordinate(220, 250));
-			vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
-		}
-
-		redraw();
-	}
-
-	public void insertCycle(int n) {
-		// TODO this should get a rectangle to draw it in, maybe?
-		CenterPositioning cp = new CenterPositioning(n);
-		List<UnVertex> vertices = new ArrayList<UnVertex>(n);
-		for (Coordinate c : cp.getPoints()) {
-			// System.out.println(c.getX() + "," + c.getY());
-			c = c.multiply(100);
-			c = c.add(new Coordinate(120, 200));
-			vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
-		}
-		for (int i = 0; i < n - 1; i++) {
-			graph.createEdge(vertices.get(i), vertices.get(i + 1),
-					new StandardEdgeConfiguration());
-		}
-		graph.createEdge(vertices.get(n - 1), vertices.get(0),
-				new StandardEdgeConfiguration());
-		redraw();
-	}
+	// public void insertCycle(int n) {
+	// // TODO this should get a rectangle to draw it in, maybe?
+	// CenterPositioning cp = new CenterPositioning(n);
+	// List<DefaultVertex> vertices = new ArrayList<DefaultVertex>(n);
+	// for (Coordinate c : cp.getPoints()) {
+	// // System.out.println(c.getX() + "," + c.getY());
+	// c = c.multiply(100);
+	// c = c.add(new Coordinate(120, 200));
+	// DefaultVertex ver = new DefaultVertex(c);
+	// graph.addVertex(ver)
+	// vertices.addVertex(ver);
+	// }
+	// for (int i = 0; i < n - 1; i++) {
+	// graph.addEdge(vertices.get(i), vertices.get(i + 1));
+	// }
+	// graph.createEdge(vertices.get(n - 1), vertices.get(0),
+	// new StandardEdgeConfiguration());
+	// redraw();
+	// }
 
 	public String graphInfo() {
-		return graph.graphInfo();
+		return "";
+		// return graph.graphInfo();
 	}
 
 	public void redraw() {
-		for (UnVertex v : graph.getVertices()) {
-			StandardVertexConfiguration c = graph.getVertexConfiguration(v);
-			c.setColor(Color.RED);
+		for (DefaultVertex v : graph.vertexSet()) {
+			v.setColor(Color.RED);
 			if (markedVertices.contains(v)) {
-				c.setColor(Color.YELLOW);
+				v.setColor(Color.YELLOW);
 			}
 			if (userSelectedVertices.contains(v)) {
-				c.setColor(Color.CYAN);
+				v.setColor(Color.CYAN);
 			}
 			if (v.equals(prevTouch)) {
-				c.setColor(Color.BLUE);
+				v.setColor(Color.BLUE);
 			}
 		}
-		for (UnEdge e : graph.getEdges()) {
-			StandardEdgeConfiguration c = graph.getEdgeConfiguration(e);
-			c.setColor(Color.WHITE);
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+			e.setColor(Color.WHITE);
 			if (markedEdges.contains(e)) {
-				c.setColor(Color.GREEN);
+				e.setColor(Color.GREEN);
 			}
 		}
 		view.redraw(graphInfo(), graph);

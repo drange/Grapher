@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.start;
 
+@Deprecated
 public class UnVertex {
 	private final int id;
 	private int label;

@@ -1,12 +1,15 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnGraph;
-import no.uib.ii.algo.st8.start.UnVertex;
-import no.uib.ii.algo.st8.start.VisualGraph;
+import no.uib.ii.algo.st8.DefaultEdge;
+import no.uib.ii.algo.st8.DefaultVertex;
 import no.uib.ii.algo.st8.util.PowersetIterator;
+
+import org.jgrapht.EdgeFactory;
+import org.jgrapht.graph.SimpleGraph;
 
 /**
  * 2 to the n implementation of this W[2]-hard problem.
@@ -15,30 +18,40 @@ import no.uib.ii.algo.st8.util.PowersetIterator;
  * components individually, try sets in order of increasing size, adding
  * vertices of degree at least that size etc.
  * 
- * Fomin et al have 1.53^n running in poly space or exp space if we want.
- * Implementable?
  * 
  * @author pgd
  * 
  */
 public class ExactDominatingSet {
 
-	public static Set<UnVertex> exactDominatingSet(UnGraph graph) {
-		VisualGraph<VertexDominated, EdgeDominated> g = new VisualGraph<VertexDominated, EdgeDominated>();
+	public static Set<DefaultVertex> exactDominatingSet(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+		SimpleGraph<VertexDominated, EdgeDominated> g = new SimpleGraph<VertexDominated, EdgeDominated>(
+				new EdgeFactory<VertexDominated, EdgeDominated>() {
+					public EdgeDominated createEdge(VertexDominated arg0,
+							VertexDominated arg1) {
+						return new EdgeDominated();
+					}
+				});
 
-		for (UnVertex v : graph.vertexSet()) {
-			g.addVertex(new VertexDominated(), v);
+		HashMap<DefaultVertex, VertexDominated> map = new HashMap<DefaultVertex, ExactDominatingSet.VertexDominated>();
+
+		for (DefaultVertex v : graph.vertexSet()) {
+			VertexDominated vd = new VertexDominated(v);
+			map.put(v, vd);
+			g.addVertex(vd);
 		}
 
-		for (UnEdge e : graph.edgeSet()) {
-			g.createEdge(e.getSource(), e.getTarget(), new EdgeDominated());
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+			g.addEdge(map.get(e.getSource()), map.get(e.getTarget()),
+					new EdgeDominated());
 		}
 
-		PowersetIterator<UnVertex> pi = new PowersetIterator<UnVertex>(
-				g.getVertices());
-		Set<UnVertex> domset = null;
+		PowersetIterator<VertexDominated> pi = new PowersetIterator<VertexDominated>(
+				g.vertexSet());
+		Set<VertexDominated> domset = null;
 		while (pi.hasNext()) {
-			Set<UnVertex> current = pi.next();
+			Set<VertexDominated> current = pi.next();
 
 			// if domset is a smaller dom. set, we continue searching
 			if (domset != null && current.size() >= domset.size()) {
@@ -49,27 +62,33 @@ public class ExactDominatingSet {
 			if (isDominatingSet(g, current)) {
 				domset = current;
 			}
-
 		}
 
-		return domset;
+		Set<DefaultVertex> res = new HashSet<DefaultVertex>(domset.size());
+		for (VertexDominated vd : domset) {
+			res.add(vd.vertex);
+		}
+
+		return res;
 	}
 
 	private static boolean isDominatingSet(
-			VisualGraph<VertexDominated, EdgeDominated> graph, Set<UnVertex> set) {
-		for (UnVertex v : graph.getVertices()) {
-			graph.getVertexConfiguration(v).dominated = false;
+			SimpleGraph<VertexDominated, EdgeDominated> graph,
+			Set<VertexDominated> set) {
+		for (VertexDominated v : graph.vertexSet()) {
+			v.dominated = false;
 		}
 
-		for (UnVertex dominator : set) {
-			graph.getVertexConfiguration(dominator).dominated = true;
-			for (UnVertex other : graph.getNeighbourhood(dominator)) {
-				graph.getVertexConfiguration(other).dominated = true;
+		for (VertexDominated dominator : set) {
+			dominator.dominated = true;
+			for (VertexDominated other : Neighbors.neighborhood(graph,
+					dominator)) {
+				other.dominated = true;
 			}
 		}
 
-		for (UnVertex v : graph.getVertices()) {
-			if (!graph.getVertexConfiguration(v).dominated)
+		for (VertexDominated v : graph.vertexSet()) {
+			if (!v.dominated)
 				return false;
 		}
 
@@ -78,6 +97,11 @@ public class ExactDominatingSet {
 
 	static class VertexDominated {
 		boolean dominated = false;
+		DefaultVertex vertex = null;
+
+		public VertexDominated(DefaultVertex vertex) {
+			this.vertex = vertex;
+		}
 	}
 
 	static class EdgeDominated {

@@ -1,38 +1,43 @@
 package no.uib.ii.algo.st8.algorithms;
 
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnGraph;
-import no.uib.ii.algo.st8.start.UnVertex;
+import no.uib.ii.algo.st8.DefaultEdge;
+import no.uib.ii.algo.st8.DefaultVertex;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.graph.SimpleGraph;
 
 public class DiameterInspector {
 
-	public static int diameter(UnGraph g) {
-		GraphPath<UnVertex, UnEdge> diamPath = diameterPath(g);
+	public static int diameter(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> g) {
+
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> diamPath = diameterPath(g);
 		if (diamPath == null)
 			return -1;
 		return diamPath.getEdgeList().size() + 1;
 	}
 
-	public static GraphPath<UnVertex, UnEdge> diameterPath(UnGraph g) {
+	public static GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> diameterPath(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> g) {
 
-		DijkstraShortestPath<UnVertex, UnEdge> d;
+		DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>> d;
 
-		ConnectivityInspector<UnVertex, UnEdge> ci = new ConnectivityInspector<UnVertex, UnEdge>(
+		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				g);
 		if (!ci.isGraphConnected())
 			return null;
 
-		GraphPath<UnVertex, UnEdge> longestPath = null;
-		for (UnVertex v : g.vertexSet()) {
-			for (UnVertex u : g.vertexSet()) {
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> longestPath = null;
+		for (DefaultVertex v : g.vertexSet()) {
+			for (DefaultVertex u : g.vertexSet()) {
 				if (v != u) {
-					d = new DijkstraShortestPath<UnVertex, UnEdge>(g, v, u);
+					d = new DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>>(
+							g, v, u);
 
-					GraphPath<UnVertex, UnEdge> currentPath = d.getPath();
+					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> currentPath = d
+							.getPath();
 
 					if (longestPath == null
 							|| longestPath.getEdgeList().size() < currentPath
@@ -43,6 +48,5 @@ public class DiameterInspector {
 			}
 		}
 		return longestPath;
-
 	}
 }

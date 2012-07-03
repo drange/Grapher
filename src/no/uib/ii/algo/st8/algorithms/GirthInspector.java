@@ -1,54 +1,68 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnGraph;
-import no.uib.ii.algo.st8.start.UnVertex;
-import no.uib.ii.algo.st8.start.VisualGraph;
+import no.uib.ii.algo.st8.DefaultEdge;
+import no.uib.ii.algo.st8.DefaultVertex;
+
+import org.jgrapht.EdgeFactory;
+import org.jgrapht.graph.SimpleGraph;
 
 public class GirthInspector {
-	public static int girth(UnGraph graph) {
+	public static int girth(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		int girth = graph.vertexSet().size() + 1;
-		VisualGraph<PathVertex, PathEdge> g = new VisualGraph<PathVertex, PathEdge>();
+		SimpleGraph<PathVertex, DefaultEdge<PathVertex>> copy = new SimpleGraph<PathVertex, DefaultEdge<PathVertex>>(
+				new EdgeFactory<PathVertex, DefaultEdge<PathVertex>>() {
+					public DefaultEdge<PathVertex> createEdge(
+							PathVertex source, PathVertex target) {
+						return new DefaultEdge<PathVertex>(source, target);
+					};
+				});
 
-		for (UnVertex v : graph.vertexSet()) {
-			g.addVertex(new PathVertex(), v);
+		HashMap<DefaultVertex, PathVertex> map = new HashMap<DefaultVertex, PathVertex>();
+
+		for (DefaultVertex v : graph.vertexSet()) {
+			PathVertex pv = new PathVertex(v);
+			copy.addVertex(pv);
+			map.put(v, pv);
 		}
 
-		for (UnEdge e : graph.edgeSet()) {
-			g.createEdge(e.getSource(), e.getTarget(), new PathEdge());
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+			PathVertex v1 = map.get(e.getSource());
+			PathVertex v2 = map.get(e.getTarget());
+			copy.addEdge(v1, v2);
 		}
 
-		Set<UnVertex> S = new HashSet<UnVertex>();
-		Set<UnVertex> R = new HashSet<UnVertex>();
+		Set<PathVertex> S = new HashSet<PathVertex>();
+		Set<PathVertex> R = new HashSet<PathVertex>();
 
-		for (UnVertex v : g.getVertices()) {
+		for (PathVertex v : copy.vertexSet()) {
 			S.clear();
 
 			R.add(v);
 
-			g.getVertexConfiguration(v).parent = null;
-			g.getVertexConfiguration(v).dist = 0;
+			v.parent = null;
+			v.dist = 0;
 
 			while (!R.isEmpty()) {
-				UnVertex x = R.iterator().next();
+				PathVertex x = R.iterator().next();
 				S.add(x);
 				R.remove(x);
-				for (UnVertex y : g.getNeighbourhood(x)) {
-					if (y == g.getVertexConfiguration(x).parent)
+				for (PathVertex y : Neighbors.neighborhood(copy, x)) {
+					if (y == x.parent)
 						continue;
 					if (!S.contains(y)) {
-						g.getVertexConfiguration(y).parent = x;
-						g.getVertexConfiguration(y).dist = g
-								.getVertexConfiguration(x).dist + 1;
+						y.parent = x;
+						y.dist = x.dist + 1;
 						R.add(y);
 
 					} else {
 						// girth = min (girth, dist(x) + dist(y) + 1
-						int dx = g.getVertexConfiguration(x).dist;
-						int dy = g.getVertexConfiguration(y).dist;
+						int dx = x.dist;
+						int dy = y.dist;
 
 						girth = Math.min(girth, dx + dy + 1);
 					}
@@ -61,12 +75,13 @@ public class GirthInspector {
 	}
 
 	static class PathVertex {
-		UnVertex parent;
+		PathVertex parent;
 		int dist;
-	}
+		DefaultVertex original;
 
-	static class PathEdge {
-
+		public PathVertex(DefaultVertex original) {
+			this.original = original;
+		}
 	}
 
 }

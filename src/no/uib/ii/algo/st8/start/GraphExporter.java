@@ -1,7 +1,9 @@
 package no.uib.ii.algo.st8.start;
 
-import no.uib.ii.algo.st8.StandardEdgeConfiguration;
-import no.uib.ii.algo.st8.StandardVertexConfiguration;
+import no.uib.ii.algo.st8.DefaultEdge;
+import no.uib.ii.algo.st8.DefaultVertex;
+
+import org.jgrapht.graph.SimpleGraph;
 
 public class GraphExporter {
 
@@ -11,7 +13,7 @@ public class GraphExporter {
 	// int blue = Color.blue(c.getColor());
 
 	public static String getMetapost(
-			VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph) {
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		String res = "";
 
 		res += "%Metapostified\n\n";
@@ -26,13 +28,12 @@ public class GraphExporter {
 		res += "    draw (skalering*inn) -- (skalering*ut);\n";
 		res += "enddef;\n\n";
 
-		for (UnVertex v : graph.getVertices()) {
-			StandardVertexConfiguration c = graph.getVertexConfiguration(v);
-			res += "n" + v.getLabel() + " = (" + c.getCoordinate().getX() + ","
-					+ c.getCoordinate().getY() + ");\n";
+		for (DefaultVertex v : graph.vertexSet()) {
+			res += "n" + v.getLabel() + " = (" + v.getCoordinate().getX() + ","
+					+ v.getCoordinate().getY() + ");\n";
 		}
 		res += "\n";
-		for (UnEdge e : graph.getEdges()) {
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			res += "drawedge(n" + e.getSource().getLabel() + ", n"
 					+ e.getTarget().getLabel() + ");\n";
 		}
@@ -52,8 +53,9 @@ public class GraphExporter {
 	}
 
 	private static String getEndFigure(
-			VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph) {
-		String info = graph.graphInfo();
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+		// String info = graph.graphInfo();
+		String info = "";
 		String infop = info.replaceAll(" ", "-").replaceAll(",", "-")
 				.replaceAll("\\.", "-").toLowerCase();
 		String res = "";
@@ -64,20 +66,19 @@ public class GraphExporter {
 	}
 
 	public static String getTikz(
-			VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph) {
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		String res = "\n\t\\begin{tikzpicture}";
 		res += "[every node/.style={circle, draw, scale=.6}, scale=1.0, rotate = 180]\n\n";
 
-		for (UnVertex v : graph.getVertices()) {
-			StandardVertexConfiguration c = graph.getVertexConfiguration(v);
+		for (DefaultVertex v : graph.vertexSet()) {
 
 			res += "\t\t\\node (" + v.getLabel() + ") at";
-			res += " ( " + c.getCoordinate().getX() / 50f + ", "
-					+ +c.getCoordinate().getY() / 50f + ")";
+			res += " ( " + v.getCoordinate().getX() / 50f + ", "
+					+ v.getCoordinate().getY() / 50f + ")";
 			res += " {};\n";
 		}
 		res += "\n";
-		for (UnEdge e : graph.getEdges()) {
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			res += "\t\t\\draw (" + e.getSource().getLabel() + ") -- ("
 					+ e.getTarget().getLabel() + ");\n";
 		}

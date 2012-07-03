@@ -1,18 +1,19 @@
 package no.uib.ii.algo.st8;
 
 import no.uib.ii.algo.st8.start.Coordinate;
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnVertex;
-import no.uib.ii.algo.st8.start.VisualGraph;
+
+import org.jgrapht.graph.SimpleGraph;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.view.View;
 
 public class GraphView extends View {
 
-	private VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph;
+	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private String info = "";
 
 	public GraphView(Context context) {
@@ -24,9 +25,8 @@ public class GraphView extends View {
 		setFocusable(true);
 	}
 
-	public void redraw(
-			String info,
-			VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph) {
+	public void redraw(String info,
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.info = info;
 		this.graph = graph;
 		invalidate();
@@ -37,26 +37,27 @@ public class GraphView extends View {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
-		for (UnEdge e : graph.getEdges()) {
-			Coordinate c1 = graph.getVertexConfiguration(e.getSource())
-					.getCoordinate();
-			Coordinate c2 = graph.getVertexConfiguration(e.getTarget())
-					.getCoordinate();
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+			Coordinate c1 = e.getSource().getCoordinate();
+			Coordinate c2 = e.getTarget().getCoordinate();
 			Paint p = new Paint();
 			p.setColor(Color.WHITE);
-			StandardEdgeConfiguration ec = graph.getEdgeConfiguration(e);
-			if (ec != null)
-				p.setColor(ec.getColor());
-			canvas.drawLine(c1.getX(), c1.getY(), c2.getX(), c2.getY(), p);
+			p.setColor(e.getColor());
+			if (e.getCoordinate() == null) {
+				canvas.drawLine(c1.getX(), c1.getY(), c2.getX(), c2.getY(), p);
+			} else {
+				canvas.drawArc(
+						new RectF(c1.getX(), c1.getY(), c2.getX(), c2.getY()),
+						0, 0, true, p);
+			}
+
 		}
 
-		for (UnVertex v : graph.getVertices()) {
-			StandardVertexConfiguration config = graph
-					.getVertexConfiguration(v);
-			Coordinate c = config.getCoordinate();
+		for (DefaultVertex v : graph.vertexSet()) {
+			Coordinate c = v.getCoordinate();
 			Paint p = new Paint();
-			p.setColor(config.getColor());
-			canvas.drawCircle(c.getX(), c.getY(), config.getSize(), p);
+			p.setColor(v.getColor());
+			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
 		}
 		writeInfo(canvas);
 	}

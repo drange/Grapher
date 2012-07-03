@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.start;
 
+@Deprecated
 public class UnEdge {
 	private final UnVertex u;
 	private final UnVertex v;

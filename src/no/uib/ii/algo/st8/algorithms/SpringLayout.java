@@ -3,14 +3,12 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.HashMap;
 import java.util.Map;
 
-import no.uib.ii.algo.st8.StandardEdgeConfiguration;
-import no.uib.ii.algo.st8.StandardVertexConfiguration;
+import no.uib.ii.algo.st8.DefaultEdge;
+import no.uib.ii.algo.st8.DefaultEdgeFactory;
+import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
-import no.uib.ii.algo.st8.start.UnEdge;
-import no.uib.ii.algo.st8.start.UnVertex;
-import no.uib.ii.algo.st8.start.VisualGraph;
 
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.graph.SimpleGraph;
 
 /**
  * TODO: Should probably do this individually for connected components, and then
@@ -24,34 +22,21 @@ public class SpringLayout {
 	public static final float SPRING_CONSTANT = .000001f;
 	public static final float TIME_CONSTANT = 400f;
 
-	private final VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph;
-	private VisualGraph<SpringVertex, SpringEdge> layout;
+	private final SimpleGraph<Geometric, DefaultEdge<Geometric>> graph;
+	private SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>> layout;
 
-	public SpringLayout(
-			VisualGraph<StandardVertexConfiguration, StandardEdgeConfiguration> graph) {
+	public SpringLayout(SimpleGraph<Geometric, DefaultEdge<Geometric>> graph) {
 		this.graph = graph;
 		initialize();
 	}
 
 	public void iterate() {
-
-		if (!new ConnectivityInspector<UnVertex, UnEdge>(graph.getGraph())
-				.isGraphConnected()) {
-			return;
-		}
-
 		preprocess();
 		doOneIteration();
 		copyPositions();
 	}
 
 	public void iterate(int n) {
-
-		if (!new ConnectivityInspector<UnVertex, UnEdge>(graph.getGraph())
-				.isGraphConnected()) {
-			return;
-		}
-
 		preprocess();
 		for (int i = 0; i < n; i++) {
 			doOneIteration();
@@ -60,7 +45,6 @@ public class SpringLayout {
 	}
 
 	private void doOneIteration() {
-
 		calculateRepulsion();
 		calculateTension();
 		move();
@@ -68,75 +52,70 @@ public class SpringLayout {
 	}
 
 	private void resetNetForce() {
-		for (UnVertex v : layout.getVertices()) {
-			SpringVertex currentLayout = layout.getVertexConfiguration(v);
-			currentLayout.netForce = Coordinate.ZERO;
+		for (SpringVertex v : layout.vertexSet()) {
+			v.netForce = Coordinate.ZERO;
 		}
 	}
 
 	private void move() {
-		for (UnVertex v : layout.getVertices()) {
-			SpringVertex currentLayout = layout.getVertexConfiguration(v);
-			currentLayout.position = currentLayout.position
-					.add(currentLayout.netForce);
-
-			currentLayout.position = currentLayout.position.rounded();
+		// TODO if move vector length > ITERATION_MOVE_LIMIT, set to limit
+		for (SpringVertex v : layout.vertexSet()) {
+			v.position = v.position.add(v.netForce);
+			v.position = v.position.rounded();
 		}
 	}
 
 	private void calculateRepulsion() {
-		for (UnVertex v : layout.getVertices()) {
-			SpringVertex currentLayout = layout.getVertexConfiguration(v);
-			for (UnVertex u : layout.getVertices()) {
-				if (u != v) {
-					Coordinate c1 = currentLayout.position;
-					Coordinate c2 = layout.getVertexConfiguration(u).position;
+		for (SpringVertex v : layout.vertexSet()) {
+			for (SpringVertex u : layout.vertexSet()) {
+				if (u != v && u.sameComponent(v)) {
+					Coordinate c1 = v.position;
+					Coordinate c2 = u.position;
 					Coordinate force = repulsion(c1, c2);
-					currentLayout.netForce = currentLayout.netForce.add(force);
+					v.netForce = v.netForce.add(force);
 				}
 			}
 		}
 	}
 
 	private void calculateTension() {
-		for (UnEdge edge : layout.getEdges()) {
-			UnVertex vertex1 = edge.getSource();
-			UnVertex vertex2 = edge.getTarget();
+		for (DefaultEdge<SpringVertex> edge : layout.edgeSet()) {
+			SpringVertex vertex1 = edge.getSource();
+			SpringVertex vertex2 = edge.getTarget();
 
-			SpringVertex config1 = layout.getVertexConfiguration(vertex1);
-			SpringVertex config2 = layout.getVertexConfiguration(vertex2);
-
-			Coordinate pos1 = config1.position;
-			Coordinate pos2 = config2.position;
+			Coordinate pos1 = vertex1.position;
+			Coordinate pos2 = vertex2.position;
 			Coordinate force1 = tension(pos1, pos2);
 			Coordinate force2 = force1.inverse();
 
-			config1.netForce = config1.netForce.add(force1);
-			config2.netForce = config2.netForce.add(force2);
+			vertex1.netForce = vertex1.netForce.add(force1);
+			vertex2.netForce = vertex2.netForce.add(force2);
 
 		}
 	}
 
-	Map<UnVertex, UnVertex> fromGraphToLayout = new HashMap<UnVertex, UnVertex>();
-	Map<UnVertex, UnVertex> fromLayoutToGraph = new HashMap<UnVertex, UnVertex>();
+	Map<Geometric, SpringVertex> fromGraphToLayout = new HashMap<Geometric, SpringVertex>();
+	Map<SpringVertex, Geometric> fromLayoutToGraph = new HashMap<SpringVertex, Geometric>();
 
 	private void initialize() {
 		fromGraphToLayout.clear();
 		fromLayoutToGraph.clear();
-		layout = new VisualGraph<SpringLayout.SpringVertex, SpringLayout.SpringEdge>();
-		for (UnVertex v : graph.getVertices()) {
-			SpringVertex config = new SpringVertex(v,
-					graph.getVertexConfiguration(v));
-			UnVertex lv = layout.createVertex(config);
-			fromGraphToLayout.put(v, lv);
-			fromLayoutToGraph.put(lv, v);
-		}
-		for (UnEdge e : graph.getEdges()) {
-			UnVertex source = e.getSource();
-			UnVertex target = e.getTarget();
+		layout = new SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>>(
+				new DefaultEdgeFactory<SpringVertex>());
 
-			layout.createEdge(fromGraphToLayout.get(source),
-					fromGraphToLayout.get(target), new SpringEdge());
+		for (Geometric v : graph.vertexSet()) {
+			SpringVertex sp = new SpringVertex(v, 1);
+			layout.addVertex(sp);
+			fromGraphToLayout.put(v, sp);
+			fromLayoutToGraph.put(sp, v);
+		}
+
+		for (DefaultEdge<Geometric> e : graph.edgeSet()) {
+			Geometric source = e.getSource();
+			Geometric target = e.getTarget();
+
+			layout.addEdge(fromGraphToLayout.get(source),
+					fromGraphToLayout.get(target));
 		}
 	}
 
@@ -151,10 +130,9 @@ public class SpringLayout {
 		// if (graph.getGraph().edgeSet().size() != layout.getEdges().size()) {
 		// initialize();
 		// }
-		for (UnVertex v : layout.getVertices()) {
-			UnVertex gv = fromLayoutToGraph.get(v);
-			layout.getVertexConfiguration(v).position = graph
-					.getVertexConfiguration(gv).getCoordinate().rounded();
+		for (SpringVertex v : layout.vertexSet()) {
+			Geometric gv = fromLayoutToGraph.get(v);
+			v.position = gv.getCoordinate().rounded();
 		}
 	}
 
@@ -180,24 +158,34 @@ public class SpringLayout {
 	 * Copies positions to original graph
 	 */
 	private void copyPositions() {
-		for (UnVertex v : layout.getVertices()) {
-			graph.getVertexConfiguration(fromLayoutToGraph.get(v))
-					.setCoordinate(layout.getVertexConfiguration(v).position);
+		for (Geometric v : layout.vertexSet()) {
+			fromLayoutToGraph.get(v).setCoordinate(v.getCoordinate());
 		}
 	}
 
-	class SpringVertex {
-		public SpringVertex(UnVertex vertex, StandardVertexConfiguration config) {
-			this.position = config.getCoordinate();
-			this.vertex = vertex;
-		}
-
-		UnVertex vertex;
+	class SpringVertex implements Geometric {
+		final Geometric vertex;
+		final int component;
 		Coordinate position;
 		Coordinate netForce = Coordinate.ZERO;
-	}
 
-	class SpringEdge {
-	}
+		public SpringVertex(Geometric vertex, int component) {
+			this.position = vertex.getCoordinate();
+			this.vertex = vertex;
+			this.component = component;
+		}
 
+		public Coordinate getCoordinate() {
+			return position;
+		}
+
+		public void setCoordinate(Coordinate coordinate) {
+			this.position = coordinate;
+		}
+
+		boolean sameComponent(SpringVertex other) {
+			return component == other.component;
+		}
+
+	}
 }

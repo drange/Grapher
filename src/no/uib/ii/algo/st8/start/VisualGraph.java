@@ -6,10 +6,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.algorithms.GraphInformation;
-
 import org.jgrapht.alg.ConnectivityInspector;
 
+@Deprecated
 public class VisualGraph<V, E> {
 	private final UnGraph graph;
 	private final Map<UnVertex, V> vertexConfiguration;
@@ -119,8 +118,8 @@ public class VisualGraph<V, E> {
 		if (!isConnected) {
 			nc = inspector.connectedSets().size();
 		}
-		int maxDegree = GraphInformation.maxDegree(getGraph());
-		int minDegree = GraphInformation.minDegree(getGraph());
+		int maxDegree = 0;// GraphInformation.maxDegree(getGraph());
+		int minDegree = 0;// GraphInformation.minDegree(getGraph());
 		String s = "";
 		s += (isConnected ? "Connected" : "Disconnected (" + nc
 				+ " components)");

@@ -6,6 +6,7 @@ import java.util.Set;
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.SimpleGraph;
 
+@Deprecated
 public class UnGraph extends SimpleGraph<UnVertex, UnEdge> {
 	private static final long serialVersionUID = 1L;
 
