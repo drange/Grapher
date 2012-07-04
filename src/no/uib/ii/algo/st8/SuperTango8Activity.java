@@ -38,6 +38,20 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		// RESTORING GRAPH IF PRESENT!
+		// if (savedInstanceState != null) {
+		// SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph = null;
+		// Object restore = savedInstanceState.getSerializable("graph");
+		// if (restore != null) {
+		// graph = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>)
+		// restore;
+		// }
+		// if (graph != null && graph instanceof SimpleGraph) {
+		// System.out.println("recovered graph "
+		// + GraphInformation.graphInfo(graph));
+		// }
+		// }
+
 		System.out.println("done markus log hei stupedamen");
 
 		DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -71,6 +85,15 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		}
 		controller.redraw();
 	}
+
+	// @Override
+	// public void onSaveInstanceState(Bundle savedInstanceState) {
+	// super.onSaveInstanceState(savedInstanceState);
+	// // Save UI state changes to the savedInstanceState.
+	// // This bundle will be passed to onCreate if the process is
+	// // killed and restarted.
+	// savedInstanceState.putSerializable("graph", controller.getGraph());
+	// }
 
 	private boolean copyTikzToClipboard() {
 		String text = "";
@@ -371,6 +394,11 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 
 		case R.id.share_metapost:
 			shareMetapost();
+			return true;
+
+		case R.id.clear:
+			controller.clearAll();
+			controller.redraw();
 			return true;
 
 		default:

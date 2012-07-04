@@ -1,5 +1,7 @@
 package no.uib.ii.algo.st8;
 
+import java.io.Serializable;
+
 import no.uib.ii.algo.st8.settings.Colorful;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.settings.Labelled;
@@ -7,7 +9,9 @@ import no.uib.ii.algo.st8.settings.Sized;
 import no.uib.ii.algo.st8.start.Coordinate;
 import android.graphics.Color;
 
-public class DefaultVertex implements Colorful, Geometric, Labelled, Sized {
+public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
+		Serializable {
+	private static final long serialVersionUID = 1L;
 
 	public final static float DEFAULT_SIZE = 10;
 

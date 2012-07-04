@@ -1,5 +1,7 @@
 package no.uib.ii.algo.st8;
 
-public enum EdgeStyle {
+import java.io.Serializable;
+
+public enum EdgeStyle implements Serializable {
 	SOLID, DASHED, DOTTED, BOLD, SNAKE;
 }

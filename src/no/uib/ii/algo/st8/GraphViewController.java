@@ -17,7 +17,6 @@ import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
 
 import org.jgrapht.GraphPath;
-import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
@@ -148,11 +147,24 @@ public class GraphViewController {
 
 	}
 
+	/**
+	 * Deselects all selected vertices and edges
+	 */
 	public void clearAll() {
 		prevTouch = null;
 		markedEdges.clear();
 		userSelectedVertices.clear();
 		markedVertices.clear();
+	}
+
+	/**
+	 * Tabula rasa, remove the graph and all we know.
+	 */
+	public void clear() {
+		clearAll();
+		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				new DefaultEdgeFactory<DefaultVertex>());
+		layout = null;
 	}
 
 	/**
@@ -579,44 +591,7 @@ public class GraphViewController {
 	// }
 
 	public String graphInfo() {
-		int vertexCount = graph.vertexSet().size();
-		if (vertexCount == 0) {
-			return "The empty graph";
-		}
-		int edgeCount = graph.edgeSet().size();
-		if (edgeCount == 0) {
-			if (vertexCount == 1) {
-				return "K1";
-			} else {
-				return "The trivial graph on " + vertexCount + " vertices";
-			}
-		}
-
-		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> inspector = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
-
-		boolean isConnected = inspector.isGraphConnected();
-		int nc = 1;
-		if (!isConnected) {
-			nc = inspector.connectedSets().size();
-		}
-		int maxDegree = GraphInformation.maxDegree(getGraph());
-		int minDegree = GraphInformation.minDegree(getGraph());
-		String s = "";
-		s += (isConnected ? "Connected" : "Disconnected (" + nc
-				+ " components)");
-		s += " graph on " + vertexCount + " vertices";
-		s += " and " + edgeCount + " edges.";
-		if (maxDegree == minDegree) {
-			if (maxDegree == vertexCount - 1) {
-				s += " Complete, K_" + vertexCount;
-			} else {
-				s += " " + maxDegree + "-regular";
-			}
-		} else {
-			s += " Max degree " + maxDegree + ", min degree " + minDegree;
-		}
-		return s;
+		return GraphInformation.graphInfo(graph);
 	}
 
 	public void redraw() {

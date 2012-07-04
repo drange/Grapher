@@ -91,4 +91,8 @@
         android:id="@+id/share_metapost"
         android:title="Share metapost"/>
 
+    <item
+        android:id="@+id/clear"
+        android:title="Clear everything (your changes is lost)"/>
+
 </menu>

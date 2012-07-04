@@ -1,6 +1,10 @@
 package no.uib.ii.algo.st8.start;
 
-public class Coordinate implements Cloneable {
+import java.io.Serializable;
+
+public class Coordinate implements Cloneable, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private final float x;
 	private final float y;
 

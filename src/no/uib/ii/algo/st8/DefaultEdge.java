@@ -1,10 +1,14 @@
 package no.uib.ii.algo.st8;
 
+import java.io.Serializable;
+
 import no.uib.ii.algo.st8.settings.Colorful;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
 
-public class DefaultEdge<V> implements Colorful, Geometric {
+public class DefaultEdge<V> implements Colorful, Geometric, Serializable {
+	private static final long serialVersionUID = 1L;
+
 	private EdgeStyle style;
 	private int color;
 
