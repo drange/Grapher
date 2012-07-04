@@ -26,6 +26,12 @@ public class SpringLayout {
 	public static final float SPRING_CONSTANT = .000001f;
 	public static final float TIME_CONSTANT = 400f;
 
+	/**
+	 * The most a vertex is allowed to move during one iteration. If net force
+	 * is greater, we scale it down to this value.
+	 */
+	public static final float MAX_MOVEMENT = 10;
+
 	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>> layout;
 
@@ -66,8 +72,12 @@ public class SpringLayout {
 	}
 
 	private void move() {
-		// TODO if move vector length > ITERATION_MOVE_LIMIT, set to limit
 		for (SpringVertex v : layout.vertexSet()) {
+			// If net force is too large, we scale down to MAX_MOVEMENT
+			if (v.netForce.length() > MAX_MOVEMENT) {
+				Coordinate unit = v.netForce.normalize();
+				v.netForce = unit.multiply(MAX_MOVEMENT);
+			}
 			v.position = v.position.add(v.netForce);
 			v.position = v.position.rounded();
 		}

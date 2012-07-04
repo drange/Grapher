@@ -9,6 +9,7 @@ import no.uib.ii.algo.st8.algorithms.DiameterInspector;
 import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
+import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.Neighbors;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
@@ -16,6 +17,7 @@ import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
 
 import org.jgrapht.GraphPath;
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
@@ -277,6 +279,39 @@ public class GraphViewController {
 		return bridges.size();
 	}
 
+	/**
+	 * Inserts universal vertex, returns its degree, i.e. the size of graph
+	 * before insertion.
+	 * 
+	 * @return degree of universal vertex (n-1)
+	 */
+	public int addUniversalVertex() {
+		int deg = graph.vertexSet().size();
+
+		Coordinate pos = new Coordinate(200, 200);
+		if (deg != 0) {
+			float x = 0;
+			float y = 0;
+			for (DefaultVertex v : graph.vertexSet()) {
+				x += v.getCoordinate().getX();
+				y += v.getCoordinate().getY();
+			}
+			pos = new Coordinate(x / deg + USER_MISS_RADIUS, y / deg
+					+ USER_MISS_RADIUS);
+		}
+
+		System.out.println("Universal: " + pos + " (" + deg + ")");
+
+		DefaultVertex universal = new DefaultVertex(pos);
+		graph.addVertex(universal);
+		for (DefaultVertex v : graph.vertexSet()) {
+			if (v != universal)
+				graph.addEdge(universal, v);
+		}
+
+		return deg;
+	}
+
 	public View getView() {
 		return view;
 	}
@@ -463,7 +498,6 @@ public class GraphViewController {
 	}
 
 	// public void insertClique(int n) {
-	// // TODO this should get a rectangle to draw it in, maybe?
 	// CenterPositioning cp = new CenterPositioning(n);
 	// for (Coordinate c : cp.getPoints()) {
 	// c = c.multiply(100);
@@ -503,7 +537,6 @@ public class GraphViewController {
 	// }
 
 	// public void insertCycle(int n) {
-	// // TODO this should get a rectangle to draw it in, maybe?
 	// CenterPositioning cp = new CenterPositioning(n);
 	// List<DefaultVertex> vertices = new ArrayList<DefaultVertex>(n);
 	// for (Coordinate c : cp.getPoints()) {
@@ -523,8 +556,44 @@ public class GraphViewController {
 	// }
 
 	public String graphInfo() {
-		return "";
-		// return graph.graphInfo();
+		int vertexCount = graph.vertexSet().size();
+		if (vertexCount == 0) {
+			return "The empty graph";
+		}
+		int edgeCount = graph.edgeSet().size();
+		if (edgeCount == 0) {
+			if (vertexCount == 1) {
+				return "K1";
+			} else {
+				return "The trivial graph on " + vertexCount + " vertices";
+			}
+		}
+
+		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> inspector = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+
+		boolean isConnected = inspector.isGraphConnected();
+		int nc = 1;
+		if (!isConnected) {
+			nc = inspector.connectedSets().size();
+		}
+		int maxDegree = GraphInformation.maxDegree(getGraph());
+		int minDegree = GraphInformation.minDegree(getGraph());
+		String s = "";
+		s += (isConnected ? "Connected" : "Disconnected (" + nc
+				+ " components)");
+		s += " graph on " + vertexCount + " vertices";
+		s += " and " + edgeCount + " edges.";
+		if (maxDegree == minDegree) {
+			if (maxDegree == vertexCount - 1) {
+				s += " Complete, K_" + vertexCount;
+			} else {
+				s += " " + maxDegree + "-regular";
+			}
+		} else {
+			s += " Max degree " + maxDegree + ", min degree " + minDegree;
+		}
+		return s;
 	}
 
 	public void redraw() {

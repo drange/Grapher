@@ -56,8 +56,12 @@
         android:title="Bridges"/>
 
     <item
+        android:id="@+id/add_universal_vertex"
+        android:title="Add Universal Vertex"/>
+
+    <item
         android:id="@+id/spring"
-        android:title="Spring"/>
+        android:title="Spring (lazy shake)"/>
 
     <item
         android:id="@+id/path"

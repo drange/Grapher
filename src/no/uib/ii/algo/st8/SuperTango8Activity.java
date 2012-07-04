@@ -62,6 +62,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 					SensorManager.SENSOR_DELAY_GAME);
 			System.out.println("PAAL REGISTERED SENSOR");
 		}
+		controller.redraw();
 	}
 
 	private boolean copyTikzToClipboard() {
@@ -313,6 +314,18 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 				shortToast("1 bridge");
 			else
 				shortToast(bridges + " bridges");
+
+			controller.redraw();
+			return true;
+
+		case R.id.add_universal_vertex:
+			int degree = controller.addUniversalVertex();
+			if (degree == 0)
+				shortToast("Added singleton");
+			else if (degree == 1)
+				shortToast("Added vertex adjacent to 1 vertex");
+			else
+				shortToast("Added vertex adjacent to " + degree + " vertices");
 
 			controller.redraw();
 			return true;
