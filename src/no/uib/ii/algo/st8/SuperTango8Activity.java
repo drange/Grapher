@@ -12,6 +12,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.ClipboardManager;
+import android.util.DisplayMetrics;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
@@ -39,6 +40,11 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 
 		System.out.println("done markus log hei stupedamen");
 
+		DisplayMetrics displaymetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+		int height = displaymetrics.heightPixels;
+		int width = displaymetrics.widthPixels;
+
 		// Gesture detection
 		gestureDetector = new GestureDetector(new SimpleGestureDetector());
 		gestureListener = new View.OnTouchListener() {
@@ -50,7 +56,8 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		// scaleGestureDetector = new ScaleGestureDetector(this,
 		// new SimpleScaleGestureDetector());
 
-		controller = new GraphViewController(this, gestureListener);
+		controller = new GraphViewController(this, gestureListener, width,
+				height);
 		setContentView(controller.getView());
 
 		// shake
@@ -315,6 +322,18 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			else
 				shortToast(bridges + " bridges");
 
+			controller.redraw();
+			return true;
+
+		case R.id.show_center:
+			boolean conn = controller.showCenterVertex();
+			if (!conn)
+				shortToast("No center vertex in disconnected graph");
+			controller.redraw();
+			return true;
+
+		case R.id.centralize:
+			controller.centralize();
 			controller.redraw();
 			return true;
 

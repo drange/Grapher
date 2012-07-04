@@ -1,6 +1,6 @@
 package no.uib.ii.algo.st8.start;
 
-public class Coordinate {
+public class Coordinate implements Cloneable {
 	private final float x;
 	private final float y;
 
@@ -8,6 +8,11 @@ public class Coordinate {
 	public static final Coordinate ZERO = ORIGO;
 	public static final Coordinate UNIT_X = new Coordinate(1, 0);
 	public static final Coordinate UNIT_Y = new Coordinate(0, 1);
+
+	public Coordinate(Coordinate c) {
+		x = c.x;
+		y = c.y;
+	}
 
 	public Coordinate(float x, float y) {
 		this.x = x;
@@ -17,6 +22,11 @@ public class Coordinate {
 	public Coordinate(double x, double y) {
 		this.x = (float) x;
 		this.y = (float) y;
+	}
+
+	@Override
+	protected Coordinate clone() {
+		return new Coordinate(this);
 	}
 
 	public Coordinate rounded() {

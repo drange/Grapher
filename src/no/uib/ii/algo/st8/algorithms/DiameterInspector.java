@@ -1,7 +1,6 @@
 package no.uib.ii.algo.st8.algorithms;
 
-import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultVertex;
+import java.util.List;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.ConnectivityInspector;
@@ -10,34 +9,29 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class DiameterInspector {
 
-	public static int diameter(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> g) {
+	public static <V, E> int diameter(SimpleGraph<V, E> g) {
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> diamPath = diameterPath(g);
+		GraphPath<V, E> diamPath = diameterPath(g);
 		if (diamPath == null)
 			return -1;
 		return diamPath.getEdgeList().size() + 1;
 	}
 
-	public static GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> diameterPath(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> g) {
+	public static <V, E> GraphPath<V, E> diameterPath(SimpleGraph<V, E> g) {
 
-		DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>> d;
+		DijkstraShortestPath<V, E> d;
 
-		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				g);
+		ConnectivityInspector<V, E> ci = new ConnectivityInspector<V, E>(g);
 		if (!ci.isGraphConnected())
 			return null;
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> longestPath = null;
-		for (DefaultVertex v : g.vertexSet()) {
-			for (DefaultVertex u : g.vertexSet()) {
+		GraphPath<V, E> longestPath = null;
+		for (V v : g.vertexSet()) {
+			for (V u : g.vertexSet()) {
 				if (v != u) {
-					d = new DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>>(
-							g, v, u);
+					d = new DijkstraShortestPath<V, E>(g, v, u);
 
-					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> currentPath = d
-							.getPath();
+					GraphPath<V, E> currentPath = d.getPath();
 
 					if (longestPath == null
 							|| longestPath.getEdgeList().size() < currentPath
@@ -49,4 +43,23 @@ public class DiameterInspector {
 		}
 		return longestPath;
 	}
+
+	/**
+	 * Returns null iff diameterPath returns null, i.e. graph is disconnected.
+	 * 
+	 * @param graph
+	 * @return center vertex or null
+	 */
+	public static <V, E> V centerVertex(SimpleGraph<V, E> graph) {
+		GraphPath<V, E> path = diameterPath(graph);
+		if (path == null)
+			return null;
+		V v = null;
+		List<E> edgeList = path.getEdgeList();
+		for (int i = 0; i <= edgeList.size() / 2; i++) {
+			v = graph.getEdgeSource(edgeList.get(i));
+		}
+		return v;
+	}
+
 }

@@ -41,9 +41,10 @@ public class GraphViewController {
 	private DefaultVertex prevTouch;
 
 	public final static float USER_MISS_RADIUS = 30;
+	private final Coordinate CENTER_COORDINATE;
 
 	public GraphViewController(SuperTango8Activity activity,
-			OnTouchListener listener) {
+			OnTouchListener listener, int width, int height) {
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
@@ -52,7 +53,9 @@ public class GraphViewController {
 
 		view.setOnClickListener(activity);
 		view.setOnTouchListener(listener);
-		// insertPetersen();
+
+		CENTER_COORDINATE = new Coordinate(width / 2, height / 2);
+		// System.out.println("Center: " + CENTER_COORDINATE);
 	}
 
 	public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getGraph() {
@@ -495,6 +498,26 @@ public class GraphViewController {
 		markedVertices.addAll(domset);
 		redraw();
 		return domset.size();
+	}
+
+	public boolean showCenterVertex() {
+		clearAll();
+		redraw();
+		DefaultVertex center = DiameterInspector.centerVertex(graph);
+		if (center == null)
+			return false;
+		markedVertices.add(center);
+		redraw();
+		return true;
+	}
+
+	public void centralize() {
+		DefaultVertex center = DiameterInspector.centerVertex(graph);
+		if (center == null)
+			return;
+		moveView(center.getCoordinate().moveVector(CENTER_COORDINATE));
+		redraw();
+		return;
 	}
 
 	// public void insertClique(int n) {

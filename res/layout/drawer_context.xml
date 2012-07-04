@@ -56,6 +56,14 @@
         android:title="Bridges"/>
 
     <item
+        android:id="@+id/show_center"
+        android:title="Compute Center Vertex"/>
+
+    <item
+        android:id="@+id/centralize"
+        android:title="Centralize view"/>
+
+    <item
         android:id="@+id/add_universal_vertex"
         android:title="Add Universal Vertex"/>
 
