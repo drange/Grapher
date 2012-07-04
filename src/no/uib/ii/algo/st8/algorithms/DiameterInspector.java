@@ -1,7 +1,5 @@
 package no.uib.ii.algo.st8.algorithms;
 
-import java.util.List;
-
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -43,23 +41,4 @@ public class DiameterInspector {
 		}
 		return longestPath;
 	}
-
-	/**
-	 * Returns null iff diameterPath returns null, i.e. graph is disconnected.
-	 * 
-	 * @param graph
-	 * @return center vertex or null
-	 */
-	public static <V, E> V centerVertex(SimpleGraph<V, E> graph) {
-		GraphPath<V, E> path = diameterPath(graph);
-		if (path == null)
-			return null;
-		V v = null;
-		List<E> edgeList = path.getEdgeList();
-		for (int i = 0; i <= edgeList.size() / 2; i++) {
-			v = graph.getEdgeSource(edgeList.get(i));
-		}
-		return v;
-	}
-
 }

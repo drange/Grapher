@@ -23,8 +23,11 @@ import org.jgrapht.graph.SimpleGraph;
  */
 public class SpringLayout {
 
-	public static final float SPRING_CONSTANT = .000001f;
-	public static final float TIME_CONSTANT = 400f;
+	/** This spring's constant, see Hooke's law */
+	public static final float SPRING_CONSTANT = .00001f;
+
+	/** How much time "passes" between iterations */
+	public static final float TIME_CONSTANT = 500f;
 
 	/**
 	 * The most a vertex is allowed to move during one iteration. If net force
@@ -96,6 +99,10 @@ public class SpringLayout {
 		}
 	}
 
+	/**
+	 * Calculates how much two adjacent vertices attract each other. Uses
+	 * Hooke's law, with SPRING_CONSTANT.
+	 */
 	private void calculateTension() {
 		for (DefaultEdge<SpringVertex> edge : layout.edgeSet()) {
 			SpringVertex vertex1 = edge.getSource();
@@ -103,6 +110,7 @@ public class SpringLayout {
 
 			Coordinate pos1 = vertex1.position;
 			Coordinate pos2 = vertex2.position;
+
 			Coordinate force1 = tension(pos1, pos2);
 			Coordinate force2 = force1.inverse();
 

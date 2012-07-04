@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
 import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
@@ -515,7 +516,7 @@ public class GraphViewController {
 	public boolean showCenterVertex() {
 		clearAll();
 		redraw();
-		DefaultVertex center = DiameterInspector.centerVertex(graph);
+		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return false;
 		markedVertices.add(center);
@@ -524,7 +525,7 @@ public class GraphViewController {
 	}
 
 	public void centralize() {
-		DefaultVertex center = DiameterInspector.centerVertex(graph);
+		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return;
 		moveView(center.getCoordinate().moveVector(CENTER_COORDINATE));
