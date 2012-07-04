@@ -5,41 +5,59 @@ import java.util.HashSet;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultVertex;
 
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.SimpleGraph;
 
 public class GirthInspector {
-	public static int girth(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+
+	/**
+	 * Returns true if and only if the graph contains no cycles.
+	 * 
+	 * @param graph
+	 *            input graph
+	 * @return whether graph has a cycle
+	 */
+	public static <V, E> boolean isAcyclic(SimpleGraph<V, E> graph) {
+		return girth(graph) < 0;
+	}
+
+	/**
+	 * Returns the girth (length of shortest cycle) of the graph, or -1 if no
+	 * cycles.
+	 * 
+	 * @param graph
+	 *            input graph
+	 * @return girth of graph or -1 if acyclic
+	 */
+	public static <V, E> int girth(SimpleGraph<V, E> graph) {
 		int girth = graph.vertexSet().size() + 1;
-		SimpleGraph<PathVertex, DefaultEdge<PathVertex>> copy = new SimpleGraph<PathVertex, DefaultEdge<PathVertex>>(
-				new EdgeFactory<PathVertex, DefaultEdge<PathVertex>>() {
-					public DefaultEdge<PathVertex> createEdge(
-							PathVertex source, PathVertex target) {
-						return new DefaultEdge<PathVertex>(source, target);
+		SimpleGraph<PathVertex<V>, DefaultEdge<PathVertex<V>>> copy = new SimpleGraph<PathVertex<V>, DefaultEdge<PathVertex<V>>>(
+				new EdgeFactory<PathVertex<V>, DefaultEdge<PathVertex<V>>>() {
+					public DefaultEdge<PathVertex<V>> createEdge(
+							PathVertex<V> source, PathVertex<V> target) {
+						return new DefaultEdge<PathVertex<V>>(source, target);
 					};
 				});
 
-		HashMap<DefaultVertex, PathVertex> map = new HashMap<DefaultVertex, PathVertex>();
+		HashMap<V, PathVertex<V>> map = new HashMap<V, PathVertex<V>>();
 
-		for (DefaultVertex v : graph.vertexSet()) {
-			PathVertex pv = new PathVertex(v);
+		for (V v : graph.vertexSet()) {
+			PathVertex<V> pv = new PathVertex<V>(v);
 			copy.addVertex(pv);
 			map.put(v, pv);
 		}
 
-		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
-			PathVertex v1 = map.get(e.getSource());
-			PathVertex v2 = map.get(e.getTarget());
+		for (E e : graph.edgeSet()) {
+			PathVertex<V> v1 = map.get(graph.getEdgeSource(e));
+			PathVertex<V> v2 = map.get(graph.getEdgeTarget(e));
 			copy.addEdge(v1, v2);
 		}
 
-		Set<PathVertex> S = new HashSet<PathVertex>();
-		Set<PathVertex> R = new HashSet<PathVertex>();
+		Set<PathVertex<V>> S = new HashSet<PathVertex<V>>();
+		Set<PathVertex<V>> R = new HashSet<PathVertex<V>>();
 
-		for (PathVertex v : copy.vertexSet()) {
+		for (PathVertex<V> v : copy.vertexSet()) {
 			S.clear();
 
 			R.add(v);
@@ -48,10 +66,10 @@ public class GirthInspector {
 			v.dist = 0;
 
 			while (!R.isEmpty()) {
-				PathVertex x = R.iterator().next();
+				PathVertex<V> x = R.iterator().next();
 				S.add(x);
 				R.remove(x);
-				for (PathVertex y : Neighbors.neighborhood(copy, x)) {
+				for (PathVertex<V> y : Neighbors.neighborhood(copy, x)) {
 					if (y == x.parent)
 						continue;
 					if (!S.contains(y)) {
@@ -74,14 +92,13 @@ public class GirthInspector {
 		return girth;
 	}
 
-	static class PathVertex {
-		PathVertex parent;
+	static class PathVertex<V> {
+		PathVertex<V> parent;
 		int dist;
-		DefaultVertex original;
+		V original;
 
-		public PathVertex(DefaultVertex original) {
+		public PathVertex(V original) {
 			this.original = original;
 		}
 	}
-
 }

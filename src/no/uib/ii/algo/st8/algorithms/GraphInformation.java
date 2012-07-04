@@ -31,12 +31,19 @@ public class GraphInformation {
 		if (!isConnected) {
 			nc = inspector.connectedSets().size();
 		}
+
+		boolean acyclic = GirthInspector.isAcyclic(graph);
+
 		int maxDegree = maxDegree(graph);
 		int minDegree = minDegree(graph);
 		String s = "";
-		s += (isConnected ? "Connected" : "Disconnected (" + nc
-				+ " components)");
-		s += " graph on " + vertexCount + " vertices";
+		if (isConnected) {
+			s += (acyclic ? "Tree" : "Connected graph");
+		} else {
+			s += (acyclic ? "Forest" : "Disconnected graph");
+			s += " (" + nc + " components)";
+		}
+		s += " on " + vertexCount + " vertices";
 		s += " and " + edgeCount + " edges.";
 		if (maxDegree == minDegree) {
 			if (maxDegree == vertexCount - 1) {
