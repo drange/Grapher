@@ -372,6 +372,11 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.compute_bandwidth:
+			int bandwidth = controller.computeBandwidth();
+			shortToast("Bandwidth " + bandwidth);
+			return true;
+
 		case R.id.metapost_to_clipboard:
 			if (copyMetapostToClipboard()) {
 				shortToast("Copied info on " + controller.graphInfo());

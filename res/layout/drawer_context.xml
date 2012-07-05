@@ -68,6 +68,10 @@
         android:title="Add Universal Vertex"/>
 
     <item
+        android:id="@+id/compute_bandwidth"
+        android:title="Compute Bandwidth"/>
+
+    <item
         android:id="@+id/spring"
         android:title="Spring (lazy shake)"/>
 

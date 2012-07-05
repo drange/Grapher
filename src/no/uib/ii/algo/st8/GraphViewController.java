@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
@@ -522,6 +523,14 @@ public class GraphViewController {
 		markedVertices.add(center);
 		redraw();
 		return true;
+
+	}
+
+	public int computeBandwidth() {
+		clearAll();
+		int bandwidth = BandwidthInspector.computeBandwidth(graph);
+		redraw();
+		return bandwidth;
 	}
 
 	public void centralize() {
