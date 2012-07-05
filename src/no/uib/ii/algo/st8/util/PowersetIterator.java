@@ -2,12 +2,13 @@ package no.uib.ii.algo.st8.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class PowersetIterator<T> implements Iterator<Set<T>> {
+public class PowersetIterator<T> implements Iterator<Collection<T>> {
 
 	private BigInteger charactheristic = BigInteger.ZERO;
 

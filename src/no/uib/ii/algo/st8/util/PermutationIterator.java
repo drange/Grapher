@@ -1,3 +1,5 @@
+package no.uib.ii.algo.st8.util;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,7 +17,7 @@ import java.util.Iterator;
  * matter what equals says. So with a collection of exactly 4 equal elements it
  * will give 24 equal permutations.
  * 
- * @author erik
+ * @author Erik Parmann
  * 
  * @param <T>
  *            The type of the elements that should be permutated.
@@ -24,7 +26,7 @@ import java.util.Iterator;
  * This idea behind this implementation is as follows. We have the elements in
  * some "canonical" order, here the order they are in the collection we get.
  * Then each permutation can be described as a list of integers, where the first
- * integer gives which element from the canonicial ordering should be the first
+ * integer gives which element from the canonical ordering should be the first
  * element. The second integer gives where in the canonical ordering of the
  * remaining elements we can find the second element of the permutation, and so
  * on.
@@ -41,34 +43,6 @@ import java.util.Iterator;
  * in an ArrayList.
  */
 public class PermutationIterator<T> implements Iterator<Collection<T>> {
-
-	/**
-	 * Some crap to test it
-	 */
-	public static void main(String[] args) {
-		ArrayList<String> testList = new ArrayList<String>();
-		testList.add("1");
-		testList.add("2");
-		testList.add("3");
-		testList.add("4");
-		testList.add("5");
-		testList.add("6");
-		testList.add("7");
-		testList.add("8");
-		testList.add("9");
-		testList.add("10");
-		testList.add("11");
-		testList.add("12");
-
-		PermutationIterator<String> permGen = new PermutationIterator<String>(
-				testList);
-		int numbers = 0;
-		while (permGen.hasNext()) {
-			System.out.println("nr " + ++numbers + ": " + permGen.next());
-			// permGen.next();
-		}
-		System.out.println("done");
-	}
 
 	private ArrayList<T> elems = null;
 	private int[] currentPermutation;
@@ -124,7 +98,6 @@ public class PermutationIterator<T> implements Iterator<Collection<T>> {
 		return generatePermutation();
 	}
 
-	@Override
 	public void remove() {
 		throw new IllegalArgumentException();
 	}
