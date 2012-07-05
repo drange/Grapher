@@ -3,7 +3,6 @@ package no.uib.ii.algo.st8.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 /**
  * Given a collection of elements of type T, gives, one by one, every
@@ -43,7 +42,7 @@ import java.util.List;
  * optimized a bit, as it is O(n^2), because of the removal of a specific index
  * in an ArrayList.
  */
-public class PermutationIterator<T> implements Iterator<List<T>> {
+public class PermutationIterator<T> implements Iterator<Collection<T>> {
 
 	private ArrayList<T> elems = null;
 	private int[] currentPermutation;
