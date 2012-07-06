@@ -44,7 +44,7 @@ import java.util.Iterator;
  */
 public class PermutationIterator<T> implements Iterator<Collection<T>> {
 
-	private ArrayList<T> elems = null;
+	private final ArrayList<T> elems;
 	private int[] currentPermutation;
 	// To indicate whether we have delivered the first permutation (and are
 	// possibly on our second round).
