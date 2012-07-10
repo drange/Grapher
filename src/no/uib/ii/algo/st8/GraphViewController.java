@@ -17,6 +17,7 @@ import no.uib.ii.algo.st8.algorithms.Neighbors;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.VectorSpaceBasis;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -33,6 +34,8 @@ public class GraphViewController {
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 
+	private VectorSpaceBasis basis;
+
 	private SpringLayout layout = null;
 
 	private Set<DefaultVertex> markedVertices = new HashSet<DefaultVertex>();
@@ -46,6 +49,7 @@ public class GraphViewController {
 
 	public GraphViewController(SuperTango8Activity activity,
 			OnTouchListener listener, int width, int height) {
+		basis = new VectorSpaceBasis();
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
@@ -77,6 +81,7 @@ public class GraphViewController {
 	 * @return the vertex closest to coordinate constrained to radius, or null
 	 */
 	public DefaultVertex getClosestVertex(Coordinate coordinate, float radius) {
+
 		Set<DefaultVertex> vertices = graph.vertexSet();
 		if (vertices.isEmpty())
 			return null;
@@ -87,7 +92,7 @@ public class GraphViewController {
 		// int debug_vertices_within_radi = 0;
 
 		for (DefaultVertex currentVertex : vertices) {
-			Coordinate pos = currentVertex.getCoordinate();
+			Coordinate pos = basis.transform(currentVertex.getCoordinate());
 			float currentDistance = pos.distance(coordinate);
 			if (currentDistance < bestDistance) {
 				bestVertex = currentVertex;
@@ -368,8 +373,12 @@ public class GraphViewController {
 				prevTouch = hit;
 			}
 		} else {
-			if (prevTouch == null)
-				graph.addVertex(new DefaultVertex(coordinate));
+			if (prevTouch == null) {
+				graph.addVertex(new DefaultVertex(basis
+						.antiTransform(coordinate)));
+				System.out.println("Added vertex at "
+						+ basis.antiTransform(coordinate));
+			}
 			prevTouch = null;
 		}
 		redraw();
@@ -402,13 +411,10 @@ public class GraphViewController {
 	}
 
 	public void moveView(Coordinate difference) {
-		// System.out.println("Redrawing, moving everything by " + difference);
+		System.out.println(basis);
+		basis.moveVectorSpaceRelative(difference);
 
-		for (DefaultVertex vertex : graph.vertexSet()) {
-			vertex.setCoordinate(vertex.getCoordinate().add(difference));
-		}
 		redraw();
-
 	}
 
 	public void fling(MotionEvent e1, MotionEvent e2, float velocityX,
@@ -537,7 +543,8 @@ public class GraphViewController {
 		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return;
-		moveView(center.getCoordinate().moveVector(CENTER_COORDINATE));
+		moveView(basis.transform(center.getCoordinate()).moveVector(
+				CENTER_COORDINATE));
 		redraw();
 		return;
 	}
@@ -623,6 +630,6 @@ public class GraphViewController {
 				e.setColor(Color.GREEN);
 			}
 		}
-		view.redraw(graphInfo(), graph);
+		view.redraw(graphInfo(), graph, basis);
 	}
 }
