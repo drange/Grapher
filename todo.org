@@ -1,0 +1,17 @@
+* UI
+** Menus
+*** Organise menus better: algorithms, layout, saving/loading, sharing? 
+** Touch events
+*** Single-tap should maybe not have any effect, double-tap or hold for creating vertex
+*** Hold finger
+**** Hold finger on vertex, open menu: delete, make universal, inverse neighbourhood
+**** Hold finger elsewhere, open menu: create vertex, insert graphs
+*** Pinch
+**** Two-finger zoom and rotate
+** Workspaces
+*** + different layouts, e.g., Graph, Interval, CircularArc, Treedecomposition
+** Animation
+*** On moving vertex, sending vertex
+*** On navigating the workspace
+*** Navigating different workspaces
+** 
