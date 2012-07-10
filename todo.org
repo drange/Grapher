@@ -14,4 +14,4 @@
 *** On moving vertex, sending vertex
 *** On navigating the workspace
 *** Navigating different workspaces
-** 
+*** On creating vertex, make some kind of visual cue
