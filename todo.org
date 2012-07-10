@@ -12,6 +12,7 @@
 **** Two-finger zoom and rotate
 ** Workspaces
 *** + different layouts, e.g., Graph, Interval, CircularArc, Treedecomposition
+*** Make coarser grid and draw it barely visibly
 ** Animation
 *** On moving vertex, sending vertex
 *** On navigating the workspace
