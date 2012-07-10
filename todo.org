@@ -2,10 +2,12 @@
 ** Menus
 *** Organise menus better: algorithms, layout, saving/loading, sharing? 
 ** Touch events
-*** Single-tap should maybe not have any effect, double-tap or hold for creating vertex
-*** Hold finger
+*** Single-tap should have no effect
+*** Touch-hold
 **** Hold finger on vertex, open menu: delete, make universal, inverse neighbourhood
 **** Hold finger elsewhere, open menu: create vertex, insert graphs
+
+**** Hold finger elsewhere, toggle edit/modelling mode
 *** Pinch
 **** Two-finger zoom and rotate
 ** Workspaces
@@ -15,3 +17,11 @@
 *** On navigating the workspace
 *** Navigating different workspaces
 *** On creating vertex, make some kind of visual cue
+* Modes
+** Edit Mode
+*** Add/remove vertex/edge
+*** Move vertices by touch-holding it, moving it
+** Modelling Mode
+*** Visualize being in modelling mode by adding shadows (the vertices appear lifted from coordinate system)
+*** Much easier movement of vertices, moving sets of vertices
+*** Selection of groups of vertices by drawing selection area
