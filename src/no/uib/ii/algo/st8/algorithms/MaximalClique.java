@@ -3,9 +3,6 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultVertex;
-
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -15,21 +12,21 @@ import org.jgrapht.graph.SimpleGraph;
  * @author pdr081
  * 
  */
-public class MaximalClique {
+public class MaximalClique<V,E> {
 
-	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
+	private final SimpleGraph<V, E> graph;
 
 	public MaximalClique(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+			SimpleGraph<V, E> graph) {
 		this.graph = graph;
 	}
 
-	public static Set<DefaultVertex> findExactMaximumClique(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		Set<DefaultVertex> maximum = null;
+	public static <V,E> Set<V> findExactMaximumClique(
+			SimpleGraph<V, E> graph) {
+		Set<V> maximum = null;
 
 		MaximalClique mc = new MaximalClique(graph);
-		for (Set<DefaultVertex> maxCliq : mc.maxCliques()) {
+		for (Set<V> maxCliq : mc.maxCliques()) {
 			if (maximum == null || maxCliq.size() > maximum.size()) {
 				maximum = maxCliq;
 			}
@@ -38,27 +35,27 @@ public class MaximalClique {
 		return maximum;
 	}
 
-	public Set<Set<DefaultVertex>> maxCliques() {
-		Set<DefaultVertex> s = new HashSet<DefaultVertex>();
+	public Set<Set<V>> maxCliques() {
+		Set<V> s = new HashSet<V>();
 		int maxNumber = Math.min(
 				(int) Math.pow(3, graph.vertexSet().size() / 3), 1000000);
-		Set<Set<DefaultVertex>> cliques = maxCliques(s, graph.vertexSet(), s,
-				new HashSet<Set<DefaultVertex>>(maxNumber));
+		Set<Set<V>> cliques = maxCliques(s, graph.vertexSet(), s,
+				new HashSet<Set<V>>(maxNumber));
 		return cliques;
 	}
 
-	private Set<Set<DefaultVertex>> maxCliques(Set<DefaultVertex> r,
-			Set<DefaultVertex> p, Set<DefaultVertex> x,
-			Set<Set<DefaultVertex>> accumulator) {
+	private Set<Set<V>> maxCliques(Set<V> r,
+			Set<V> p, Set<V> x,
+			Set<Set<V>> accumulator) {
 		if (p.isEmpty() && x.isEmpty()) {
 			accumulator.add(r);
 			return accumulator;
 		}
-		Set<DefaultVertex> px = union(p, x);
-		DefaultVertex u = px.iterator().next();
-		Set<DefaultVertex> pMinusNu = setMinus(p,
+		Set<V> px = union(p, x);
+		V u = px.iterator().next();
+		Set<V> pMinusNu = setMinus(p,
 				Neighbors.neighborhood(graph, u));
-		for (DefaultVertex v : pMinusNu) {
+		for (V v : pMinusNu) {
 			maxCliques(union(r, v),
 					intersection(p, Neighbors.neighborhood(graph, v)),
 					intersection(x, Neighbors.neighborhood(graph, v)),
@@ -69,21 +66,21 @@ public class MaximalClique {
 		return accumulator;
 	}
 
-	private static Set<DefaultVertex> intersection(Set<DefaultVertex> x,
-			Set<DefaultVertex> y) {
+	private static <V> Set<V> intersection(Set<V> x,
+			Set<V> y) {
 		int xSize = x.size();
 		int ySize = y.size();
-		Set<DefaultVertex> intersection = new HashSet<DefaultVertex>(Math.min(
+		Set<V> intersection = new HashSet<V>(Math.min(
 				xSize, ySize));
 
 		if (xSize < ySize) {
-			for (DefaultVertex n : x) {
+			for (V n : x) {
 				if (y.contains(n)) {
 					intersection.add(n);
 				}
 			}
 		} else {
-			for (DefaultVertex n : y) {
+			for (V n : y) {
 				if (x.contains(n)) {
 					intersection.add(n);
 				}
@@ -97,19 +94,19 @@ public class MaximalClique {
 	 * 
 	 * UNION
 	 */
-	private static Set<DefaultVertex> union(Set<DefaultVertex> x,
-			Set<DefaultVertex> y) {
-		Set<DefaultVertex> union = new HashSet<DefaultVertex>(x.size()
+	private static <V> Set<V> union(Set<V> x,
+			Set<V> y) {
+		Set<V> union = new HashSet<V>(x.size()
 				+ y.size());
 		union.addAll(x);
 		union.addAll(y);
 		return union;
 	}
 
-	private static Set<DefaultVertex> union(Set<DefaultVertex> set,
-			DefaultVertex v) {
-		Set<DefaultVertex> union = new HashSet<DefaultVertex>(set.size() + 1);
-		for (DefaultVertex u : set) {
+	private static <V> Set<V> union(Set<V> set,
+			V v) {
+		Set<V> union = new HashSet<V>(set.size() + 1);
+		for (V u : set) {
 			union.add(u);
 		}
 		union.add(v);
@@ -121,10 +118,10 @@ public class MaximalClique {
 	 * SET MINUS
 	 */
 
-	private static Set<DefaultVertex> setMinus(Set<DefaultVertex> x,
-			Set<DefaultVertex> y) {
-		Set<DefaultVertex> minus = new HashSet<DefaultVertex>(x.size());
-		for (DefaultVertex n : x) {
+	private static <V> Set<V> setMinus(Set<V> x,
+			Set<V> y) {
+		Set<V> minus = new HashSet<V>(x.size());
+		for (V n : x) {
 			if (!y.contains(n)) {
 				minus.add(n);
 			}
@@ -132,10 +129,10 @@ public class MaximalClique {
 		return minus;
 	}
 
-	private static Set<DefaultVertex> setMinus(Set<DefaultVertex> set,
-			DefaultVertex v) {
-		Set<DefaultVertex> minus = new HashSet<DefaultVertex>(set.size());
-		for (DefaultVertex u : set) {
+	private static <V> Set<V> setMinus(Set<V> set,
+			V v) {
+		Set<V> minus = new HashSet<V>(set.size());
+		for (V u : set) {
 			if (!u.equals(v)) {
 				minus.add(u);
 			}
