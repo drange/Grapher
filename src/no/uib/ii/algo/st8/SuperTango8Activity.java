@@ -412,6 +412,14 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	}
 
 	class SimpleGestureDetector extends SimpleOnGestureListener {
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
+			controller.moveView(new Coordinate(-distanceX, -distanceY));
+			return super.onScroll(e1, e2, distanceX, distanceY);
+		}
+
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) {
 			float x = e.getX();
@@ -440,7 +448,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 				float velocityY) {
 			// System.out.println("FLING! " + e1.getX() + "," + e1.getY() +
 			// " -- " + e2.getX() + "," + e2.getY());
-			controller.fling(e1, e2, velocityX, velocityY);
+			//controller.fling(e1, e2, velocityX, velocityY);
 			return false;
 		}
 	}
