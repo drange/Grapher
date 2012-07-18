@@ -25,7 +25,7 @@ public class MaximalClique<V,E> {
 			SimpleGraph<V, E> graph) {
 		Set<V> maximum = null;
 
-		MaximalClique mc = new MaximalClique(graph);
+		MaximalClique<V,E> mc = new MaximalClique<V,E>(graph);
 		for (Set<V> maxCliq : mc.maxCliques()) {
 			if (maximum == null || maxCliq.size() > maximum.size()) {
 				maximum = maxCliq;
