@@ -412,11 +412,17 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	}
 
 	class SimpleGestureDetector extends SimpleOnGestureListener {
+		
+		@Override
+		public boolean onDown(MotionEvent e) {
+			controller.userDown(new Coordinate(e.getX(), e.getY()));
+			return super.onDown(e);
+		}
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
-			controller.moveView(new Coordinate(-distanceX, -distanceY));
+			controller.scroll(e1, e2, distanceX, distanceY);
 			return super.onScroll(e1, e2, distanceX, distanceY);
 		}
 

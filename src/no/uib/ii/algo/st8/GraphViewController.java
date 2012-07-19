@@ -46,6 +46,7 @@ public class GraphViewController {
 
 	public final static float USER_MISS_RADIUS = 30;
 	private final Coordinate CENTER_COORDINATE;
+	private DefaultVertex startedOnVertex;
 
 	public GraphViewController(SuperTango8Activity activity,
 			OnTouchListener listener, int width, int height) {
@@ -409,6 +410,11 @@ public class GraphViewController {
 		}
 		return false;
 	}
+	
+	public void userDown(Coordinate coordinate) {
+		DefaultVertex fromVertex = getClosestVertex(coordinate, USER_MISS_RADIUS);
+		startedOnVertex = fromVertex;
+	}
 
 	public void moveView(Coordinate difference) {
 		System.out.println(basis);
@@ -417,38 +423,38 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public void fling(MotionEvent e1, MotionEvent e2, float velocityX,
+	public void scroll(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
 		Coordinate from = new Coordinate(e1.getX(), e1.getY());
 		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 
-		Coordinate move = from.moveVector(to);
+		Coordinate move = new Coordinate(-velocityX, -velocityY);
 
 		DefaultVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
 		DefaultVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
-		if (fromVertex != null && toVertex != null && fromVertex != toVertex) {
+		if (startedOnVertex != null && toVertex != null
+				&& startedOnVertex != toVertex) {
 			// someone tried to move a vertex onto another, let's make an edge
-			toggleEdge(fromVertex, toVertex);
-		} else if (fromVertex != null) {
+			toggleEdge(startedOnVertex, toVertex);
+		} else if (startedOnVertex != null) {
 			// we move a vertex
-
-			if (userSelectedVertices.contains(fromVertex)) {
+			if (userSelectedVertices.contains(startedOnVertex)) {
 				// move all userselected
 				for (Geometric v : userSelectedVertices) {
 					v.setCoordinate(v.getCoordinate().add(move));
 				}
-
-			} else if (fromVertex == prevTouch) {
+			} else if (startedOnVertex == prevTouch) {
 				// move neighborhood of prevtouch
 				prevTouch.setCoordinate(prevTouch.getCoordinate().add(move));
 				for (Geometric v : Neighbors.neighborhood(graph, prevTouch)) {
 					v.setCoordinate(v.getCoordinate().add(move));
 				}
 
-			} else {
+			} else { 
 				// move only the hit vertex
-				fromVertex.setCoordinate(fromVertex.getCoordinate().add(move));
+				startedOnVertex.setCoordinate(startedOnVertex.getCoordinate()
+						.add(move));
 			}
 			redraw();
 		} else {
@@ -632,4 +638,5 @@ public class GraphViewController {
 		}
 		view.redraw(graphInfo(), graph, basis);
 	}
+
 }
