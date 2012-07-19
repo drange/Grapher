@@ -73,7 +73,6 @@ public class GraphView extends View {
 	}
 
 	private void writeInfo(Canvas canvas) {
-		Paint p = new Paint();
 		p.setColor(Color.WHITE);
 		canvas.drawText(info, 10, 10, p);
 	}
