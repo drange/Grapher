@@ -24,16 +24,16 @@ import org.jgrapht.graph.SimpleGraph;
 public class SpringLayout {
 
 	/** This spring's constant, see Hooke's law */
-	public static final float SPRING_CONSTANT = .00001f;
+	public static final float SPRING_CONSTANT = .000005f;
 
 	/** How much time "passes" between iterations */
-	public static final float TIME_CONSTANT = 500f;
+	public static final float TIME_CONSTANT = 300f;
 
 	/**
 	 * The most a vertex is allowed to move during one iteration. If net force
 	 * is greater, we scale it down to this value.
 	 */
-	public static final float MAX_MOVEMENT = 10;
+	public static final float MAX_MOVEMENT = 100;
 
 	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>> layout;
