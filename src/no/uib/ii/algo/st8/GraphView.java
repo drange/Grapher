@@ -17,6 +17,8 @@ public class GraphView extends View {
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private String info = "";
 	private VectorSpaceBasis basis;
+	private Paint p = new Paint();
+	private RectF rect = new RectF();
 
 	public GraphView(Context context) {
 		super(context);
@@ -49,22 +51,20 @@ public class GraphView extends View {
 
 			Coordinate ce = e.getCoordinate();
 
-			Paint p = new Paint();
+			
 			p.setColor(Color.WHITE);
 			p.setColor(e.getColor());
 			if (ce == null) {
 				canvas.drawLine(c1.getX(), c1.getY(), c2.getX(), c2.getY(), p);
 			} else {
-				canvas.drawArc(
-						new RectF(c1.getX(), c1.getY(), c2.getX(), c2.getY()),
-						0, 0, true, p);
+				rect.set(c1.getX(), c1.getY(), c2.getX(), c2.getY());
+				canvas.drawArc(rect, 0, 0, true, p);
 			}
 
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
-			Paint p = new Paint();
 			p.setColor(v.getColor());
 			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
 		}
