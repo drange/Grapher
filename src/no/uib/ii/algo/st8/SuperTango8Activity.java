@@ -133,7 +133,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 
 	private float last_x, last_y, last_z;
 	private float current_x, current_y, current_z, currenForce;
-	private static final int FORCE_THRESHOLD = 500; // used to be 900
+	private static final int FORCE_THRESHOLD = 800; // used to be 900
 	private final int DATA_X = SensorManager.DATA_X;
 	private final int DATA_Y = SensorManager.DATA_Y;
 	private final int DATA_Z = SensorManager.DATA_Z;
@@ -412,7 +412,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	}
 
 	class SimpleGestureDetector extends SimpleOnGestureListener {
-		
+
 		@Override
 		public boolean onDown(MotionEvent e) {
 			controller.userDown(new Coordinate(e.getX(), e.getY()));
@@ -449,13 +449,5 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			return controller.userDoubleTap(new Coordinate(x, y));
 		}
 
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
-			// System.out.println("FLING! " + e1.getX() + "," + e1.getY() +
-			// " -- " + e2.getX() + "," + e2.getY());
-			//controller.fling(e1, e2, velocityX, velocityY);
-			return false;
-		}
 	}
 }

@@ -44,9 +44,11 @@ public class GraphViewController {
 
 	private DefaultVertex prevTouch;
 
-	public final static float USER_MISS_RADIUS = 30;
+	// TODO this should depend on screen size
+	public final static float USER_MISS_RADIUS = 40;
 	private final Coordinate CENTER_COORDINATE;
 	private DefaultVertex startedOnVertex;
+	private Coordinate startedOnCoordinate;
 
 	public GraphViewController(SuperTango8Activity activity,
 			OnTouchListener listener, int width, int height) {
@@ -410,10 +412,12 @@ public class GraphViewController {
 		}
 		return false;
 	}
-	
+
 	public void userDown(Coordinate coordinate) {
-		DefaultVertex fromVertex = getClosestVertex(coordinate, USER_MISS_RADIUS);
+		DefaultVertex fromVertex = getClosestVertex(coordinate,
+				USER_MISS_RADIUS);
 		startedOnVertex = fromVertex;
+		startedOnCoordinate = coordinate;
 	}
 
 	public void moveView(Coordinate difference) {
@@ -425,18 +429,21 @@ public class GraphViewController {
 
 	public void scroll(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
-		Coordinate from = new Coordinate(e1.getX(), e1.getY());
-		Coordinate to = new Coordinate(e2.getX(), e2.getY());
+		// Coordinate from = new Coordinate(e1.getX(), e1.getY());
 
+		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 		Coordinate move = new Coordinate(-velocityX, -velocityY);
 
-		DefaultVertex fromVertex = getClosestVertex(from, USER_MISS_RADIUS);
 		DefaultVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
 		if (startedOnVertex != null && toVertex != null
 				&& startedOnVertex != toVertex) {
 			// someone tried to move a vertex onto another, let's make an edge
+
+			// TODO this should probably demand a userUp!
+
 			toggleEdge(startedOnVertex, toVertex);
+			startedOnVertex.setCoordinate(startedOnCoordinate);
 		} else if (startedOnVertex != null) {
 			// we move a vertex
 			if (userSelectedVertices.contains(startedOnVertex)) {
@@ -451,7 +458,7 @@ public class GraphViewController {
 					v.setCoordinate(v.getCoordinate().add(move));
 				}
 
-			} else { 
+			} else {
 				// move only the hit vertex
 				startedOnVertex.setCoordinate(startedOnVertex.getCoordinate()
 						.add(move));
