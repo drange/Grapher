@@ -42,11 +42,12 @@ public class GraphView extends View {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
+		canvas.translate(basis.getOrigo().getX(), basis.getOrigo().getY());
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
-			Coordinate c1 = basis.transform(e.getSource().getCoordinate());
-			Coordinate c2 = basis.transform(e.getTarget().getCoordinate());
+			Coordinate c1 = e.getSource().getCoordinate();
+			Coordinate c2 = e.getTarget().getCoordinate();
 
-			Coordinate ce = basis.transform(e.getCoordinate());
+			Coordinate ce = e.getCoordinate();
 
 			Paint p = new Paint();
 			p.setColor(Color.WHITE);
@@ -62,11 +63,12 @@ public class GraphView extends View {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
-			Coordinate c = basis.transform(v.getCoordinate());
+			Coordinate c = v.getCoordinate();
 			Paint p = new Paint();
 			p.setColor(v.getColor());
 			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
 		}
+		canvas.translate(-basis.getOrigo().getX(), -basis.getOrigo().getY());
 		writeInfo(canvas);
 	}
 

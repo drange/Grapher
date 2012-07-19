@@ -22,6 +22,10 @@ public class VectorSpaceBasis {
 		this.origo = origo;
 		return origo;
 	}
+	
+	public Coordinate getOrigo(){
+		return origo;
+	}
 
 	public Coordinate transform(Coordinate c) {
 		if (c == null)
