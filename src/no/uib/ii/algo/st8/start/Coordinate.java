@@ -44,6 +44,11 @@ public class Coordinate implements Cloneable, Serializable {
 		return new Coordinate(nx, ny);
 	}
 
+	public float angle() {
+		float angle = (float) Math.atan2(y, x);
+		return angle * (float) (180 / Math.PI);
+	}
+	
 	public float length() {
 		return (float) Math.sqrt(x * x + y * y);
 	}

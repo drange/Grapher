@@ -8,6 +8,7 @@ import org.jgrapht.graph.SimpleGraph;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.view.View;
@@ -19,6 +20,7 @@ public class GraphView extends View {
 	private VectorSpaceBasis basis;
 	private Paint p = new Paint();
 	private RectF rect = new RectF();
+	private Matrix transformMatrix = new Matrix();
 
 	public GraphView(Context context) {
 		super(context);
@@ -30,11 +32,13 @@ public class GraphView extends View {
 		setFocusable(true);
 	}
 
+	public Matrix getTransformMatrix() {
+		return transformMatrix;
+	}
+	
 	public void redraw(String info,
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph,
-			VectorSpaceBasis basis) {
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.info = info;
-		this.basis = basis;
 		this.graph = graph;
 		invalidate();
 	}
@@ -44,7 +48,12 @@ public class GraphView extends View {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
-		canvas.translate(basis.getOrigo().getX(), basis.getOrigo().getY());
+		Matrix m = canvas.getMatrix();
+		Matrix prev = new Matrix(m);
+		
+		m.preConcat(transformMatrix);
+		canvas.setMatrix(m);
+		
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			Coordinate c1 = e.getSource().getCoordinate();
 			Coordinate c2 = e.getTarget().getCoordinate();
@@ -68,7 +77,8 @@ public class GraphView extends View {
 			p.setColor(v.getColor());
 			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
 		}
-		canvas.translate(-basis.getOrigo().getX(), -basis.getOrigo().getY());
+		
+		canvas.setMatrix(prev);
 		writeInfo(canvas);
 	}
 

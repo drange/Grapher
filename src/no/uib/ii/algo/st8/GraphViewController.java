@@ -25,16 +25,16 @@ import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 
 public class GraphViewController {
 
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
-
-	private VectorSpaceBasis basis;
 
 	private SpringLayout layout = null;
 
@@ -50,17 +50,24 @@ public class GraphViewController {
 	private DefaultVertex startedOnVertex;
 	private Coordinate startedOnCoordinate;
 
-	public GraphViewController(SuperTango8Activity activity,
-			OnTouchListener listener, int width, int height) {
-		basis = new VectorSpaceBasis();
+	public GraphViewController(SuperTango8Activity activity, 
+							   int width, int height) {
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
-
+		
 		view = new GraphView(activity);
-
+		
 		view.setOnClickListener(activity);
-		view.setOnTouchListener(listener);
+		view.setOnTouchListener(new View.OnTouchListener() {
+			PrivateGestureListener gl = new PrivateGestureListener();
+			GestureDetector gd = new GestureDetector(gl); // <-- depricated!
+			
+			@Override
+			public boolean onTouch(View arg0, MotionEvent arg1) {
+				return gd.onTouchEvent(arg1);
+			}
+		});
 
 		CENTER_COORDINATE = new Coordinate(width / 2, height / 2);
 		// System.out.println("Center: " + CENTER_COORDINATE);
@@ -95,7 +102,7 @@ public class GraphViewController {
 		// int debug_vertices_within_radi = 0;
 
 		for (DefaultVertex currentVertex : vertices) {
-			Coordinate pos = basis.transform(currentVertex.getCoordinate());
+			Coordinate pos = currentVertex.getCoordinate();
 			float currentDistance = pos.distance(coordinate);
 			if (currentDistance < bestDistance) {
 				bestVertex = currentVertex;
@@ -107,10 +114,12 @@ public class GraphViewController {
 		return bestVertex;
 	}
 
-	private void fixPositions() {
+	//TODO This does not work after indtroducing the transformationMatrix
+	private void fixPositions() { 
+		
 		int height = view.getHeight();
 		int width = view.getWidth();
-
+		
 		boolean sane = true;
 
 		for (DefaultVertex v : graph.vertexSet()) {
@@ -362,79 +371,15 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public void userClicked(Coordinate coordinate) {
-		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
-
-		if (hit != null) {
-			if (prevTouch != null) {
-				if (prevTouch != hit) {
-					toggleEdge(hit, prevTouch);
-				} else {
-					prevTouch = null;
-				}
-			} else {
-				prevTouch = hit;
-			}
-		} else {
-			if (prevTouch == null) {
-				graph.addVertex(new DefaultVertex(basis
-						.antiTransform(coordinate)));
-				System.out.println("Added vertex at "
-						+ basis.antiTransform(coordinate));
-			}
-			prevTouch = null;
-		}
-		redraw();
-	}
-
-	public void userLongPress(Coordinate coordinate) {
-
-		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
-
-		if (hit != null) {
-			if (userSelectedVertices.contains(hit)) {
-				userSelectedVertices.remove(hit);
-			} else {
-				userSelectedVertices.add(hit);
-			}
-		}
-		redraw();
-	}
-
-	public boolean userDoubleTap(Coordinate coordinate) {
-		DefaultVertex hit = getClosestVertex(coordinate, USER_MISS_RADIUS);
-
-		if (hit != null) {
-			graph.removeVertex(hit);
-			clearAll();
-			redraw();
-			return true;
-		}
-		return false;
-	}
-
-	public void userDown(Coordinate coordinate) {
-		DefaultVertex fromVertex = getClosestVertex(coordinate,
-				USER_MISS_RADIUS);
-		startedOnVertex = fromVertex;
-		startedOnCoordinate = coordinate;
-	}
-
-	public void moveView(Coordinate difference) {
-		System.out.println(basis);
-		basis.moveVectorSpaceRelative(difference);
-
-		redraw();
-	}
-
-	public void scroll(MotionEvent e1, MotionEvent e2, float velocityX,
+	
+	/*public void scroll(MotionEvent e1, MotionEvent e2, float velocityX,
 			float velocityY) {
-		// Coordinate from = new Coordinate(e1.getX(), e1.getY());
-
+		switch(e2.getPointerCount()){
+		case 1: 
+			if(startedOnVertex != null){}
+		}
 		Coordinate to = new Coordinate(e2.getX(), e2.getY());
 		Coordinate move = new Coordinate(-velocityX, -velocityY);
-
-		DefaultVertex toVertex = getClosestVertex(to, USER_MISS_RADIUS);
 
 		if (startedOnVertex != null && toVertex != null
 				&& startedOnVertex != toVertex) {
@@ -471,19 +416,8 @@ public class GraphViewController {
 			// Coordinate difference = from.moveVector(to);
 			moveView(move);
 		}
-	}
+	}*/
 
-	Coordinate dragCoordinate = null;
-
-	public void dragStart(Coordinate c) {
-		dragCoordinate = c;
-	}
-
-	public void dragTo(Coordinate c) {
-		Coordinate diff = dragCoordinate.moveVector(c);
-		dragCoordinate = c;
-		moveView(diff);
-	}
 
 	public void longShake(int n) {
 		if (layout == null)
@@ -556,8 +490,10 @@ public class GraphViewController {
 		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return;
-		moveView(basis.transform(center.getCoordinate()).moveVector(
-				CENTER_COORDINATE));
+		Matrix transformMatrix = view.getTransformMatrix();
+		Coordinate moveVector = center.getCoordinate().moveVector(
+				CENTER_COORDINATE);
+		transformMatrix.postTranslate(moveVector.getX(), moveVector.getY());
 		redraw();
 		return;
 	}
@@ -643,7 +579,137 @@ public class GraphViewController {
 				e.setColor(Color.GREEN);
 			}
 		}
-		view.redraw(graphInfo(), graph, basis);
+		view.redraw(graphInfo(), graph);
 	}
+	
+	/** Returns the coordinate the given point/coordinate on 
+	  * the screen represents in the graph  */
+	private Coordinate translateCoordinate(Coordinate screenCoordinate){
+		float[] screenPoint = {screenCoordinate.getX(), screenCoordinate.getY()};
+		Matrix invertedTransformMatrix = new Matrix();
+		
+		view.getTransformMatrix().invert(invertedTransformMatrix);
+		invertedTransformMatrix.mapPoints(screenPoint);
+		
+		return new Coordinate(screenPoint[0], screenPoint[1]);
+	}
+	
+	private class PrivateGestureListener extends SimpleOnGestureListener{
+		private DefaultVertex touchedVertex = null;
+		private int previousPointerCount = 0;
+		private Coordinate[] previousPointerCoords = null;
+		
+		public boolean onDown(MotionEvent e) {
+			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+			Coordinate gCoordinate = translateCoordinate(sCoordinate);
+			previousPointerCount= -1; // make any ongoing scroll restart
+			
+			if (e.getPointerCount() == 1) {
+				touchedVertex = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
+			} else { 
+				touchedVertex = null;
+			}
+			return super.onDown(e);
+		}
 
+		public boolean onDoubleTap(MotionEvent e) {
+			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+			Coordinate gCoordinate = translateCoordinate(sCoordinate);
+			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
+
+			if (hit != null) {
+				graph.removeVertex(hit);
+				clearAll();
+				redraw();
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		public void onLongPress(MotionEvent e) {
+			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+			Coordinate gCoordinate = translateCoordinate(sCoordinate);
+			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
+
+			if (hit != null) {
+				if (userSelectedVertices.contains(hit)) {
+					userSelectedVertices.remove(hit);
+				} else {
+					userSelectedVertices.add(hit);
+				}
+			}
+			redraw();
+		}
+		
+		public boolean onSingleTapUp(MotionEvent e) {
+			if (e.getPointerCount() != 1) return false; // Is this needed?
+			if (touchedVertex == null && prevTouch == null) {
+				Coordinate touchedCoord = new Coordinate(e.getX(), e.getY());
+				Coordinate gCoordinate = translateCoordinate(touchedCoord);
+				
+				graph.addVertex(new DefaultVertex(gCoordinate));
+			} else if (touchedVertex == null || prevTouch == touchedVertex){
+				prevTouch = null;
+			} else if (prevTouch == null) {
+				prevTouch = touchedVertex;
+			} else {
+				toggleEdge(touchedVertex, prevTouch);
+			}
+			
+			touchedVertex = null;
+			redraw();
+			return true;
+		}
+		
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2,
+				float distanceX, float distanceY) {
+
+			System.out.println("--> " + previousPointerCount + " - " + previousPointerCoords);
+			switch (e2.getPointerCount()){
+			case 2: 
+				if(previousPointerCoords == null || previousPointerCount != 2){
+					previousPointerCoords = new Coordinate[2];
+					previousPointerCoords[0] = new Coordinate(e2.getX(0), e2.getY(0));
+					previousPointerCoords[1] = new Coordinate(e2.getX(1), e2.getY(1));
+				} else {
+					Coordinate[] newCoords = {new Coordinate(e2.getX(0), e2.getY(0)),
+											  new Coordinate(e2.getX(1), e2.getY(1))};
+					Coordinate VectorPrevious = previousPointerCoords[1].subtract(previousPointerCoords[0]);
+					Coordinate VectorNew = newCoords[1].subtract(newCoords[0]);
+					float diffAngle = VectorNew.angle() - VectorPrevious.angle();
+					float scale = VectorNew.length() / VectorPrevious.length();
+					
+					// the transformations
+					view.getTransformMatrix().postTranslate(-previousPointerCoords[0].getX(), -previousPointerCoords[0].getY());
+					view.getTransformMatrix().postRotate(diffAngle);
+					view.getTransformMatrix().postScale(scale, scale);
+					view.getTransformMatrix().postTranslate(newCoords[0].getX(), newCoords[0].getY());
+					
+					previousPointerCoords = newCoords;
+				}
+				break;
+			case 1: 
+				previousPointerCoords = null;
+				if (touchedVertex != null) {
+					Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
+					Coordinate gCoordinate = translateCoordinate(sCoordinate);
+					touchedVertex.setCoordinate(gCoordinate);
+				} else {
+					if(previousPointerCount == 1)
+						view.getTransformMatrix().postTranslate(-distanceX, -distanceY);
+				}
+				break;
+			default: //3 or more
+				previousPointerCoords = null;
+				previousPointerCount = e2.getPointerCount();
+				return false;
+			}
+			previousPointerCount = e2.getPointerCount();
+			redraw();
+			System.out.print(previousPointerCount + " - " + previousPointerCoords);
+			return true;
+		}		
+	}
 }

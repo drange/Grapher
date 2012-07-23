@@ -26,9 +26,6 @@ import android.widget.Toast;
 public class SuperTango8Activity extends Activity implements OnClickListener,
 		SensorEventListener {
 
-	private GestureDetector gestureDetector;
-	private View.OnTouchListener gestureListener;
-
 	// private ScaleGestureDetector scaleGestureDetector;
 
 	private GraphViewController controller;
@@ -59,19 +56,10 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		int height = displaymetrics.heightPixels;
 		int width = displaymetrics.widthPixels;
 
-		// Gesture detection
-		gestureDetector = new GestureDetector(new SimpleGestureDetector());
-		gestureListener = new View.OnTouchListener() {
-			public boolean onTouch(View v, MotionEvent event) {
-				return gestureDetector.onTouchEvent(event);
-			}
-		};
-
 		// scaleGestureDetector = new ScaleGestureDetector(this,
 		// new SimpleScaleGestureDetector());
 
-		controller = new GraphViewController(this, gestureListener, width,
-				height);
+		controller = new GraphViewController(this, width, height);
 		setContentView(controller.getView());
 
 		// shake
@@ -410,7 +398,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			return super.onOptionsItemSelected(item);
 		}
 	}
-
+/*
 	class SimpleGestureDetector extends SimpleOnGestureListener {
 
 		@Override
@@ -449,5 +437,5 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			return controller.userDoubleTap(new Coordinate(x, y));
 		}
 
-	}
+	} */
 }
