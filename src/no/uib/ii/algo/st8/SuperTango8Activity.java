@@ -22,8 +22,6 @@ import android.widget.Toast;
 public class SuperTango8Activity extends Activity implements OnClickListener,
 		SensorEventListener {
 
-	// private ScaleGestureDetector scaleGestureDetector;
-
 	private GraphViewController controller;
 
 	/** Called when the activity is first created. */
@@ -394,44 +392,4 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			return super.onOptionsItemSelected(item);
 		}
 	}
-/*
-	class SimpleGestureDetector extends SimpleOnGestureListener {
-
-		@Override
-		public boolean onDown(MotionEvent e) {
-			controller.userDown(new Coordinate(e.getX(), e.getY()));
-			return super.onDown(e);
-		}
-
-		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
-			controller.scroll(e1, e2, distanceX, distanceY);
-			return super.onScroll(e1, e2, distanceX, distanceY);
-		}
-
-		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			float x = e.getX();
-			float y = e.getY();
-			controller.userClicked(new Coordinate(x, y));
-			return super.onSingleTapConfirmed(e);
-		}
-
-		@Override
-		public void onLongPress(MotionEvent e) {
-			float x = e.getX();
-			float y = e.getY();
-			controller.userLongPress(new Coordinate(x, y));
-			super.onLongPress(e);
-		}
-
-		@Override
-		public boolean onDoubleTap(MotionEvent e) {
-			float x = e.getX();
-			float y = e.getY();
-			return controller.userDoubleTap(new Coordinate(x, y));
-		}
-
-	} */
 }

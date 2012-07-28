@@ -538,7 +538,7 @@ public class GraphViewController {
 
 		public boolean onSingleTapUp(MotionEvent e) {
 			if (e.getPointerCount() != 1)
-				return false; // Is this needed?
+				return false; // TODO Is this needed?
 			if (touchedVertex == null && prevTouch == null) {
 				Coordinate touchedCoord = new Coordinate(e.getX(), e.getY());
 				Coordinate gCoordinate = translateCoordinate(touchedCoord);
