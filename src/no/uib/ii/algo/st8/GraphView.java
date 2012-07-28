@@ -1,7 +1,6 @@
 package no.uib.ii.algo.st8;
 
 import no.uib.ii.algo.st8.start.Coordinate;
-import no.uib.ii.algo.st8.util.VectorSpaceBasis;
 
 import org.jgrapht.graph.SimpleGraph;
 
@@ -17,14 +16,12 @@ public class GraphView extends View {
 
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private String info = "";
-	private VectorSpaceBasis basis;
 	private Paint p = new Paint();
 	private RectF rect = new RectF();
 	private Matrix transformMatrix = new Matrix();
 
 	public GraphView(Context context) {
 		super(context);
-		basis = new VectorSpaceBasis();
 		System.out.println("done!?!");
 
 		System.out.println("GraphView initialized");
@@ -35,7 +32,7 @@ public class GraphView extends View {
 	public Matrix getTransformMatrix() {
 		return transformMatrix;
 	}
-	
+
 	public void redraw(String info,
 			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.info = info;
@@ -50,17 +47,16 @@ public class GraphView extends View {
 			return;
 		Matrix m = canvas.getMatrix();
 		Matrix prev = new Matrix(m);
-		
+
 		m.preConcat(transformMatrix);
 		canvas.setMatrix(m);
-		
+
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			Coordinate c1 = e.getSource().getCoordinate();
 			Coordinate c2 = e.getTarget().getCoordinate();
 
 			Coordinate ce = e.getCoordinate();
 
-			
 			p.setColor(Color.WHITE);
 			p.setColor(e.getColor());
 			if (ce == null) {
@@ -77,7 +73,7 @@ public class GraphView extends View {
 			p.setColor(v.getColor());
 			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
 		}
-		
+
 		canvas.setMatrix(prev);
 		writeInfo(canvas);
 	}

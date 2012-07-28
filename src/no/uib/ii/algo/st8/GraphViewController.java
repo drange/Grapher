@@ -41,11 +41,12 @@ public class GraphViewController {
 
 	private DefaultVertex prevTouch;
 
-	// TODO this should depend on screen size
+	// TODO this should depend on screen size and or zoom (scale of matrix)
 	public final static float USER_MISS_RADIUS = 40;
 	private final Coordinate CENTER_COORDINATE;
-	private DefaultVertex startedOnVertex;
-	private Coordinate startedOnCoordinate;
+
+	// private DefaultVertex startedOnVertex;
+	// private Coordinate startedOnCoordinate;
 
 	public GraphViewController(SuperTango8Activity activity, int width,
 			int height) {
@@ -60,8 +61,8 @@ public class GraphViewController {
 			PrivateGestureListener gl = new PrivateGestureListener();
 			GestureDetector gd = new GestureDetector(gl); // TODO deprecated!
 
-			public boolean onTouch(View arg0, MotionEvent arg1) {
-				return gd.onTouchEvent(arg1);
+			public boolean onTouch(View view, MotionEvent event) {
+				return gd.onTouchEvent(event);
 			}
 		});
 
@@ -110,7 +111,7 @@ public class GraphViewController {
 		return bestVertex;
 	}
 
-	// TODO This does not work after indtroducing the transformationMatrix
+	// TODO This does not work after introducing the transformationMatrix
 	private void fixPositions() {
 
 		int height = view.getHeight();
@@ -367,37 +368,6 @@ public class GraphViewController {
 		redraw();
 	}
 
-	/*
-	 * public void scroll(MotionEvent e1, MotionEvent e2, float velocityX, float
-	 * velocityY) { switch(e2.getPointerCount()){ case 1: if(startedOnVertex !=
-	 * null){} } Coordinate to = new Coordinate(e2.getX(), e2.getY());
-	 * Coordinate move = new Coordinate(-velocityX, -velocityY);
-	 * 
-	 * if (startedOnVertex != null && toVertex != null && startedOnVertex !=
-	 * toVertex) { // someone tried to move a vertex onto another, let's make an
-	 * edge
-	 * 
-	 * // TODO this should probably demand a userUp!
-	 * 
-	 * toggleEdge(startedOnVertex, toVertex);
-	 * startedOnVertex.setCoordinate(startedOnCoordinate); } else if
-	 * (startedOnVertex != null) { // we move a vertex if
-	 * (userSelectedVertices.contains(startedOnVertex)) { // move all
-	 * userselected for (Geometric v : userSelectedVertices) {
-	 * v.setCoordinate(v.getCoordinate().add(move)); } } else if
-	 * (startedOnVertex == prevTouch) { // move neighborhood of prevtouch
-	 * prevTouch.setCoordinate(prevTouch.getCoordinate().add(move)); for
-	 * (Geometric v : Neighbors.neighborhood(graph, prevTouch)) {
-	 * v.setCoordinate(v.getCoordinate().add(move)); }
-	 * 
-	 * } else { // move only the hit vertex
-	 * startedOnVertex.setCoordinate(startedOnVertex.getCoordinate()
-	 * .add(move)); } redraw(); } else { // user missed vertex, did user try to
-	 * navigate? // We simply assume user tried to navigate
-	 * 
-	 * // Coordinate difference = from.moveVector(to); moveView(move); } }
-	 */
-
 	public void longShake(int n) {
 		if (layout == null)
 			layout = new SpringLayout(graph);
@@ -476,64 +446,6 @@ public class GraphViewController {
 		redraw();
 		return;
 	}
-
-	// public void insertClique(int n) {
-	// CenterPositioning cp = new CenterPositioning(n);
-	// for (Coordinate c : cp.getPoints()) {
-	// c = c.multiply(100);
-	// c = c.add(new Coordinate(120, 200));
-	// graph.createVertex(new StandardVertexConfiguration(c.add(c)));
-	// }
-	// for (DefaultVertex v : graph.vertexSet()) {
-	// for (DefaultVertex u : graph.vertexSet()) {
-	// if (u != v)
-	// graph.createEdge(u, v, new StandardEdgeConfiguration());
-	// }
-	// }
-	// redraw();
-	// }
-
-	// public void insertPetersen() {
-	// CenterPositioning cp = new CenterPositioning(5);
-	// List<DefaultVertex> vertices = new ArrayList<DefaultVertex>(10);
-	//
-	// // inner
-	// for (Coordinate c : cp.getPoints()) {
-	// // System.out.println(c.getX() + "," + c.getY());
-	// c = c.multiply(100);
-	// c = c.add(new Coordinate(220, 250));
-	// vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
-	// }
-	//
-	// // outer
-	// for (Coordinate c : cp.getPoints()) {
-	// // System.out.println(c.getX() + "," + c.getY());
-	// c = c.multiply(200);
-	// c = c.add(new Coordinate(220, 250));
-	// vertices.add(graph.createVertex(new StandardVertexConfiguration(c)));
-	// }
-	//
-	// redraw();
-	// }
-
-	// public void insertCycle(int n) {
-	// CenterPositioning cp = new CenterPositioning(n);
-	// List<DefaultVertex> vertices = new ArrayList<DefaultVertex>(n);
-	// for (Coordinate c : cp.getPoints()) {
-	// // System.out.println(c.getX() + "," + c.getY());
-	// c = c.multiply(100);
-	// c = c.add(new Coordinate(120, 200));
-	// DefaultVertex ver = new DefaultVertex(c);
-	// graph.addVertex(ver)
-	// vertices.addVertex(ver);
-	// }
-	// for (int i = 0; i < n - 1; i++) {
-	// graph.addEdge(vertices.get(i), vertices.get(i + 1));
-	// }
-	// graph.createEdge(vertices.get(n - 1), vertices.get(0),
-	// new StandardEdgeConfiguration());
-	// redraw();
-	// }
 
 	public String graphInfo() {
 		return GraphInformation.graphInfo(graph);
