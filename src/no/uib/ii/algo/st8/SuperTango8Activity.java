@@ -2,7 +2,6 @@ package no.uib.ii.algo.st8;
 
 import java.util.List;
 
-import no.uib.ii.algo.st8.start.Coordinate;
 import no.uib.ii.algo.st8.start.GraphExporter;
 import android.app.Activity;
 import android.content.Intent;
@@ -13,12 +12,9 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.ClipboardManager;
 import android.util.DisplayMetrics;
-import android.view.GestureDetector;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
