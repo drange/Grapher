@@ -3,90 +3,87 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultVertex;
-
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
 public class CutAndBridgeInspector {
-	public static DefaultVertex findCutVertex(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> gc = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>) graph
-				.clone();
-		int size = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).connectedSets().size();
-		for (DefaultVertex v : graph.vertexSet()) {
+	public static <V, E> V findCutVertex(SimpleGraph<V, E> graph) {
+		@SuppressWarnings("unchecked")
+		SimpleGraph<V, E> gc = (SimpleGraph<V, E>) graph.clone();
+		int size = new ConnectivityInspector<V, E>(graph).connectedSets()
+				.size();
+		for (V v : graph.vertexSet()) {
 			if (graph.degreeOf(v) < 2)
 				continue;
 			gc.removeVertex(v);
-			int nsize = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					gc).connectedSets().size();
+			int nsize = new ConnectivityInspector<V, E>(gc).connectedSets()
+					.size();
 			if (nsize > size)
 				return v;
 			gc.addVertex(v);
-			for (DefaultVertex u : Neighbors.neighborhood(graph, v)) {
+			for (V u : Neighbors.neighborhood(graph, v)) {
 				gc.addEdge(u, v);
 			}
 		}
 		return null;
 	}
 
-	public static Set<DefaultVertex> findAllCutVertices(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		Set<DefaultVertex> cuts = new HashSet<DefaultVertex>();
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> gc = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>) graph
-				.clone();
-		int size = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).connectedSets().size();
-		for (DefaultVertex v : graph.vertexSet()) {
+	public static <V, E> Set<V> findAllCutVertices(SimpleGraph<V, E> graph) {
+		Set<V> cuts = new HashSet<V>();
+		@SuppressWarnings("unchecked")
+		SimpleGraph<V, E> gc = (SimpleGraph<V, E>) graph.clone();
+		int size = new ConnectivityInspector<V, E>(graph).connectedSets()
+				.size();
+		for (V v : graph.vertexSet()) {
 			if (graph.degreeOf(v) < 2)
 				continue;
 			gc.removeVertex(v);
-			int nsize = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					gc).connectedSets().size();
+			int nsize = new ConnectivityInspector<V, E>(gc).connectedSets()
+					.size();
 			if (nsize > size)
 				cuts.add(v);
 			gc.addVertex(v);
-			for (DefaultVertex u : Neighbors.neighborhood(graph, v)) {
+			for (V u : Neighbors.neighborhood(graph, v)) {
 				gc.addEdge(u, v);
 			}
 		}
 		return cuts;
 	}
 
-	public static DefaultEdge<DefaultVertex> findBridge(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> gc = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>) graph
-				.clone();
-		int size = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).connectedSets().size();
-		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+	public static <V, E> E findBridge(SimpleGraph<V, E> graph) {
+		@SuppressWarnings("unchecked")
+		SimpleGraph<V, E> gc = (SimpleGraph<V, E>) graph.clone();
+		int size = new ConnectivityInspector<V, E>(graph).connectedSets()
+				.size();
+		for (E e : graph.edgeSet()) {
 
 			gc.removeEdge(e);
-			int nsize = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					gc).connectedSets().size();
+			int nsize = new ConnectivityInspector<V, E>(gc).connectedSets()
+					.size();
 			if (nsize > size)
 				return e;
-			gc.addEdge(e.getSource(), e.getTarget());
+			V source = graph.getEdgeSource(e);
+			V target = graph.getEdgeTarget(e);
+			gc.addEdge(source, target);
 		}
 		return null;
 	}
 
-	public static Set<DefaultEdge<DefaultVertex>> findAllBridges(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		Set<DefaultEdge<DefaultVertex>> bridges = new HashSet<DefaultEdge<DefaultVertex>>();
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> gc = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>) graph
-				.clone();
-		int size = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).connectedSets().size();
-		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+	public static <V, E> Set<E> findAllBridges(SimpleGraph<V, E> graph) {
+		Set<E> bridges = new HashSet<E>();
+		@SuppressWarnings("unchecked")
+		SimpleGraph<V, E> gc = (SimpleGraph<V, E>) graph.clone();
+		int size = new ConnectivityInspector<V, E>(graph).connectedSets()
+				.size();
+		for (E e : graph.edgeSet()) {
 			gc.removeEdge(e);
-			int nsize = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					gc).connectedSets().size();
+			int nsize = new ConnectivityInspector<V, E>(gc).connectedSets()
+					.size();
 			if (nsize > size)
 				bridges.add(e);
-			gc.addEdge(e.getSource(), e.getTarget());
+			V source = graph.getEdgeSource(e);
+			V target = graph.getEdgeTarget(e);
+			gc.addEdge(source, target);
 		}
 		return bridges;
 	}
