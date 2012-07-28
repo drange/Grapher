@@ -13,11 +13,8 @@ import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
-import no.uib.ii.algo.st8.algorithms.Neighbors;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
-import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.start.Coordinate;
-import no.uib.ii.algo.st8.util.VectorSpaceBasis;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -26,8 +23,8 @@ import org.jgrapht.graph.SimpleGraph;
 
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -50,20 +47,19 @@ public class GraphViewController {
 	private DefaultVertex startedOnVertex;
 	private Coordinate startedOnCoordinate;
 
-	public GraphViewController(SuperTango8Activity activity, 
-							   int width, int height) {
+	public GraphViewController(SuperTango8Activity activity, int width,
+			int height) {
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
-		
+
 		view = new GraphView(activity);
-		
+
 		view.setOnClickListener(activity);
 		view.setOnTouchListener(new View.OnTouchListener() {
 			PrivateGestureListener gl = new PrivateGestureListener();
-			GestureDetector gd = new GestureDetector(gl); // <-- depricated!
-			
-			@Override
+			GestureDetector gd = new GestureDetector(gl); // TODO deprecated!
+
 			public boolean onTouch(View arg0, MotionEvent arg1) {
 				return gd.onTouchEvent(arg1);
 			}
@@ -114,12 +110,12 @@ public class GraphViewController {
 		return bestVertex;
 	}
 
-	//TODO This does not work after indtroducing the transformationMatrix
-	private void fixPositions() { 
-		
+	// TODO This does not work after indtroducing the transformationMatrix
+	private void fixPositions() {
+
 		int height = view.getHeight();
 		int width = view.getWidth();
-		
+
 		boolean sane = true;
 
 		for (DefaultVertex v : graph.vertexSet()) {
@@ -371,53 +367,36 @@ public class GraphViewController {
 		redraw();
 	}
 
-	
-	/*public void scroll(MotionEvent e1, MotionEvent e2, float velocityX,
-			float velocityY) {
-		switch(e2.getPointerCount()){
-		case 1: 
-			if(startedOnVertex != null){}
-		}
-		Coordinate to = new Coordinate(e2.getX(), e2.getY());
-		Coordinate move = new Coordinate(-velocityX, -velocityY);
-
-		if (startedOnVertex != null && toVertex != null
-				&& startedOnVertex != toVertex) {
-			// someone tried to move a vertex onto another, let's make an edge
-
-			// TODO this should probably demand a userUp!
-
-			toggleEdge(startedOnVertex, toVertex);
-			startedOnVertex.setCoordinate(startedOnCoordinate);
-		} else if (startedOnVertex != null) {
-			// we move a vertex
-			if (userSelectedVertices.contains(startedOnVertex)) {
-				// move all userselected
-				for (Geometric v : userSelectedVertices) {
-					v.setCoordinate(v.getCoordinate().add(move));
-				}
-			} else if (startedOnVertex == prevTouch) {
-				// move neighborhood of prevtouch
-				prevTouch.setCoordinate(prevTouch.getCoordinate().add(move));
-				for (Geometric v : Neighbors.neighborhood(graph, prevTouch)) {
-					v.setCoordinate(v.getCoordinate().add(move));
-				}
-
-			} else {
-				// move only the hit vertex
-				startedOnVertex.setCoordinate(startedOnVertex.getCoordinate()
-						.add(move));
-			}
-			redraw();
-		} else {
-			// user missed vertex, did user try to navigate?
-			// We simply assume user tried to navigate
-
-			// Coordinate difference = from.moveVector(to);
-			moveView(move);
-		}
-	}*/
-
+	/*
+	 * public void scroll(MotionEvent e1, MotionEvent e2, float velocityX, float
+	 * velocityY) { switch(e2.getPointerCount()){ case 1: if(startedOnVertex !=
+	 * null){} } Coordinate to = new Coordinate(e2.getX(), e2.getY());
+	 * Coordinate move = new Coordinate(-velocityX, -velocityY);
+	 * 
+	 * if (startedOnVertex != null && toVertex != null && startedOnVertex !=
+	 * toVertex) { // someone tried to move a vertex onto another, let's make an
+	 * edge
+	 * 
+	 * // TODO this should probably demand a userUp!
+	 * 
+	 * toggleEdge(startedOnVertex, toVertex);
+	 * startedOnVertex.setCoordinate(startedOnCoordinate); } else if
+	 * (startedOnVertex != null) { // we move a vertex if
+	 * (userSelectedVertices.contains(startedOnVertex)) { // move all
+	 * userselected for (Geometric v : userSelectedVertices) {
+	 * v.setCoordinate(v.getCoordinate().add(move)); } } else if
+	 * (startedOnVertex == prevTouch) { // move neighborhood of prevtouch
+	 * prevTouch.setCoordinate(prevTouch.getCoordinate().add(move)); for
+	 * (Geometric v : Neighbors.neighborhood(graph, prevTouch)) {
+	 * v.setCoordinate(v.getCoordinate().add(move)); }
+	 * 
+	 * } else { // move only the hit vertex
+	 * startedOnVertex.setCoordinate(startedOnVertex.getCoordinate()
+	 * .add(move)); } redraw(); } else { // user missed vertex, did user try to
+	 * navigate? // We simply assume user tried to navigate
+	 * 
+	 * // Coordinate difference = from.moveVector(to); moveView(move); } }
+	 */
 
 	public void longShake(int n) {
 		if (layout == null)
@@ -581,32 +560,35 @@ public class GraphViewController {
 		}
 		view.redraw(graphInfo(), graph);
 	}
-	
-	/** Returns the coordinate the given point/coordinate on 
-	  * the screen represents in the graph  */
-	private Coordinate translateCoordinate(Coordinate screenCoordinate){
-		float[] screenPoint = {screenCoordinate.getX(), screenCoordinate.getY()};
+
+	/**
+	 * Returns the coordinate the given point/coordinate on the screen
+	 * represents in the graph
+	 */
+	private Coordinate translateCoordinate(Coordinate screenCoordinate) {
+		float[] screenPoint = { screenCoordinate.getX(),
+				screenCoordinate.getY() };
 		Matrix invertedTransformMatrix = new Matrix();
-		
+
 		view.getTransformMatrix().invert(invertedTransformMatrix);
 		invertedTransformMatrix.mapPoints(screenPoint);
-		
+
 		return new Coordinate(screenPoint[0], screenPoint[1]);
 	}
-	
-	private class PrivateGestureListener extends SimpleOnGestureListener{
+
+	private class PrivateGestureListener extends SimpleOnGestureListener {
 		private DefaultVertex touchedVertex = null;
 		private int previousPointerCount = 0;
 		private Coordinate[] previousPointerCoords = null;
-		
+
 		public boolean onDown(MotionEvent e) {
 			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
-			previousPointerCount= -1; // make any ongoing scroll restart
-			
+			previousPointerCount = -1; // make any ongoing scroll restart
+
 			if (e.getPointerCount() == 1) {
 				touchedVertex = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
-			} else { 
+			} else {
 				touchedVertex = null;
 			}
 			return super.onDown(e);
@@ -641,75 +623,88 @@ public class GraphViewController {
 			}
 			redraw();
 		}
-		
+
 		public boolean onSingleTapUp(MotionEvent e) {
-			if (e.getPointerCount() != 1) return false; // Is this needed?
+			if (e.getPointerCount() != 1)
+				return false; // Is this needed?
 			if (touchedVertex == null && prevTouch == null) {
 				Coordinate touchedCoord = new Coordinate(e.getX(), e.getY());
 				Coordinate gCoordinate = translateCoordinate(touchedCoord);
-				
+
 				graph.addVertex(new DefaultVertex(gCoordinate));
-			} else if (touchedVertex == null || prevTouch == touchedVertex){
+			} else if (touchedVertex == null || prevTouch == touchedVertex) {
 				prevTouch = null;
 			} else if (prevTouch == null) {
 				prevTouch = touchedVertex;
 			} else {
 				toggleEdge(touchedVertex, prevTouch);
 			}
-			
+
 			touchedVertex = null;
 			redraw();
 			return true;
 		}
-		
+
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
 
-			System.out.println("--> " + previousPointerCount + " - " + previousPointerCoords);
-			switch (e2.getPointerCount()){
-			case 2: 
-				if(previousPointerCoords == null || previousPointerCount != 2){
+			System.out.println("--> " + previousPointerCount + " - "
+					+ previousPointerCoords);
+			switch (e2.getPointerCount()) {
+			case 2:
+				if (previousPointerCoords == null || previousPointerCount != 2) {
 					previousPointerCoords = new Coordinate[2];
-					previousPointerCoords[0] = new Coordinate(e2.getX(0), e2.getY(0));
-					previousPointerCoords[1] = new Coordinate(e2.getX(1), e2.getY(1));
+					previousPointerCoords[0] = new Coordinate(e2.getX(0),
+							e2.getY(0));
+					previousPointerCoords[1] = new Coordinate(e2.getX(1),
+							e2.getY(1));
 				} else {
-					Coordinate[] newCoords = {new Coordinate(e2.getX(0), e2.getY(0)),
-											  new Coordinate(e2.getX(1), e2.getY(1))};
-					Coordinate VectorPrevious = previousPointerCoords[1].subtract(previousPointerCoords[0]);
+					Coordinate[] newCoords = {
+							new Coordinate(e2.getX(0), e2.getY(0)),
+							new Coordinate(e2.getX(1), e2.getY(1)) };
+					Coordinate VectorPrevious = previousPointerCoords[1]
+							.subtract(previousPointerCoords[0]);
 					Coordinate VectorNew = newCoords[1].subtract(newCoords[0]);
-					float diffAngle = VectorNew.angle() - VectorPrevious.angle();
+					float diffAngle = VectorNew.angle()
+							- VectorPrevious.angle();
 					float scale = VectorNew.length() / VectorPrevious.length();
-					
+
 					// the transformations
-					view.getTransformMatrix().postTranslate(-previousPointerCoords[0].getX(), -previousPointerCoords[0].getY());
+					view.getTransformMatrix().postTranslate(
+							-previousPointerCoords[0].getX(),
+							-previousPointerCoords[0].getY());
 					view.getTransformMatrix().postRotate(diffAngle);
 					view.getTransformMatrix().postScale(scale, scale);
-					view.getTransformMatrix().postTranslate(newCoords[0].getX(), newCoords[0].getY());
-					
+					view.getTransformMatrix().postTranslate(
+							newCoords[0].getX(), newCoords[0].getY());
+
 					previousPointerCoords = newCoords;
 				}
 				break;
-			case 1: 
+			case 1:
 				previousPointerCoords = null;
 				if (touchedVertex != null) {
-					Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
+					Coordinate sCoordinate = new Coordinate(e2.getX(),
+							e2.getY());
 					Coordinate gCoordinate = translateCoordinate(sCoordinate);
 					touchedVertex.setCoordinate(gCoordinate);
 				} else {
-					if(previousPointerCount == 1)
-						view.getTransformMatrix().postTranslate(-distanceX, -distanceY);
+					if (previousPointerCount == 1)
+						view.getTransformMatrix().postTranslate(-distanceX,
+								-distanceY);
 				}
 				break;
-			default: //3 or more
+			default: // 3 or more
 				previousPointerCoords = null;
 				previousPointerCount = e2.getPointerCount();
 				return false;
 			}
 			previousPointerCount = e2.getPointerCount();
 			redraw();
-			System.out.print(previousPointerCount + " - " + previousPointerCoords);
+			System.out.print(previousPointerCount + " - "
+					+ previousPointerCoords);
 			return true;
-		}		
+		}
 	}
 }
