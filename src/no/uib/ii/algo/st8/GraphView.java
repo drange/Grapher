@@ -40,14 +40,15 @@ public class GraphView extends View {
 		invalidate();
 	}
 
+
+	Matrix prev = new Matrix();
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
 		Matrix m = canvas.getMatrix();
-		Matrix prev = new Matrix(m);
-
+		prev.set(m);
 		m.preConcat(transformMatrix);
 		canvas.setMatrix(m);
 
