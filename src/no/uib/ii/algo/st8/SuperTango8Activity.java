@@ -1,9 +1,23 @@
 package no.uib.ii.algo.st8;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 import no.uib.ii.algo.st8.start.GraphExporter;
+import no.uib.ii.algo.st8.util.FileAccess;
+
+import org.json.JSONException;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -11,12 +25,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.ClipboardManager;
+import android.text.Editable;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class SuperTango8Activity extends Activity implements OnClickListener,
@@ -388,8 +404,111 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.save:
+			save();
+			return true;
+
+		case R.id.load:
+			load();
+			return true;
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
+
+	public void save() {
+
+		System.out.println("save");
+		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+		alert.setTitle("Title");
+		alert.setMessage("Message");
+
+		// Set an EditText view to get user input
+		final EditText input = new EditText(this);
+		alert.setView(input);
+
+		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+		@SuppressLint("WorldReadableFiles") public void onClick(DialogInterface dialog, int whichButton) {
+		  Editable value = input.getText();
+		  try {
+				String json = new FileAccess().save(controller.getGraph());
+				FileOutputStream fOut = openFileOutput(value + ".json",
+				                            MODE_WORLD_READABLE);
+				OutputStreamWriter osw = new OutputStreamWriter(fOut);
+
+				// Write the string to the file
+				osw.write(json);
+
+				/* ensure that everything is
+				* really written out and close */
+				osw.flush();
+				osw.close();
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		  }
+		});
+
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+		  public void onClick(DialogInterface dialog, int whichButton) {
+		    // Canceled.
+		  }
+		});
+
+		alert.show();
+	}
+
+	public void load() {
+
+		System.out.println("load");
+		final String[] files = fileList();
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Pick a file");
+		builder.setItems(files, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				Toast.makeText(getApplicationContext(), files[item],
+						Toast.LENGTH_SHORT).show();
+				try {
+					StringBuffer stringBuffer = new StringBuffer();
+					String inputLine = "";
+					FileInputStream input = openFileInput(files[item]
+							.toString());
+					InputStreamReader isr = new InputStreamReader(input);
+					BufferedReader bufferedReader = new BufferedReader(isr);
+
+					while ((inputLine = bufferedReader.readLine()) != null) {
+						stringBuffer.append(inputLine);
+						stringBuffer.append("\n");
+					}
+
+					bufferedReader.close();
+					String json = stringBuffer.toString();
+					System.out.println(json);
+
+					new FileAccess().load(controller.getGraph(), json);
+
+					controller.redraw();
+				} catch (FileNotFoundException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+
+	}
+
 }

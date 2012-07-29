@@ -99,4 +99,11 @@
         android:id="@+id/clear"
         android:title="Clear everything (your changes is lost)"/>
 
+    <item
+        android:id="@+id/save"
+        android:title="Save the current graph"/>
+
+    <item
+        android:id="@+id/load"
+        android:title="Load a graph into workspace"/>
 </menu>
