@@ -9,8 +9,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import no.uib.ii.algo.st8.util.GraphExporter;
 import no.uib.ii.algo.st8.util.FileAccess;
+import no.uib.ii.algo.st8.util.GraphExporter;
 
 import org.json.JSONException;
 
@@ -35,7 +35,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class SuperTango8Activity extends Activity implements OnClickListener,
+public class Workspace extends Activity implements OnClickListener,
 		SensorEventListener {
 
 	private GraphViewController controller;
@@ -223,8 +223,7 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 	}
 
 	private void shortToast(String toast) {
-		Toast.makeText(SuperTango8Activity.this, toast, Toast.LENGTH_SHORT)
-				.show();
+		Toast.makeText(Workspace.this, toast, Toast.LENGTH_SHORT).show();
 	}
 
 	// private void longToast(String toast) {
@@ -285,10 +284,10 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		case R.id.compute_diameter:
 			int diam = controller.diameter();
 			if (diam < 0)
-				Toast.makeText(SuperTango8Activity.this,
-						"Diameter is infinite", Toast.LENGTH_SHORT).show();
+				Toast.makeText(Workspace.this, "Diameter is infinite",
+						Toast.LENGTH_SHORT).show();
 			else
-				Toast.makeText(SuperTango8Activity.this, "Diameter " + diam,
+				Toast.makeText(Workspace.this, "Diameter " + diam,
 						Toast.LENGTH_SHORT).show();
 
 			controller.redraw();
@@ -297,10 +296,10 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		case R.id.compute_girth:
 			int girth = controller.girth();
 			if (girth < 0)
-				Toast.makeText(SuperTango8Activity.this, "Acyclic",
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(Workspace.this, "Acyclic", Toast.LENGTH_SHORT)
+						.show();
 			else
-				Toast.makeText(SuperTango8Activity.this, "Girth " + girth,
+				Toast.makeText(Workspace.this, "Girth " + girth,
 						Toast.LENGTH_SHORT).show();
 
 			controller.redraw();
@@ -430,35 +429,38 @@ public class SuperTango8Activity extends Activity implements OnClickListener,
 		alert.setView(input);
 
 		alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-		@SuppressLint("WorldReadableFiles") public void onClick(DialogInterface dialog, int whichButton) {
-		  Editable value = input.getText();
-		  try {
-				String json = new FileAccess().save(controller.getGraph());
-				FileOutputStream fOut = openFileOutput(value + ".json",
-				                            MODE_WORLD_READABLE);
-				OutputStreamWriter osw = new OutputStreamWriter(fOut);
+			@SuppressLint("WorldReadableFiles")
+			public void onClick(DialogInterface dialog, int whichButton) {
+				Editable value = input.getText();
+				try {
+					String json = new FileAccess().save(controller.getGraph());
+					FileOutputStream fOut = openFileOutput(value + ".json",
+							MODE_WORLD_READABLE);
+					OutputStreamWriter osw = new OutputStreamWriter(fOut);
 
-				// Write the string to the file
-				osw.write(json);
+					// Write the string to the file
+					osw.write(json);
 
-				/* ensure that everything is
-				* really written out and close */
-				osw.flush();
-				osw.close();
+					/*
+					 * ensure that everything is really written out and close
+					 */
+					osw.flush();
+					osw.close();
 
-			} catch (JSONException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-		  }
 		});
 
-		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-		  public void onClick(DialogInterface dialog, int whichButton) {
-		    // Canceled.
-		  }
-		});
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
 
 		alert.show();
 	}

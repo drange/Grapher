@@ -42,8 +42,8 @@ public class GraphView extends View {
 		invalidate();
 	}
 
-
 	Matrix prev = new Matrix();
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);

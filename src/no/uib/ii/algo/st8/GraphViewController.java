@@ -51,8 +51,7 @@ public class GraphViewController {
 	// private DefaultVertex startedOnVertex;
 	// private Coordinate startedOnCoordinate;
 
-	public GraphViewController(SuperTango8Activity activity, int width,
-			int height) {
+	public GraphViewController(Workspace activity, int width, int height) {
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
