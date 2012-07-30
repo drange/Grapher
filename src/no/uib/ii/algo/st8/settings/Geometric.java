@@ -1,6 +1,6 @@
 package no.uib.ii.algo.st8.settings;
 
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 
 /**
  * Any class which has some 2D center can implement this class. In the case of a

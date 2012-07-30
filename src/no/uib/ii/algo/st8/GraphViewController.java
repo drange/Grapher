@@ -14,7 +14,7 @@ import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.DijkstraShortestPath;

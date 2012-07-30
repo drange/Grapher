@@ -1,4 +1,4 @@
-package no.uib.ii.algo.st8.start;
+package no.uib.ii.algo.st8.util;
 
 import java.io.Serializable;
 

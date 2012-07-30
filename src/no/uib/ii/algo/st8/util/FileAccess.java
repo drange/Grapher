@@ -6,7 +6,7 @@ import java.util.Iterator;
 
 import no.uib.ii.algo.st8.DefaultEdge;
 import no.uib.ii.algo.st8.DefaultVertex;
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.graph.SimpleGraph;
 import org.json.JSONArray;

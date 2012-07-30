@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import no.uib.ii.algo.st8.start.GraphExporter;
+import no.uib.ii.algo.st8.util.GraphExporter;
 import no.uib.ii.algo.st8.util.FileAccess;
 
 import org.json.JSONException;

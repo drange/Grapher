@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import no.uib.ii.algo.st8.settings.Colorful;
 import no.uib.ii.algo.st8.settings.Geometric;
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 
 public class DefaultEdge<V> implements Colorful, Geometric, Serializable {
 	private static final long serialVersionUID = 1L;

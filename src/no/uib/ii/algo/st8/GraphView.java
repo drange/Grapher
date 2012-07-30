@@ -1,6 +1,6 @@
 package no.uib.ii.algo.st8;
 
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.graph.SimpleGraph;
 

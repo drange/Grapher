@@ -6,7 +6,7 @@ import no.uib.ii.algo.st8.settings.Colorful;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.settings.Labelled;
 import no.uib.ii.algo.st8.settings.Sized;
-import no.uib.ii.algo.st8.start.Coordinate;
+import no.uib.ii.algo.st8.util.Coordinate;
 import android.graphics.Color;
 
 public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
