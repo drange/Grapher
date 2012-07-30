@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultVertex;
+import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.model.DefaultVertex;
 
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.alg.VertexCovers;

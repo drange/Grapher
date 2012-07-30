@@ -1,5 +1,7 @@
 package no.uib.ii.algo.st8;
 
+import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.graph.SimpleGraph;

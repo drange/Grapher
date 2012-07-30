@@ -1,4 +1,4 @@
-package no.uib.ii.algo.st8;
+package no.uib.ii.algo.st8.model;
 
 import java.io.Serializable;
 

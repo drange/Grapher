@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.DefaultEdge;
-import no.uib.ii.algo.st8.DefaultEdgeFactory;
-import no.uib.ii.algo.st8.DefaultVertex;
+import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
+import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.settings.Geometric;
 import no.uib.ii.algo.st8.util.Coordinate;
 
