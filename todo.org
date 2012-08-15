@@ -6,7 +6,6 @@
 *** Touch-hold
 **** Hold finger on vertex, open menu: delete, make universal, inverse neighbourhood
 **** Hold finger elsewhere, open menu: create vertex, insert graphs
-
 **** Hold finger elsewhere, toggle edit/modelling mode
 *** Pinch
 **** Two-finger zoom and rotate
@@ -18,6 +17,11 @@
 *** On navigating the workspace
 *** Navigating different workspaces
 *** On creating vertex, make some kind of visual cue
+** Views
+*** General graph
+*** Interval graph (+ circular arc)
+*** Bipartite
+*** Permutation
 * Modes
 ** Edit Mode
 *** Add/remove vertex/edge
@@ -26,3 +30,9 @@
 *** Visualize being in modelling mode by adding shadows (the vertices appear lifted from coordinate system)
 *** Much easier movement of vertices, moving sets of vertices
 *** Selection of groups of vertices by drawing selection area
+* Algorithms
+** On subset bruteforce, do connected components individually when possible
+** Implement bipartite testing
+** Implement chromatic number, how to display?
+** Implement Odd Cycle Transversal
+** Implement Feedback Vertex Set
