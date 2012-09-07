@@ -35,6 +35,10 @@
         android:id="@+id/compute_girth"
         android:title="Girth"/>
 
+    <item
+        android:id="@+id/bipartition"
+        android:title="Bipartite"/>
+
     <!--
          <item
         android:id="@+id/compute_cut"
@@ -106,4 +110,5 @@
     <item
         android:id="@+id/load"
         android:title="Load a graph into workspace"/>
+
 </menu>

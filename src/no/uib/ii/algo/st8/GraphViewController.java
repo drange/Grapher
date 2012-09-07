@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
+import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
@@ -74,6 +75,11 @@ public class GraphViewController {
 
 	public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getGraph() {
 		return graph;
+
+	}
+
+	public Matrix getTransformMatrix() {
+		return view.getTransformMatrix();
 	}
 
 	/**
@@ -254,6 +260,26 @@ public class GraphViewController {
 		redraw();
 
 		return gp.getEdgeList().size() + 1;
+	}
+
+	/**
+	 * Computes and highlight diameter path, returns diameter
+	 * 
+	 * @return diameter of graph, or -1 if infinite
+	 */
+	public boolean showBipartition() {
+		clearAll();
+
+		Set<DefaultVertex> part = BipartiteInspector.getBipartition(graph);
+		if (part == null) {
+			redraw();
+			return false;
+		}
+
+		markedVertices.addAll(part);
+
+		redraw();
+		return true;
 	}
 
 	/**

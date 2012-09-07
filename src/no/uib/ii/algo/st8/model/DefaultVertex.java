@@ -13,12 +13,17 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
 		Serializable {
 	private static final long serialVersionUID = 1L;
 
+	/** The counter for id's for DefaultVertices made */
+	private volatile static int CURRENT_ID = 1;
+
 	public final static float DEFAULT_SIZE = 10;
 
 	private int color;
 	private Coordinate coordinate;
 	private String label;
 	private float size;
+
+	private final int id;
 
 	public DefaultVertex(Coordinate coordinate) {
 		this(Color.RED, coordinate, DEFAULT_SIZE);
@@ -30,6 +35,7 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
 
 	public DefaultVertex(int color, Coordinate coordinate, float size,
 			String label) {
+		this.id = CURRENT_ID++;
 		this.color = color;
 		this.coordinate = coordinate;
 		this.size = size;
@@ -50,6 +56,10 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
 
 	public void setCoordinate(Coordinate coordinate) {
 		this.coordinate = coordinate;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	public String getLabel() {

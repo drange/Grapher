@@ -11,7 +11,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.view.View;
 
 public class GraphView extends View {
@@ -19,7 +18,6 @@ public class GraphView extends View {
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private String info = "";
 	private Paint p = new Paint();
-	private RectF rect = new RectF();
 	private Matrix transformMatrix = new Matrix();
 
 	public GraphView(Context context) {
@@ -58,23 +56,63 @@ public class GraphView extends View {
 			Coordinate c1 = e.getSource().getCoordinate();
 			Coordinate c2 = e.getTarget().getCoordinate();
 
-			Coordinate ce = e.getCoordinate();
+			float x1 = Math.round(c1.getX() / 10) * 10;
+			float y1 = Math.round(c1.getY() / 10) * 10;
+			float x2 = Math.round(c2.getX() / 10) * 10;
+			float y2 = Math.round(c2.getY() / 10) * 10;
+
+			// Coordinate ce = e.getCoordinate();
 
 			p.setColor(Color.WHITE);
 			p.setColor(e.getColor());
-			if (ce == null) {
-				canvas.drawLine(c1.getX(), c1.getY(), c2.getX(), c2.getY(), p);
-			} else {
-				rect.set(c1.getX(), c1.getY(), c2.getX(), c2.getY());
-				canvas.drawArc(rect, 0, 0, true, p);
-			}
 
+			// if (ce != null) {
+			// // TODO what's the purpose of an edge's coordinate?
+			// // do we want a curve going through ce?
+			canvas.drawLine(x1, y1, x2, y2, p);
+			//
+			// Path p = new Path();
+			// Point mid = new Point((int) ce.getX(), (int) ce.getY());
+			// // ...
+			// Point start = new Point((int) x1, (int) y1);
+			// Point end = new Point((int) x2, (int) y2);
+			// mid.set((start.x + end.x) / 2, (start.y + end.y) / 2);
+			//
+			// // Draw line connecting the two points:
+			// p.reset();
+			// p.moveTo(start.x, start.y);
+			// p.quadTo((start.x + mid.x) / 2, start.y, mid.x, mid.y);
+			// p.quadTo((mid.x + end.x) / 2, end.y, end.x, end.y);
+			//
+			// Paint pLine = new Paint() {
+			// {
+			// setStyle(Paint.Style.STROKE);
+			// setAntiAlias(true);
+			// setStrokeWidth(1.5f);
+			// setColor(Color.GRAY); // Line color
+			// }
+			// };
+			// Paint pLineBorder = new Paint() {
+			// {
+			// setStyle(Paint.Style.STROKE);
+			// setAntiAlias(true);
+			// setStrokeWidth(3.0f);
+			// setStrokeCap(Cap.ROUND);
+			// setColor(Color.DKGRAY); // Darker version of the color
+			// }
+			// };
+			//
+			// canvas.drawPath(p, pLineBorder);
+			// canvas.drawPath(p, pLine);
+			//
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
+			float x = Math.round(c.getX() / 10) * 10;
+			float y = Math.round(c.getY() / 10) * 10;
 			p.setColor(v.getColor());
-			canvas.drawCircle(c.getX(), c.getY(), v.getSize(), p);
+			canvas.drawCircle(x, y, v.getSize(), p);
 		}
 
 		canvas.setMatrix(prev);

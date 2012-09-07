@@ -96,7 +96,8 @@ public class Workspace extends Activity implements OnClickListener,
 	private boolean copyTikzToClipboard() {
 		String text = "";
 		try {
-			text = GraphExporter.getTikz(controller.getGraph());
+			text = GraphExporter.getTikz(controller.getGraph(),
+					controller.getTransformMatrix());
 			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 			return true;
@@ -171,7 +172,8 @@ public class Workspace extends Activity implements OnClickListener,
 	}
 
 	private void shareTikz() {
-		String shareBody = GraphExporter.getTikz(controller.getGraph());
+		String shareBody = GraphExporter.getTikz(controller.getGraph(),
+				controller.getTransformMatrix());
 
 		shareBody += "\n\n% Sent to you by Grapher";
 
@@ -300,6 +302,18 @@ public class Workspace extends Activity implements OnClickListener,
 						.show();
 			else
 				Toast.makeText(Workspace.this, "Girth " + girth,
+						Toast.LENGTH_SHORT).show();
+
+			controller.redraw();
+			return true;
+
+		case R.id.bipartition:
+			boolean bipartite = controller.showBipartition();
+			if (bipartite)
+				Toast.makeText(Workspace.this, "Is bipartite",
+						Toast.LENGTH_SHORT).show();
+			else
+				Toast.makeText(Workspace.this, "Is not bipartite",
 						Toast.LENGTH_SHORT).show();
 
 			controller.redraw();
