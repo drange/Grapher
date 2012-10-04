@@ -277,13 +277,25 @@ public class GraphViewController {
 		}
 	}
 
+	public boolean isEmptyGraph() {
+		if (graph == null) {
+			new NullPointerException("Graph was null, from isEmptyGraph")
+					.printStackTrace();
+			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
+					new DefaultEdgeFactory<DefaultVertex>());
+		}
+		return graph.vertexSet().size() == 0;
+	}
+
 	/**
 	 * Computes and highlight diameter path, returns diameter
 	 * 
 	 * @return diameter of graph, or -1 if infinite
 	 */
 	public int diameter() {
-
+		if (isEmptyGraph()) {
+			return -1;
+		}
 		clearAll();
 
 		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector
@@ -307,6 +319,9 @@ public class GraphViewController {
 	 * @return diameter of graph, or -1 if infinite
 	 */
 	public boolean showBipartition() {
+		if (isEmptyGraph()) {
+			return true;
+		}
 		clearAll();
 
 		Set<DefaultVertex> part = BipartiteInspector.getBipartition(graph);
@@ -327,6 +342,9 @@ public class GraphViewController {
 	 * @return girth of graph or -1 if acyclic.
 	 */
 	public int girth() {
+		if (isEmptyGraph()) {
+			return -1;
+		}
 		clearAll();
 		int girth = GirthInspector.girth(graph);
 
@@ -336,6 +354,10 @@ public class GraphViewController {
 	}
 
 	public void showSpanningTree() {
+		if (isEmptyGraph()) {
+			return;
+		}
+
 		KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>> mst = new KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
 		Set<DefaultEdge<DefaultVertex>> spanning = mst.getEdgeSet();
@@ -343,7 +365,17 @@ public class GraphViewController {
 		markedEdges.addAll(spanning);
 	}
 
+	/**
+	 * Finds if there is a cut vertex, ie if there is a vertex whose removal
+	 * increases the number of connected components
+	 * 
+	 * @return true iff there is a cut vertex
+	 */
 	public boolean showCutVertex() {
+		if (isEmptyGraph()) {
+			return false;
+		}
+
 		clearAll();
 		DefaultVertex v = CutAndBridgeInspector.findCutVertex(graph);
 		if (v == null)
@@ -352,7 +384,17 @@ public class GraphViewController {
 		return true;
 	}
 
+	/**
+	 * Finds if there is a cut vertex, ie if there is a vertex whose removal
+	 * increases the number of connected components, returns them all.
+	 * 
+	 * @return number of cut vertices
+	 */
 	public int showAllCutVertices() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+
 		clearAll();
 		Set<DefaultVertex> cuts = CutAndBridgeInspector
 				.findAllCutVertices(graph);
@@ -360,7 +402,17 @@ public class GraphViewController {
 		return cuts.size();
 	}
 
+	/**
+	 * Finds if there is an edge whose removal increases the number of connected
+	 * components.
+	 * 
+	 * @return true iff there is a bridge
+	 */
 	public boolean showBridge() {
+		if (isEmptyGraph()) {
+			return false;
+		}
+
 		clearAll();
 		DefaultEdge<DefaultVertex> e = CutAndBridgeInspector.findBridge(graph);
 		if (e == null)
@@ -369,7 +421,17 @@ public class GraphViewController {
 		return true;
 	}
 
+	/**
+	 * Finds if there is an edge whose removal increases the number of connected
+	 * components.
+	 * 
+	 * @return number of bridges
+	 */
 	public int showAllBridges() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+
 		clearAll();
 		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector
 				.findAllBridges(graph);
@@ -452,6 +514,9 @@ public class GraphViewController {
 	}
 
 	public int showVertexCover() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		clearAll();
 		markedVertices.addAll(cover);
@@ -459,6 +524,9 @@ public class GraphViewController {
 	}
 
 	public int showMaximumIndependentSet() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		clearAll();
 		markedVertices.addAll(graph.vertexSet());
@@ -467,6 +535,9 @@ public class GraphViewController {
 	}
 
 	public int showMaximumClique() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
 		Set<DefaultVertex> clique = MaximalClique.findExactMaximumClique(graph);
 		clearAll();
 		markedVertices.addAll(clique);
@@ -475,6 +546,9 @@ public class GraphViewController {
 	}
 
 	public int showDominatingSet() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
 		Set<DefaultVertex> domset = ExactDominatingSet
 				.exactDominatingSet(graph);
 		clearAll();
@@ -484,6 +558,9 @@ public class GraphViewController {
 	}
 
 	public boolean showCenterVertex() {
+		if (isEmptyGraph()) {
+			return false;
+		}
 		clearAll();
 		redraw();
 		DefaultVertex center = CenterInspector.getCenter(graph);
@@ -496,6 +573,10 @@ public class GraphViewController {
 	}
 
 	public int computeBandwidth() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+
 		clearAll();
 		int bandwidth = BandwidthInspector.computeBandwidth(graph);
 		redraw();
@@ -503,6 +584,9 @@ public class GraphViewController {
 	}
 
 	public void centralize() {
+		if (isEmptyGraph()) {
+			return;
+		}
 		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return;
@@ -515,10 +599,15 @@ public class GraphViewController {
 	}
 
 	public String graphInfo() {
+		isEmptyGraph(); // hack to test if null
 		return GraphInformation.graphInfo(graph);
 	}
 
 	public void redraw() {
+		if (isEmptyGraph()) {
+			return;
+		}
+
 		for (DefaultVertex v : graph.vertexSet()) {
 			v.setColor(Color.RED);
 			if (markedVertices.contains(v)) {
@@ -545,6 +634,7 @@ public class GraphViewController {
 	 * represents in the graph
 	 */
 	private Coordinate translateCoordinate(Coordinate screenCoordinate) {
+
 		float[] screenPoint = { screenCoordinate.getX(),
 				screenCoordinate.getY() };
 		Matrix invertedTransformMatrix = new Matrix();
