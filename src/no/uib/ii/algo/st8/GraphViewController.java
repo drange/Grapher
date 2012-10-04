@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -192,6 +193,34 @@ public class GraphViewController {
 		layout = null;
 	}
 
+	public void selectAll() {
+		if (isEmptyGraph())
+			return;
+		clearAll();
+		userSelectedVertices.addAll(graph.vertexSet());
+		redraw();
+	}
+
+	/**
+	 * Selects all vertices that are not selected and deselects those who are.
+	 * 
+	 */
+	public void invertSelectedVertices() {
+		if (isEmptyGraph())
+			return;
+
+		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph
+				.vertexSet().size());
+		for (DefaultVertex v : graph.vertexSet()) {
+			if (!userSelectedVertices.contains(v)) {
+				select.add(v);
+			}
+		}
+		clearAll();
+		userSelectedVertices = select;
+		redraw();
+	}
+
 	/**
 	 * Selects the set of all reachable vertices from the currently selected
 	 * vertices.
@@ -224,6 +253,30 @@ public class GraphViewController {
 			for (DefaultVertex u : userSelectedVertices) {
 				if (u != v && !graph.containsEdge(u, v)) {
 					graph.addEdge(u, v);
+				}
+			}
+		}
+		redraw();
+	}
+
+	public void complementSelected() {
+		if (isEmptyGraph())
+			return;
+		if (userSelectedVertices == null || userSelectedVertices.size() == 0)
+			return;
+
+		ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph
+				.vertexSet().size());
+		vertices.addAll(userSelectedVertices);
+
+		for (int i = 0; i < vertices.size(); i++) {
+			DefaultVertex v = vertices.get(i);
+			for (int j = i + 1; j < vertices.size(); j++) {
+				DefaultVertex u = vertices.get(j);
+				if (graph.containsEdge(v, u)) {
+					graph.removeEdge(v, u);
+				} else {
+					graph.addEdge(v, u);
 				}
 			}
 		}

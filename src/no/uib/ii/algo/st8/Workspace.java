@@ -412,6 +412,16 @@ public class Workspace extends Activity implements OnClickListener,
 			shareMetapost();
 			return true;
 
+		case R.id.select_all:
+			controller.selectAll();
+			controller.redraw();
+			return true;
+
+		case R.id.invert_selected:
+			controller.invertSelectedVertices();
+			controller.redraw();
+			return true;
+
 		case R.id.select_reachable:
 			controller.selectAllReachableVertices();
 			controller.redraw();
@@ -419,6 +429,11 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.complete_selected:
 			controller.completeSelectedVertices();
+			controller.redraw();
+			return true;
+
+		case R.id.complement_selected:
+			controller.complementSelected();
 			controller.redraw();
 			return true;
 

@@ -100,12 +100,24 @@
         android:title="Share metapost"/>
 
     <item
+        android:id="@+id/select_all"
+        android:title="Select all vertices"/>
+
+    <item
+        android:id="@+id/invert_selected"
+        android:title="Invert selection of vertices"/>
+
+    <item
         android:id="@+id/select_reachable"
         android:title="Select all reachable vertices"/>
 
     <item
         android:id="@+id/complete_selected"
         android:title="Complete selected vertices"/>
+
+    <item
+        android:id="@+id/complement_selected"
+        android:title="Complement selected subgraph"/>
 
     <item
         android:id="@+id/clear"
