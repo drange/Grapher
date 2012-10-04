@@ -21,6 +21,7 @@ import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.GraphPath;
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
@@ -189,6 +190,44 @@ public class GraphViewController {
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
 		layout = null;
+	}
+
+	/**
+	 * Selects the set of all reachable vertices from the currently selected
+	 * vertices.
+	 * 
+	 * 
+	 * @return
+	 */
+	public Set<DefaultVertex> selectAllReachableVertices() {
+		Set<DefaultVertex> reachable = new HashSet<DefaultVertex>(graph
+				.vertexSet().size());
+		Set<DefaultVertex> userselect = new HashSet<DefaultVertex>(
+				userSelectedVertices);
+		reachable.addAll(userSelectedVertices);
+		clearAll();
+		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		for (DefaultVertex v : userselect) {
+			reachable.addAll(ci.connectedSetOf(v));
+		}
+		userSelectedVertices.addAll(reachable);
+		redraw();
+		return reachable;
+	}
+
+	/**
+	 * Makes the selected vertices into a clique.
+	 */
+	public void completeSelectedVertices() {
+		for (DefaultVertex v : userSelectedVertices) {
+			for (DefaultVertex u : userSelectedVertices) {
+				if (u != v && !graph.containsEdge(u, v)) {
+					graph.addEdge(u, v);
+				}
+			}
+		}
+		redraw();
 	}
 
 	/**
