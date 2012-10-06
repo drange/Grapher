@@ -245,6 +245,15 @@ public class Workspace extends Activity implements OnClickListener,
 			shortToast("Vertex Cover Number " + vc);
 			return true;
 
+		case R.id.compute_feedback_vertex_set:
+			int fvs = controller.showFeedbackVertexSet();
+			controller.redraw();
+			if (fvs == 0)
+				shortToast("Graph is acyclic");
+			else
+				shortToast("Feedback Vertex Set number " + fvs);
+			return true;
+
 		case R.id.compute_maximum_independent_set:
 			int mis = controller.showMaximumIndependentSet();
 			controller.redraw();
@@ -298,11 +307,9 @@ public class Workspace extends Activity implements OnClickListener,
 		case R.id.compute_girth:
 			int girth = controller.girth();
 			if (girth < 0)
-				Toast.makeText(Workspace.this, "Acyclic", Toast.LENGTH_SHORT)
-						.show();
+				shortToast("Acyclic");
 			else
-				Toast.makeText(Workspace.this, "Girth " + girth,
-						Toast.LENGTH_SHORT).show();
+				shortToast("Girth " + girth);
 
 			controller.redraw();
 			return true;
@@ -310,11 +317,9 @@ public class Workspace extends Activity implements OnClickListener,
 		case R.id.bipartition:
 			boolean bipartite = controller.showBipartition();
 			if (bipartite)
-				Toast.makeText(Workspace.this, "Is bipartite",
-						Toast.LENGTH_SHORT).show();
+				shortToast("Is bipartite");
 			else
-				Toast.makeText(Workspace.this, "Is not bipartite",
-						Toast.LENGTH_SHORT).show();
+				shortToast("Is not bipartite");
 
 			controller.redraw();
 			return true;
@@ -355,6 +360,16 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("1 bridge");
 			else
 				shortToast(bridges + " bridges");
+
+			controller.redraw();
+			return true;
+
+		case R.id.test_eulerian:
+			boolean eulerian = controller.isEulerian();
+			if (eulerian)
+				shortToast("Graph is eulerian");
+			else
+				shortToast("Graph is not eulerian, odd degree vertices highlighted.");
 
 			controller.redraw();
 			return true;
@@ -417,6 +432,16 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.deselect_all:
+			controller.deselectAll();
+			controller.redraw();
+			return true;
+
+		case R.id.select_all_highlighted_vertices:
+			controller.selectAllHighlightedVertices();
+			controller.redraw();
+			return true;
+
 		case R.id.invert_selected:
 			controller.invertSelectedVertices();
 			controller.redraw();
@@ -434,6 +459,26 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.complement_selected:
 			controller.complementSelected();
+			controller.redraw();
+			return true;
+
+		case R.id.delete_selected:
+			int deleted = controller.deleteSelectedVertices();
+			if (deleted == 0) {
+				shortToast("No vertices selected");
+			} else {
+				shortToast("Deleted " + deleted + " vertices");
+			}
+			controller.redraw();
+			return true;
+
+		case R.id.induce_subgraph:
+			int removed = controller.induceSubgraph();
+			if (removed == 0) {
+				shortToast("All vertices selected, none deleted");
+			} else {
+				shortToast("Removed " + removed + " vertices");
+			}
 			controller.redraw();
 			return true;
 

@@ -8,6 +8,10 @@
     <!-- android:icon="@drawable/icon_search" -->
 
     <item
+        android:id="@+id/compute_feedback_vertex_set"
+        android:title="Feedback Vertex Set"/>
+
+    <item
         android:id="@+id/compute_vertex_cover"
         android:title="Vertex Cover"/>
 
@@ -60,6 +64,10 @@
         android:title="Bridges"/>
 
     <item
+        android:id="@+id/test_eulerian"
+        android:title="Euler graph?"/>
+
+    <item
         android:id="@+id/show_center"
         android:title="Compute Center Vertex"/>
 
@@ -104,6 +112,14 @@
         android:title="Select all vertices"/>
 
     <item
+        android:id="@+id/deselect_all"
+        android:title="Deselect all vertices"/>
+
+    <item
+        android:id="@+id/select_all_highlighted_vertices"
+        android:title="Select all highlighted vertices"/>
+
+    <item
         android:id="@+id/invert_selected"
         android:title="Invert selection of vertices"/>
 
@@ -118,6 +134,14 @@
     <item
         android:id="@+id/complement_selected"
         android:title="Complement selected subgraph"/>
+
+    <item
+        android:id="@+id/delete_selected"
+        android:title="Delete selected vertices"/>
+
+    <item
+        android:id="@+id/induce_subgraph"
+        android:title="Induce subgraph by selected vertices"/>
 
     <item
         android:id="@+id/clear"

@@ -12,20 +12,18 @@ import org.jgrapht.graph.SimpleGraph;
  * @author pdr081
  * 
  */
-public class MaximalClique<V,E> {
+public class MaximalClique<V, E> {
 
 	private final SimpleGraph<V, E> graph;
 
-	public MaximalClique(
-			SimpleGraph<V, E> graph) {
+	public MaximalClique(SimpleGraph<V, E> graph) {
 		this.graph = graph;
 	}
 
-	public static <V,E> Set<V> findExactMaximumClique(
-			SimpleGraph<V, E> graph) {
+	public static <V, E> Set<V> findExactMaximumClique(SimpleGraph<V, E> graph) {
 		Set<V> maximum = null;
 
-		MaximalClique<V,E> mc = new MaximalClique<V,E>(graph);
+		MaximalClique<V, E> mc = new MaximalClique<V, E>(graph);
 		for (Set<V> maxCliq : mc.maxCliques()) {
 			if (maximum == null || maxCliq.size() > maximum.size()) {
 				maximum = maxCliq;
@@ -44,8 +42,7 @@ public class MaximalClique<V,E> {
 		return cliques;
 	}
 
-	private Set<Set<V>> maxCliques(Set<V> r,
-			Set<V> p, Set<V> x,
+	private Set<Set<V>> maxCliques(Set<V> r, Set<V> p, Set<V> x,
 			Set<Set<V>> accumulator) {
 		if (p.isEmpty() && x.isEmpty()) {
 			accumulator.add(r);
@@ -53,8 +50,7 @@ public class MaximalClique<V,E> {
 		}
 		Set<V> px = union(p, x);
 		V u = px.iterator().next();
-		Set<V> pMinusNu = setMinus(p,
-				Neighbors.neighborhood(graph, u));
+		Set<V> pMinusNu = setMinus(p, Neighbors.neighborhood(graph, u));
 		for (V v : pMinusNu) {
 			maxCliques(union(r, v),
 					intersection(p, Neighbors.neighborhood(graph, v)),
@@ -66,12 +62,10 @@ public class MaximalClique<V,E> {
 		return accumulator;
 	}
 
-	private static <V> Set<V> intersection(Set<V> x,
-			Set<V> y) {
+	private static <V> Set<V> intersection(Set<V> x, Set<V> y) {
 		int xSize = x.size();
 		int ySize = y.size();
-		Set<V> intersection = new HashSet<V>(Math.min(
-				xSize, ySize));
+		Set<V> intersection = new HashSet<V>(Math.min(xSize, ySize));
 
 		if (xSize < ySize) {
 			for (V n : x) {
@@ -94,17 +88,14 @@ public class MaximalClique<V,E> {
 	 * 
 	 * UNION
 	 */
-	private static <V> Set<V> union(Set<V> x,
-			Set<V> y) {
-		Set<V> union = new HashSet<V>(x.size()
-				+ y.size());
+	private static <V> Set<V> union(Set<V> x, Set<V> y) {
+		Set<V> union = new HashSet<V>(x.size() + y.size());
 		union.addAll(x);
 		union.addAll(y);
 		return union;
 	}
 
-	private static <V> Set<V> union(Set<V> set,
-			V v) {
+	private static <V> Set<V> union(Set<V> set, V v) {
 		Set<V> union = new HashSet<V>(set.size() + 1);
 		for (V u : set) {
 			union.add(u);
@@ -118,8 +109,7 @@ public class MaximalClique<V,E> {
 	 * SET MINUS
 	 */
 
-	private static <V> Set<V> setMinus(Set<V> x,
-			Set<V> y) {
+	private static <V> Set<V> setMinus(Set<V> x, Set<V> y) {
 		Set<V> minus = new HashSet<V>(x.size());
 		for (V n : x) {
 			if (!y.contains(n)) {
@@ -129,8 +119,7 @@ public class MaximalClique<V,E> {
 		return minus;
 	}
 
-	private static <V> Set<V> setMinus(Set<V> set,
-			V v) {
+	private static <V> Set<V> setMinus(Set<V> set, V v) {
 		Set<V> minus = new HashSet<V>(set.size());
 		for (V u : set) {
 			if (!u.equals(v)) {

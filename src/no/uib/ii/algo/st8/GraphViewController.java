@@ -10,8 +10,10 @@ import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
+import no.uib.ii.algo.st8.algorithms.EulerianInspector;
 import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
+import no.uib.ii.algo.st8.algorithms.FeedbackVertexSet;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
@@ -201,6 +203,22 @@ public class GraphViewController {
 		redraw();
 	}
 
+	public void deselectAll() {
+		if (isEmptyGraph())
+			return;
+		userSelectedVertices.clear();
+		redraw();
+	}
+
+	public void selectAllHighlightedVertices() {
+		if (isEmptyGraph())
+			return;
+
+		userSelectedVertices.addAll(markedVertices);
+		markedVertices.clear();
+		redraw();
+	}
+
 	/**
 	 * Selects all vertices that are not selected and deselects those who are.
 	 * 
@@ -259,6 +277,10 @@ public class GraphViewController {
 		redraw();
 	}
 
+	/**
+	 * Between every pair of selected vertices, toggles edge.
+	 * 
+	 */
 	public void complementSelected() {
 		if (isEmptyGraph())
 			return;
@@ -273,14 +295,40 @@ public class GraphViewController {
 			DefaultVertex v = vertices.get(i);
 			for (int j = i + 1; j < vertices.size(); j++) {
 				DefaultVertex u = vertices.get(j);
-				if (graph.containsEdge(v, u)) {
-					graph.removeEdge(v, u);
-				} else {
-					graph.addEdge(v, u);
-				}
+				toggleEdge(v, u);
 			}
 		}
 		redraw();
+	}
+
+	/**
+	 * Deletes the selected vertices.
+	 * 
+	 * @return Returns the number of vertices deleted.
+	 */
+	public int deleteSelectedVertices() {
+		if (isEmptyGraph())
+			return 0;
+		int deleted = 0;
+
+		for (DefaultVertex v : userSelectedVertices) {
+			graph.removeVertex(v);
+			deleted++;
+		}
+		clearAll();
+		redraw();
+
+		return deleted;
+	}
+
+	/**
+	 * Deletes all vertices not selected.
+	 * 
+	 * @return number of vertices deleted.
+	 */
+	public int induceSubgraph() {
+		invertSelectedVertices();
+		return deleteSelectedVertices();
 	}
 
 	/**
@@ -338,6 +386,23 @@ public class GraphViewController {
 					new DefaultEdgeFactory<DefaultVertex>());
 		}
 		return graph.vertexSet().size() == 0;
+	}
+
+	/**
+	 * Tests if graph is eulerian. If not, highlights all vertices of odd
+	 * degree.
+	 * 
+	 * @return true if eulerian.
+	 */
+	public boolean isEulerian() {
+		if (isEmptyGraph())
+			return true;
+
+		Set<DefaultVertex> odds = EulerianInspector.getOddDegreeVertices(graph);
+		clearAll();
+		markedVertices.addAll(odds);
+		redraw();
+		return odds.size() == 0;
 	}
 
 	/**
@@ -538,12 +603,12 @@ public class GraphViewController {
 	 *            vertex u
 	 */
 	private void toggleEdge(DefaultVertex v, DefaultVertex u) {
-		DefaultEdge<DefaultVertex> edge = null;
-		edge = graph.getEdge(v, u);
-		if (edge != null) {
-			graph.removeEdge(edge);
-		} else {
+		if (isEmptyGraph())
+			return;
 
+		if (graph.containsEdge(v, u)) {
+			graph.removeEdge(v, u);
+		} else {
 			graph.addEdge(v, u);
 		}
 
@@ -564,6 +629,18 @@ public class GraphViewController {
 		layout.iterate();
 		fixPositions();
 		redraw();
+	}
+
+	public int showFeedbackVertexSet() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+		Set<DefaultVertex> fvs = FeedbackVertexSet
+				.findExactFeedbackVertexSet(graph);
+		clearAll();
+		markedVertices.addAll(fvs);
+		redraw();
+		return fvs.size();
 	}
 
 	public int showVertexCover() {
