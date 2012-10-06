@@ -8,6 +8,14 @@
     <!-- android:icon="@drawable/icon_search" -->
 
     <item
+        android:id="@+id/compute_regularity_deletion_set"
+        android:title="Regularity Deletion Set"/>
+
+    <item
+        android:id="@+id/compute_odd_cycle_transversal"
+        android:title="Odd Cycle Transversal"/>
+
+    <item
         android:id="@+id/compute_feedback_vertex_set"
         android:title="Feedback Vertex Set"/>
 

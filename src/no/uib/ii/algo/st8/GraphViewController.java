@@ -17,6 +17,8 @@ import no.uib.ii.algo.st8.algorithms.FeedbackVertexSet;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
+import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
+import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
@@ -629,6 +631,30 @@ public class GraphViewController {
 		layout.iterate();
 		fixPositions();
 		redraw();
+	}
+
+	public int showRegularityDeletionSet() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+		Set<DefaultVertex> regdel = RegularityInspector
+				.regularDeletionSet(graph);
+		clearAll();
+		markedVertices.addAll(regdel);
+		redraw();
+		return regdel.size();
+	}
+
+	public int showOddCycleTransversal() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+		Set<DefaultVertex> oct = OddCycleTransversal
+				.findOddCycleTransversal(graph);
+		clearAll();
+		markedVertices.addAll(oct);
+		redraw();
+		return oct.size();
 	}
 
 	public int showFeedbackVertexSet() {

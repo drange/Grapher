@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.util;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -34,7 +35,7 @@ public class InducedSubgraph {
 		return h;
 	}
 
-	public static <V, E> Iterator<SimpleGraph<V, E>> IteratorinducedSubgraphIterator(
+	public static <V, E> Iterator<SimpleGraph<V, E>> inducedSubgraphIterator(
 			final SimpleGraph<V, E> graph) {
 		return new Iterator<SimpleGraph<V, E>>() {
 			PowersetIterator<V> subsets = new PowersetIterator<V>(
@@ -53,4 +54,28 @@ public class InducedSubgraph {
 			}
 		};
 	}
+
+	public static <V, E> Iterator<SimpleGraph<V, E>> inducedSubgraphIteratorLargeToSmall(
+			final SimpleGraph<V, E> graph) {
+		return new Iterator<SimpleGraph<V, E>>() {
+			PowersetIterator<V> subsets = new PowersetIterator<V>(
+					graph.vertexSet());
+
+			public boolean hasNext() {
+				return subsets.hasNext();
+			}
+
+			public SimpleGraph<V, E> next() {
+				Set<V> vertices = subsets.next();
+				Set<V> induce = new HashSet<V>();
+				induce.addAll(graph.vertexSet());
+				induce.removeAll(vertices);
+				return inducedSubgraphOf(graph, induce);
+			}
+
+			public void remove() {
+			}
+		};
+	}
+
 }

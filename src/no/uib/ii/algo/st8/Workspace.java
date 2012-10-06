@@ -239,10 +239,22 @@ public class Workspace extends Activity implements OnClickListener,
 	 * */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.compute_vertex_cover:
-			int vc = controller.showVertexCover();
+		case R.id.compute_regularity_deletion_set:
+			int regdel = controller.showRegularityDeletionSet();
 			controller.redraw();
-			shortToast("Vertex Cover Number " + vc);
+			if (regdel == 0)
+				shortToast("Graph is regular");
+			else
+				shortToast("Regularity deletion set number " + regdel);
+			return true;
+
+		case R.id.compute_odd_cycle_transversal:
+			int oct = controller.showOddCycleTransversal();
+			controller.redraw();
+			if (oct == 0)
+				shortToast("Graph is bipartite (has no odd cycles)");
+			else
+				shortToast("Odd Cycle Transversal number " + oct);
 			return true;
 
 		case R.id.compute_feedback_vertex_set:
@@ -252,6 +264,12 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("Graph is acyclic");
 			else
 				shortToast("Feedback Vertex Set number " + fvs);
+			return true;
+
+		case R.id.compute_vertex_cover:
+			int vc = controller.showVertexCover();
+			controller.redraw();
+			shortToast("Vertex Cover Number " + vc);
 			return true;
 
 		case R.id.compute_maximum_independent_set:
