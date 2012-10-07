@@ -25,8 +25,13 @@ public class FeedbackVertexSet {
 		Set<V> vertices = new HashSet<V>(graph.vertexSet().size());
 		Set<V> fvs = new HashSet<V>(graph.vertexSet().size());
 
+		Set<V> currentBestFvs = graph.vertexSet();
+
 		while (subsets.hasNext()) {
 			fvs = subsets.next();
+
+			if (fvs.size() >= currentBestFvs.size())
+				continue;
 
 			vertices.clear();
 			vertices.addAll(graph.vertexSet());
@@ -37,11 +42,8 @@ public class FeedbackVertexSet {
 
 			System.out.println("Induced subgraph on " + h.vertexSet());
 			if (isAcyclic(h))
-				return fvs;
+				currentBestFvs = fvs;
 		}
-
-		System.err.println(FeedbackVertexSet.class.getCanonicalName()
-				+ " -- we should never be here!");
-		return fvs;
+		return currentBestFvs;
 	}
 }

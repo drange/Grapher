@@ -44,6 +44,7 @@ public class RegularityInspector {
 	}
 
 	public static <V, E> Set<V> regularDeletionSet(SimpleGraph<V, E> graph) {
+		
 		Iterator<SimpleGraph<V, E>> i = InducedSubgraph
 				.inducedSubgraphIteratorLargeToSmall(graph);
 

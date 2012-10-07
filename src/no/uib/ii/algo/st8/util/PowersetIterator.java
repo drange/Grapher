@@ -8,6 +8,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+// TODO is it possible to have this iterate in increasing order of cardinality without any significant delay?
+
+/**
+ * 
+ * @author pgd
+ * 
+ * @param <T>
+ */
 public class PowersetIterator<T> implements Iterator<Collection<T>> {
 
 	private BigInteger charactheristic = BigInteger.ZERO;
