@@ -15,11 +15,7 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
 /**
- * TODO: Should probably do this individually for connected components, and then
- * try placing them appropriately
- * 
  * @author pgd
- * 
  */
 public class SpringLayout {
 

@@ -6,6 +6,36 @@ import java.util.Set;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Neighbors {
+
+	public static <V, E> Set<V> closedNNeighborhood(SimpleGraph<V, E> graph,
+			V vertex, int n) {
+		Set<V> neighbors = new HashSet<V>(graph.degreeOf(vertex));
+		neighbors.add(vertex);
+		for (int i = 0; i < n; i++) {
+			Set<V> newneighbors = new HashSet<V>(graph.vertexSet().size());
+			for (V v : neighbors) {
+				newneighbors.addAll(neighborhood(graph, v));
+			}
+			neighbors.addAll(newneighbors);
+		}
+		return neighbors;
+	}
+
+	public static <V, E> Set<V> openNNeighborhood(SimpleGraph<V, E> graph,
+			V vertex, int n) {
+		Set<V> neighbors = new HashSet<V>(graph.degreeOf(vertex));
+		neighbors.add(vertex);
+		for (int i = 0; i < n; i++) {
+			Set<V> newneighbors = new HashSet<V>(graph.vertexSet().size());
+			for (V v : neighbors) {
+				newneighbors.addAll(neighborhood(graph, v));
+			}
+			neighbors.addAll(newneighbors);
+		}
+		neighbors.remove(vertex);
+		return neighbors;
+	}
+
 	public static <V, E> Set<V> neighborhood(SimpleGraph<V, E> graph, V vertex) {
 		Set<V> set = new HashSet<V>(graph.degreeOf(vertex));
 		for (E edge : graph.edgesOf(vertex)) {

@@ -35,6 +35,9 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
+/**
+ * @author pgd
+ */
 public class Workspace extends Activity implements OnClickListener,
 		SensorEventListener {
 
@@ -302,6 +305,12 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("No path!");
 			else
 				shortToast("Path length " + res);
+			controller.redraw();
+			return true;
+
+		case R.id.power:
+			controller.constructPower();
+			shortToast("Power graph has been constructed");
 			controller.redraw();
 			return true;
 

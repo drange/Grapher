@@ -20,6 +20,8 @@ public class GraphView extends View {
 	private Paint p = new Paint();
 	private Matrix transformMatrix = new Matrix();
 
+	private final Matrix prev = new Matrix();
+
 	public GraphView(Context context) {
 		super(context);
 		System.out.println("done!?!");
@@ -39,8 +41,6 @@ public class GraphView extends View {
 		this.graph = graph;
 		invalidate();
 	}
-
-	Matrix prev = new Matrix();
 
 	@Override
 	protected void onDraw(Canvas canvas) {

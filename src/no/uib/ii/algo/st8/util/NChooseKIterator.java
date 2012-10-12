@@ -7,8 +7,8 @@ import java.util.Iterator;
 
 public class NChooseKIterator<T> implements Iterator<Collection<T>> {
 
-	private ArrayList<T> elements;
-	boolean[] characteristic;
+	private final ArrayList<T> elements;
+	private final boolean[] characteristic;
 	private final int k;
 	private final int n;
 
@@ -64,6 +64,12 @@ public class NChooseKIterator<T> implements Iterator<Collection<T>> {
 			}
 		}
 
+		if (firstFromRightFalse == n) {
+			// only happens if there are only 1's, i.e. n == k
+			hasnext = false;
+			return;
+		}
+
 		int firstFromRightTrue = n;
 		for (int i = firstFromRightFalse; i >= 0; i--) {
 			if (characteristic[i]) {
@@ -84,5 +90,4 @@ public class NChooseKIterator<T> implements Iterator<Collection<T>> {
 
 	public void remove() {
 	}
-
 }

@@ -18,6 +18,7 @@ import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
+import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.model.DefaultEdge;
@@ -364,6 +365,13 @@ public class GraphViewController {
 		redraw();
 
 		return path.getEdgeList().size() + 1;
+	}
+
+	public void constructPower() {
+		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph
+				.constructPowerGraph(graph);
+		this.graph = power;
+		redraw();
 	}
 
 	/**

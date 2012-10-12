@@ -100,6 +100,10 @@
         android:title="Path"/>
 
     <item
+        android:id="@+id/power"
+        android:title="Construct power graph"/>
+
+    <item
         android:id="@+id/tikz_to_clipboard"
         android:title="Copy Tikz to clipboard"/>
 
