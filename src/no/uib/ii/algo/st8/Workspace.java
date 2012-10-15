@@ -48,20 +48,6 @@ public class Workspace extends Activity implements OnClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		// RESTORING GRAPH IF PRESENT!
-		// if (savedInstanceState != null) {
-		// SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph = null;
-		// Object restore = savedInstanceState.getSerializable("graph");
-		// if (restore != null) {
-		// graph = (SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>)
-		// restore;
-		// }
-		// if (graph != null && graph instanceof SimpleGraph) {
-		// System.out.println("recovered graph "
-		// + GraphInformation.graphInfo(graph));
-		// }
-		// }
-
 		System.out.println("done markus log hei stupedamen");
 
 		DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -87,41 +73,31 @@ public class Workspace extends Activity implements OnClickListener,
 		controller.redraw();
 	}
 
-	// @Override
-	// public void onSaveInstanceState(Bundle savedInstanceState) {
-	// super.onSaveInstanceState(savedInstanceState);
-	// // Save UI state changes to the savedInstanceState.
-	// // This bundle will be passed to onCreate if the process is
-	// // killed and restarted.
-	// savedInstanceState.putSerializable("graph", controller.getGraph());
-	// }
-
 	private boolean copyTikzToClipboard() {
-		String text = "";
+		String text = GraphExporter.getTikz(controller.getGraph(),
+				controller.getTransformMatrix());
 		try {
-			text = GraphExporter.getTikz(controller.getGraph(),
-					controller.getTransformMatrix());
 			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.out.println("ERROR ON CLIPBOARD");
-			System.out.println(text);
+			System.err.println("Error while copying TiKZ to clipboard: "
+					+ e.getMessage());
+			e.printStackTrace();
 			e.printStackTrace();
 			return false;
 		}
 	}
 
 	private boolean copyMetapostToClipboard() {
-		String text = "";
+		String text = GraphExporter.getMetapost(controller.getGraph());
 		try {
-			text = GraphExporter.getMetapost(controller.getGraph());
 			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.out.println("ERROR ON CLIPBOARD");
-			System.out.println(text);
+			System.err.println("Error while copying metapost to clipboard: "
+					+ e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
@@ -297,6 +273,17 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.longShake(100);
 			controller.redraw();
 			shortToast("Shaken, not stirred");
+			return true;
+
+		case R.id.hamiltonian_path:
+			boolean hamiltonianPath = controller.showHamiltonianPath();
+
+			if (hamiltonianPath)
+				shortToast("Hamiltonian path highlighted");
+			else
+				shortToast("No hamiltonian path!");
+
+			controller.redraw();
 			return true;
 
 		case R.id.path:

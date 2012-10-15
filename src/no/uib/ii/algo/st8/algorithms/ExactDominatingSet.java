@@ -1,8 +1,8 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultVertex;
@@ -24,7 +24,7 @@ import org.jgrapht.graph.SimpleGraph;
  */
 public class ExactDominatingSet {
 
-	public static Set<DefaultVertex> exactDominatingSet(
+	public static Collection<DefaultVertex> exactDominatingSet(
 			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		SimpleGraph<VertexDominated, EdgeDominated> g = new SimpleGraph<VertexDominated, EdgeDominated>(
 				new EdgeFactory<VertexDominated, EdgeDominated>() {
@@ -49,9 +49,9 @@ public class ExactDominatingSet {
 
 		PowersetIterator<VertexDominated> pi = new PowersetIterator<VertexDominated>(
 				g.vertexSet());
-		Set<VertexDominated> domset = null;
+		Collection<VertexDominated> domset = null;
 		while (pi.hasNext()) {
-			Set<VertexDominated> current = pi.next();
+			Collection<VertexDominated> current = pi.next();
 
 			// if domset is a smaller dom. set, we continue searching
 			if (domset != null && current.size() >= domset.size()) {
@@ -64,7 +64,8 @@ public class ExactDominatingSet {
 			}
 		}
 
-		Set<DefaultVertex> res = new HashSet<DefaultVertex>(domset.size());
+		Collection<DefaultVertex> res = new HashSet<DefaultVertex>(
+				domset.size());
 		for (VertexDominated vd : domset) {
 			res.add(vd.vertex);
 		}
@@ -74,7 +75,7 @@ public class ExactDominatingSet {
 
 	private static boolean isDominatingSet(
 			SimpleGraph<VertexDominated, EdgeDominated> graph,
-			Set<VertexDominated> set) {
+			Collection<VertexDominated> set) {
 		for (VertexDominated v : graph.vertexSet()) {
 			v.dominated = false;
 		}

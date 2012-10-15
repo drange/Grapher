@@ -2,8 +2,8 @@ package no.uib.ii.algo.st8.algorithms;
 
 import static no.uib.ii.algo.st8.algorithms.GirthInspector.isAcyclic;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 
 import no.uib.ii.algo.st8.util.InducedSubgraph;
 import no.uib.ii.algo.st8.util.PowersetIterator;
@@ -12,7 +12,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class FeedbackVertexSet {
 
-	public static <V, E> Set<V> findExactFeedbackVertexSet(
+	public static <V, E> Collection<V> findExactFeedbackVertexSet(
 			SimpleGraph<V, E> graph) {
 		if (graph == null)
 			throw new NullPointerException("Input graph to FVS was null!");
@@ -22,10 +22,10 @@ public class FeedbackVertexSet {
 
 		PowersetIterator<V> subsets = new PowersetIterator<V>(graph.vertexSet());
 
-		Set<V> vertices = new HashSet<V>(graph.vertexSet().size());
-		Set<V> fvs = new HashSet<V>(graph.vertexSet().size());
+		Collection<V> vertices = new HashSet<V>(graph.vertexSet().size());
+		Collection<V> fvs = new HashSet<V>(graph.vertexSet().size());
 
-		Set<V> currentBestFvs = graph.vertexSet();
+		Collection<V> currentBestFvs = graph.vertexSet();
 
 		while (subsets.hasNext()) {
 			fvs = subsets.next();
@@ -40,7 +40,6 @@ public class FeedbackVertexSet {
 			SimpleGraph<V, E> h = InducedSubgraph.inducedSubgraphOf(graph,
 					vertices);
 
-			System.out.println("Induced subgraph on " + h.vertexSet());
 			if (isAcyclic(h))
 				currentBestFvs = fvs;
 		}

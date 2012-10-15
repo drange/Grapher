@@ -1,14 +1,10 @@
 package no.uib.ii.algo.st8.util;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-// TODO is it possible to have this iterate in increasing order of cardinality without any significant delay?
 
 /**
  * 
@@ -18,33 +14,66 @@ import java.util.Set;
  */
 public class PowersetIterator<T> implements Iterator<Collection<T>> {
 
-	private BigInteger charactheristic = BigInteger.ZERO;
-
-	private final BigInteger size;
-
+	private final int n;
+	private int k = 0;
 	private final List<T> set;
+
+	private NChooseKIterator<T> currentIterator;
 
 	public PowersetIterator(Set<T> input) {
 		this.set = new ArrayList<T>(input.size());
 		this.set.addAll(input);
-		size = new BigInteger("" + ((long) Math.pow(2, set.size())) + "");
+		n = set.size();
+		currentIterator = new NChooseKIterator<T>(set, k);
 	}
 
 	public boolean hasNext() {
-		return charactheristic.compareTo(size) < 0;
+		return k < n || currentIterator.hasNext();
 	}
 
-	public Set<T> next() {
-		Set<T> ret = new HashSet<T>();
-		for (int i = 0; i < set.size(); i++) {
-			if (charactheristic.testBit(i))
-				ret.add(set.get(i));
-		}
-		charactheristic = charactheristic.add(BigInteger.ONE);
-		return ret;
+	public Collection<T> next() {
+		if (currentIterator.hasNext())
+			return currentIterator.next();
+		currentIterator = new NChooseKIterator<T>(set, ++k);
+		return currentIterator.next();
 	}
 
 	public void remove() {
-		throw new IllegalArgumentException();
+		throw new UnsupportedOperationException(
+				"Cannot remove a set using this iterator");
+	}
+
+	public static class PowersetIteratorDescending<S> implements
+			Iterator<Collection<S>> {
+
+		private final int n;
+		private int k = 0;
+		private final List<S> set;
+
+		private NChooseKIterator<S> currentIterator;
+
+		public PowersetIteratorDescending(Set<S> input) {
+			this.set = new ArrayList<S>(input.size());
+			this.set.addAll(input);
+			n = set.size();
+			k = n;
+			currentIterator = new NChooseKIterator<S>(set, k);
+		}
+
+		public boolean hasNext() {
+			return k > 0 || currentIterator.hasNext();
+		}
+
+		public Collection<S> next() {
+			if (currentIterator.hasNext())
+				return currentIterator.next();
+			currentIterator = new NChooseKIterator<S>(set, --k);
+			return currentIterator.next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException(
+					"Cannot remove a set using this iterator");
+		}
 	}
 }

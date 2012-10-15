@@ -96,6 +96,10 @@
         android:title="Spring (lazy shake)"/>
 
     <item
+        android:id="@+id/hamiltonian_path"
+        android:title="Hamiltonian Path"/>
+
+    <item
         android:id="@+id/path"
         android:title="Path"/>
 

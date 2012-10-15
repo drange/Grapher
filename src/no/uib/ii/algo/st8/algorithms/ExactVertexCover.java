@@ -247,21 +247,4 @@ class KVertexCover {
 		}
 
 	}
-
-	/*
-	 * This version simply prints info on time it takes to find...
-	 * 
-	 * public Set<DefaultVertex> minVertexCover() { long stop = 0; long start =
-	 * 0; long milli = 1000000L; long ms = 0; BitSet necessary =
-	 * necessaryVertices();
-	 * 
-	 * for (int i = 1; i < graph.vertexSet().size(); i++) { start =
-	 * System.nanoTime(); BitSet kNecessary = necessaryVertices(necessary, i);
-	 * BitSet kvc = kVertexCover(i - kNecessary.cardinality(), kNecessary); stop
-	 * = System.nanoTime(); ms = ((stop - start) / milli); if (kvc != null) {
-	 * System.out.println("Found vertex cover of size " + i + " [" + ms +
-	 * " ms]"); return bitSetToNodeSet(kvc); } else {
-	 * System.out.println("No vertex cover of size " + i + " [" + ms + " ms]");
-	 * } } return null; }
-	 */
 }

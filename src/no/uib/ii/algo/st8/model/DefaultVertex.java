@@ -78,10 +78,13 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
 		this.size = size;
 	}
 
+	// @Override
+	// public String toString() {
+	// return "DefaultVertex [color=" + color + ", coordinate=" + coordinate
+	// + ", label=" + label + ", size=" + size + "]";
+	// }
 	@Override
 	public String toString() {
-		return "DefaultVertex [color=" + color + ", coordinate=" + coordinate
-				+ ", label=" + label + ", size=" + size + "]";
+		return "dv" + id;
 	}
-
 }

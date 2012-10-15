@@ -1,6 +1,7 @@
 package no.uib.ii.algo.st8;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,6 +17,7 @@ import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.FeedbackVertexSet;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
+import no.uib.ii.algo.st8.algorithms.HamiltonianInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
@@ -77,7 +79,6 @@ public class GraphViewController {
 		});
 
 		CENTER_COORDINATE = new Coordinate(width / 2, height / 2);
-		// System.out.println("Center: " + CENTER_COORDINATE);
 	}
 
 	public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getGraph() {
@@ -186,6 +187,17 @@ public class GraphViewController {
 		markedEdges.clear();
 		userSelectedVertices.clear();
 		markedVertices.clear();
+	}
+
+	/**
+	 * Deselects all selected vertices and edges
+	 */
+	public void removeHighlight(Object obj) {
+		if (prevTouch == obj)
+			prevTouch = null;
+		markedEdges.remove(obj);
+		userSelectedVertices.remove(obj);
+		markedVertices.remove(obj);
 	}
 
 	/**
@@ -332,6 +344,21 @@ public class GraphViewController {
 	public int induceSubgraph() {
 		invertSelectedVertices();
 		return deleteSelectedVertices();
+	}
+
+	public boolean showHamiltonianPath() {
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector
+				.getHamiltonianPath(graph);
+
+		clearAll();
+
+		if (hamPath == null) {
+			return false;
+		}
+
+		hightlightPath(hamPath);
+		redraw();
+		return true;
 	}
 
 	/**
@@ -588,8 +615,6 @@ public class GraphViewController {
 					+ USER_MISS_RADIUS);
 		}
 
-		System.out.println("Universal: " + pos + " (" + deg + ")");
-
 		DefaultVertex universal = new DefaultVertex(pos);
 		graph.addVertex(universal);
 		for (DefaultVertex v : graph.vertexSet()) {
@@ -657,7 +682,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Set<DefaultVertex> oct = OddCycleTransversal
+		Collection<DefaultVertex> oct = OddCycleTransversal
 				.findOddCycleTransversal(graph);
 		clearAll();
 		markedVertices.addAll(oct);
@@ -669,7 +694,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Set<DefaultVertex> fvs = FeedbackVertexSet
+		Collection<DefaultVertex> fvs = FeedbackVertexSet
 				.findExactFeedbackVertexSet(graph);
 		clearAll();
 		markedVertices.addAll(fvs);
@@ -713,7 +738,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Set<DefaultVertex> domset = ExactDominatingSet
+		Collection<DefaultVertex> domset = ExactDominatingSet
 				.exactDominatingSet(graph);
 		clearAll();
 		markedVertices.addAll(domset);
@@ -828,13 +853,14 @@ public class GraphViewController {
 		}
 
 		public boolean onDoubleTap(MotionEvent e) {
+			// TODO fix that a double tap actually hits same vertex both times
 			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
 			if (hit != null) {
 				graph.removeVertex(hit);
-				clearAll();
+				removeHighlight(hit);
 				redraw();
 				return true;
 			} else {
@@ -882,8 +908,6 @@ public class GraphViewController {
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
 
-			System.out.println("--> " + previousPointerCount + " - "
-					+ previousPointerCoords);
 			switch (e2.getPointerCount()) {
 			case 2:
 				if (previousPointerCoords == null || previousPointerCount != 2) {
@@ -935,8 +959,6 @@ public class GraphViewController {
 			}
 			previousPointerCount = e2.getPointerCount();
 			redraw();
-			System.out.print(previousPointerCount + " - "
-					+ previousPointerCoords);
 			return true;
 		}
 	}
