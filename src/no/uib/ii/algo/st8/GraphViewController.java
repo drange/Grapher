@@ -17,6 +17,7 @@ import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.FeedbackVertexSet;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
+import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
 import no.uib.ii.algo.st8.algorithms.HamiltonianInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
@@ -356,7 +357,22 @@ public class GraphViewController {
 			return false;
 		}
 
-		hightlightPath(hamPath);
+		highlightPath(hamPath);
+		redraw();
+		return true;
+	}
+
+	public boolean showHamiltonianCycle() {
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamCyc = HamiltonianCycleInspector
+				.getHamiltonianCycle(graph);
+
+		clearAll();
+
+		if (hamCyc == null) {
+			return false;
+		}
+
+		highlightPath(hamCyc);
 		redraw();
 		return true;
 	}
@@ -387,7 +403,7 @@ public class GraphViewController {
 		if (path.getEdgeList().size() == 0)
 			return 0;
 
-		hightlightPath(path);
+		highlightPath(path);
 
 		redraw();
 
@@ -406,7 +422,7 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void hightlightPath(
+	private void highlightPath(
 			GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
 		for (DefaultEdge<DefaultVertex> e : gp.getEdgeList()) {
 			markedEdges.add(e);
@@ -461,7 +477,7 @@ public class GraphViewController {
 		if (gp.getEdgeList().size() == 0)
 			return 0;
 
-		hightlightPath(gp);
+		highlightPath(gp);
 
 		redraw();
 

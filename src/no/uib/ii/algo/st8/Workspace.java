@@ -286,6 +286,17 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.hamiltonian_cycle:
+			boolean hamiltonianCycle = controller.showHamiltonianCycle();
+
+			if (hamiltonianCycle)
+				shortToast("Graph is hamiltonian (cycle highlighted)");
+			else
+				shortToast("Graph is not hamiltonian");
+
+			controller.redraw();
+			return true;
+
 		case R.id.path:
 			int res = controller.showPath();
 			if (res < 0)
