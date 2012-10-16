@@ -9,6 +9,7 @@ import java.util.Set;
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
+import no.uib.ii.algo.st8.algorithms.ConnectedVertexCover;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
 import no.uib.ii.algo.st8.algorithms.EulerianInspector;
@@ -431,6 +432,25 @@ public class GraphViewController {
 		}
 	}
 
+	/**
+	 * Adds edges and vertices to markedEdges and markedVertices
+	 * 
+	 * @param gp
+	 */
+	private void highlightGraph(
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> h) {
+		for (DefaultEdge<DefaultVertex> e : h.edgeSet()) {
+			DefaultVertex v = e.getSource();
+			DefaultVertex u = e.getTarget();
+			DefaultEdge<DefaultVertex> edge = graph.getEdge(v, u);
+			if (edge != null) {
+				markedEdges.add(edge);
+			}
+			markedVertices.add(v);
+			markedVertices.add(u);
+		}
+	}
+
 	public boolean isEmptyGraph() {
 		if (graph == null) {
 			new NullPointerException("Graph was null, from isEmptyGraph")
@@ -726,6 +746,30 @@ public class GraphViewController {
 		clearAll();
 		markedVertices.addAll(cover);
 		return cover.size();
+	}
+
+	/**
+	 * Finds connected vertex cover (cvc), highlights it and returns its size
+	 * (order). If no CVC exists, e.g. there are two connected components
+	 * containing edges, we return -1.
+	 * 
+	 * @return order of cvc, or -1 if none exists
+	 */
+	public int showConnectedVertexCover() {
+		if (isEmptyGraph()) {
+			return 0;
+		}
+		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = ConnectedVertexCover
+				.getConnectedVertexCover(graph);
+
+		if (cvc == null)
+			return -1;
+
+		clearAll();
+
+		highlightGraph(cvc);
+
+		return cvc.vertexSet().size();
 	}
 
 	public int showMaximumIndependentSet() {
