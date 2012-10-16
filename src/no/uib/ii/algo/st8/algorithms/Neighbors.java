@@ -14,7 +14,7 @@ public class Neighbors {
 		for (int i = 0; i < n; i++) {
 			Set<V> newneighbors = new HashSet<V>(graph.vertexSet().size());
 			for (V v : neighbors) {
-				newneighbors.addAll(neighborhood(graph, v));
+				newneighbors.addAll(openNeighborhood(graph, v));
 			}
 			neighbors.addAll(newneighbors);
 		}
@@ -28,7 +28,7 @@ public class Neighbors {
 		for (int i = 0; i < n; i++) {
 			Set<V> newneighbors = new HashSet<V>(graph.vertexSet().size());
 			for (V v : neighbors) {
-				newneighbors.addAll(neighborhood(graph, v));
+				newneighbors.addAll(openNeighborhood(graph, v));
 			}
 			neighbors.addAll(newneighbors);
 		}
@@ -36,7 +36,8 @@ public class Neighbors {
 		return neighbors;
 	}
 
-	public static <V, E> Set<V> neighborhood(SimpleGraph<V, E> graph, V vertex) {
+	public static <V, E> Set<V> openNeighborhood(SimpleGraph<V, E> graph,
+			V vertex) {
 		Set<V> set = new HashSet<V>(graph.degreeOf(vertex));
 		for (E edge : graph.edgesOf(vertex)) {
 			set.add(opposite(graph, vertex, edge));

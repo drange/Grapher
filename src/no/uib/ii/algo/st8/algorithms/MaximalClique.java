@@ -50,11 +50,11 @@ public class MaximalClique<V, E> {
 		}
 		Set<V> px = union(p, x);
 		V u = px.iterator().next();
-		Set<V> pMinusNu = setMinus(p, Neighbors.neighborhood(graph, u));
+		Set<V> pMinusNu = setMinus(p, Neighbors.openNeighborhood(graph, u));
 		for (V v : pMinusNu) {
 			maxCliques(union(r, v),
-					intersection(p, Neighbors.neighborhood(graph, v)),
-					intersection(x, Neighbors.neighborhood(graph, v)),
+					intersection(p, Neighbors.openNeighborhood(graph, v)),
+					intersection(x, Neighbors.openNeighborhood(graph, v)),
 					accumulator);
 			p = setMinus(p, v);
 			x = union(x, v);

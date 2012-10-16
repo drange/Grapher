@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import no.uib.ii.algo.st8.algorithms.RegularityInspector.StronglyRegularWitness;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultVertex;
 
@@ -49,7 +50,18 @@ public class GraphInformation {
 			if (maxDegree == vertexCount - 1) {
 				s += " Complete, K_" + vertexCount;
 			} else {
-				s += " " + maxDegree + "-regular";
+				if (maxDegree == 2) {
+					// this is a cycle
+					s += " Cycle, C_" + vertexCount + ",";
+				}
+				StronglyRegularWitness srw = RegularityInspector
+						.isStronglyRegular(graph);
+				if (srw != null) {
+					// graph is strongly regular!
+					s += " " + srw;
+				} else {
+					s += " " + maxDegree + "-regular";
+				}
 			}
 		} else {
 			s += " Max degree " + maxDegree + ", min degree " + minDegree;

@@ -82,7 +82,7 @@ public class ExactDominatingSet {
 
 		for (VertexDominated dominator : set) {
 			dominator.dominated = true;
-			for (VertexDominated other : Neighbors.neighborhood(graph,
+			for (VertexDominated other : Neighbors.openNeighborhood(graph,
 					dominator)) {
 				other.dominated = true;
 			}

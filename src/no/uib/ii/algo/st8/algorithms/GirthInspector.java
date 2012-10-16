@@ -69,7 +69,7 @@ public class GirthInspector {
 				PathVertex<V> x = R.iterator().next();
 				S.add(x);
 				R.remove(x);
-				for (PathVertex<V> y : Neighbors.neighborhood(copy, x)) {
+				for (PathVertex<V> y : Neighbors.openNeighborhood(copy, x)) {
 					if (y == x.parent)
 						continue;
 					if (!S.contains(y)) {

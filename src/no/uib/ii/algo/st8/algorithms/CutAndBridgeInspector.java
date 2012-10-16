@@ -21,7 +21,7 @@ public class CutAndBridgeInspector {
 			if (nsize > size)
 				return v;
 			gc.addVertex(v);
-			for (V u : Neighbors.neighborhood(graph, v)) {
+			for (V u : Neighbors.openNeighborhood(graph, v)) {
 				gc.addEdge(u, v);
 			}
 		}
@@ -43,7 +43,7 @@ public class CutAndBridgeInspector {
 			if (nsize > size)
 				cuts.add(v);
 			gc.addVertex(v);
-			for (V u : Neighbors.neighborhood(graph, v)) {
+			for (V u : Neighbors.openNeighborhood(graph, v)) {
 				gc.addEdge(u, v);
 			}
 		}
