@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,6 +17,7 @@ import org.jgrapht.graph.SimpleGraph;
 public class HamiltonianInspector {
 	public static <V, E> GraphPath<V, E> getHamiltonianPath(
 			SimpleGraph<V, E> graph) {
+
 		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
 		if (!con)
 			return null;
@@ -25,30 +25,29 @@ public class HamiltonianInspector {
 		int n = graph.vertexSet().size();
 		int npow = (int) Math.pow(2, n);
 
-		Map<Integer, V> intToVertex = new HashMap<Integer, V>(n);
-		Map<V, Integer> vertexToInt = new HashMap<V, Integer>(n);
+		Map<Integer, V> idToVertex = new HashMap<Integer, V>(n);
+		Map<V, Integer> vertexToId = new HashMap<V, Integer>(n);
 
-		Map<Collection<V>, Integer> collectionToInt = new HashMap<Collection<V>, Integer>(
+		Map<Collection<V>, Integer> collectionToId = new HashMap<Collection<V>, Integer>(
 				npow);
-		Map<Integer, Collection<V>> intToCollection = new HashMap<Integer, Collection<V>>(
+		Map<Integer, Collection<V>> idToCollection = new HashMap<Integer, Collection<V>>(
 				npow);
 
 		PowersetIterator<V> pi = new PowersetIterator<V>(graph.vertexSet());
 		int counter = 0;
 		while (pi.hasNext()) {
 			Collection<V> set = pi.next();
-			collectionToInt.put(set, counter);
-			intToCollection.put(counter, set);
+			collectionToId.put(set, counter);
+			idToCollection.put(counter, set);
+
 			counter++;
 		}
 
-		List<V> vertices = new ArrayList<V>(n);
-
 		counter = 0;
 		for (V v : graph.vertexSet()) {
-			intToVertex.put(counter, v);
-			vertexToInt.put(v, counter);
-			vertices.add(v);
+			idToVertex.put(counter, v);
+			vertexToId.put(v, counter);
+
 			counter++;
 		}
 
@@ -59,45 +58,44 @@ public class HamiltonianInspector {
 		 * whether dp[u][S-v] is true for some u in S.
 		 */
 
-		// base cases, set (n, {n}) to true
+		// base cases, let ( id(v) , id({v}) ) := true
 		boolean[][] dp = new boolean[n][npow];
 		for (int i = 0; i < n; i++) {
-			V v = intToVertex.get(i);
+			V v = idToVertex.get(i);
 			HashSet<V> s = new HashSet<V>(1);
 			s.add(v);
-			int key = collectionToInt.get(s);
-			dp[i][key] = true;
+			int setId = collectionToId.get(s);
+			dp[vertexToId.get(v)][setId] = true;
 		}
 
-		for (int v = 0; v < n; v++) {
-			V vertex = intToVertex.get(v);
+		// s is the id for a subset currentSet
+		for (int s = 0; s < npow; s++) {
+			// currentSet is the set corresponding to 's'
+			Collection<V> currentSet = idToCollection.get(s);
 
-			// s is the characteristic vector for a subset currentSet
-			for (int s = 0; s < npow; s++) {
-				// currentSet is the set corresponding to 's'
-				Collection<V> currentSet = intToCollection.get(s);
-				if (!currentSet.contains(vertex))
+			for (int v = 0; v < n; v++) {
+				// considering dp[currentVertex][currentSet] =? true
+				V currentVertex = idToVertex.get(v);
+
+				if (!currentSet.contains(currentVertex))
 					continue;
 
-				// System.out.println("v = " + v);
-				// System.out.println("S = " + currentSet);
-				for (V u : currentSet) {
-					Set<V> Sprime = new HashSet<V>(currentSet.size());
-					Sprime.addAll(currentSet);
-					Sprime.remove(vertex);
-					// System.out.println("\ttesting S' = " + Sprime);
+				Set<V> newSet = new HashSet<V>(currentSet.size());
+				newSet.addAll(currentSet);
+				newSet.remove(currentVertex);
 
-					if (dp[vertexToInt.get(u)][collectionToInt.get(Sprime)]) {
-						// okey, there is a path in Sprime ending in u, need
-						// only that there is an edge between u and v
+				for (V newVertex : newSet) {
+					if (dp[vertexToId.get(newVertex)][collectionToId
+							.get(newSet)]) {
+						// There is a path in newSet ending in newVertex,
+						// is there an edge between newVertex an currentVertex?
 
-						if (graph.containsEdge(intToVertex.get(v), u)) {
+						if (graph.containsEdge(currentVertex, newVertex)) {
 							// vu is an edge
-
-							dp[vertexToInt.get(vertex)][collectionToInt
+							dp[vertexToId.get(currentVertex)][collectionToId
 									.get(currentSet)] = true;
 
-							continue;
+							break;
 						}
 					}
 				}
@@ -107,44 +105,77 @@ public class HamiltonianInspector {
 		// for (int x = 0; x < dp.length; x++) {
 		// for (int y = 0; y < dp[x].length; y++) {
 		// int out = dp[x][y] ? 1 : 0;
-		// System.out.print(out + " ");
+		// System.out.print(out);
 		// }
 		// System.out.println();
 		// }
 		// System.out.println("\n======\n\n");
 
-		if (!dp[n - 1][collectionToInt.get(graph.vertexSet())]) {
+		int pathEnds = -1;
+		for (int i = 0; i < n; i++) {
+			if (dp[i][collectionToId.get(graph.vertexSet())]) {
+				pathEnds = i;
+				break;
+			}
+		}
+
+		if (pathEnds < 0) {
 			// System.out.println("No hamiltonian path");
 			return null;
 		}
+
+		// System.out.println("We found hamiltonian path ending in " + pathEnds
+		// + " = " + idToVertex.get(pathEnds));
 
 		// we need to reconstruct path from dp table!
 		ArrayList<V> hamPath = new ArrayList<V>(n);
 
 		ArrayList<E> edgeList = new ArrayList<E>(n);
 
-		V currentVertex = intToVertex.get(n - 1);
+		V currentVertex = idToVertex.get(pathEnds);
 		Collection<V> currentSet = new HashSet<V>(n);
 		currentSet.addAll(graph.vertexSet());
 
 		hamPath.add(currentVertex);
 
+		// going backwards from pathEnds
 		for (int i = 0; i < n - 1; i++) {
+
 			currentSet.remove(currentVertex);
-			int currentSetId = collectionToInt.get(currentSet);
+			int currentSetId = collectionToId.get(currentSet);
+
 			for (int newVertexId = 0; newVertexId < n; newVertexId++) {
 				if (dp[newVertexId][currentSetId]) {
-					V newVertex = intToVertex.get(newVertexId);
-					edgeList.add(graph.getEdge(currentVertex, newVertex));
+					V newVertex = idToVertex.get(newVertexId);
+					graph.getEdge(currentVertex, newVertex);
+
+					// if it doesn't contain this edge, a different newVertex is
+					// witness (next in path)
+					if (!graph.containsEdge(currentVertex, newVertex)) {
+						continue;
+					}
+
 					currentVertex = newVertex;
+
 					hamPath.add(currentVertex);
 					break;
 				}
 			}
 		}
 
-		// System.out.println("Found hamiltonian path");
-		// System.out.println("\t" + edgeList);
+		for (int i = 1; i < hamPath.size(); i++) {
+			V v = hamPath.get(i - 1);
+			V u = hamPath.get(i);
+			E e = graph.getEdge(v, u);
+			if (e == null) {
+				e = graph.getEdge(u, v);
+				System.err.println("Edge was null but should be none null: "
+						+ e);
+				System.err.println("current = " + v);
+				System.err.println("new     = " + u);
+			}
+			edgeList.add(e);
+		}
 
 		GraphPath<V, E> path = new GraphPathImpl<V, E>(graph, hamPath.get(0),
 				hamPath.get(hamPath.size() - 1), edgeList, 0);
