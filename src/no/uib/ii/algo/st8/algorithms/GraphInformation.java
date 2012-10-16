@@ -51,8 +51,11 @@ public class GraphInformation {
 				s += " Complete, K_" + vertexCount;
 			} else {
 				if (maxDegree == 2) {
-					// this is a cycle
-					s += " Cycle, C_" + vertexCount + ",";
+					// this is a disjoint union of cycles
+					if (isConnected)
+						s += " Cycle, C_" + vertexCount + ",";
+					else
+						s += " union of cycles,";
 				}
 				StronglyRegularWitness srw = RegularityInspector
 						.isStronglyRegular(graph);
