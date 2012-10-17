@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.algorithms.BalancedSeparatorInspector;
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
@@ -476,6 +477,23 @@ public class GraphViewController {
 		markedVertices.addAll(odds);
 		redraw();
 		return odds.size() == 0;
+	}
+
+	/**
+	 * Finds a balanced separator and returns the size, or -1 if none exists.
+	 * 
+	 * @return the size of the separator, or -1 if no balanced separator exists.
+	 */
+	public int showSeparator() {
+		Collection<DefaultVertex> sep = BalancedSeparatorInspector
+				.getBalancedSeparator(graph);
+
+		if (sep == null)
+			return -1;
+
+		clearAll();
+		markedVertices.addAll(sep);
+		return sep.size();
 	}
 
 	/**

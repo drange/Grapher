@@ -8,6 +8,10 @@
     <!-- android:icon="@drawable/icon_search" -->
 
     <item
+        android:id="@+id/compute_balanced_separator"
+        android:title="Balanced Separator"/>
+
+    <item
         android:id="@+id/compute_regularity_deletion_set"
         android:title="Regularity Deletion Set"/>
 
@@ -19,9 +23,15 @@
         android:id="@+id/compute_feedback_vertex_set"
         android:title="Feedback Vertex Set"/>
 
+    <!-- To use values/strings.xml (resources): @string/compute_vertex_cover -->
+
     <item
         android:id="@+id/compute_vertex_cover"
-        android:title="Vertex Cover"/>
+        android:title="Compute Vertex Cover"/>
+
+    <item
+        android:id="@+id/compute_connected_vertex_cover"
+        android:title="Compute Connected Vertex Cover"/>
 
     <item
         android:id="@+id/compute_maximum_clique"
@@ -94,6 +104,10 @@
     <item
         android:id="@+id/spring"
         android:title="Spring (lazy shake)"/>
+
+    <item
+        android:id="@+id/hamiltonian_cycle"
+        android:title="Hamiltonian Cycle"/>
 
     <item
         android:id="@+id/hamiltonian_path"
@@ -170,5 +184,8 @@
     <item
         android:id="@+id/load"
         android:title="Load a graph into workspace"/>
+
+    <item>
+    </item>
 
 </menu>

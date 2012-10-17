@@ -327,14 +327,21 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.compute_balanced_separator:
+			int sep = controller.showSeparator();
+			if (sep < 0)
+				shortToast("No balanced separator.");
+			else
+				shortToast("Found balanced separator of size " + sep);
+			controller.redraw();
+			return true;
+
 		case R.id.compute_diameter:
 			int diam = controller.diameter();
 			if (diam < 0)
-				Toast.makeText(Workspace.this, "Diameter is infinite",
-						Toast.LENGTH_SHORT).show();
+				shortToast("Diameter is infinite");
 			else
-				Toast.makeText(Workspace.this, "Diameter " + diam,
-						Toast.LENGTH_SHORT).show();
+				shortToast("Diameter " + diam);
 
 			controller.redraw();
 			return true;
