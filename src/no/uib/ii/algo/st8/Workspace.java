@@ -38,8 +38,7 @@ import android.widget.Toast;
 /**
  * @author pgd
  */
-public class Workspace extends Activity implements OnClickListener,
-		SensorEventListener {
+public class Workspace extends Activity implements OnClickListener, SensorEventListener {
 
 	private GraphViewController controller;
 
@@ -66,23 +65,20 @@ public class Workspace extends Activity implements OnClickListener,
 		this.sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		if (sensors.size() > 0) {
 			sensor = sensors.get(0);
-			sensorManager.registerListener(this, sensor,
-					SensorManager.SENSOR_DELAY_GAME);
+			sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
 			System.out.println("PAAL REGISTERED SENSOR");
 		}
 		controller.redraw();
 	}
 
 	private boolean copyTikzToClipboard() {
-		String text = GraphExporter.getTikz(controller.getGraph(),
-				controller.getTransformMatrix());
+		String text = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
 		try {
 			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.err.println("Error while copying TiKZ to clipboard: "
-					+ e.getMessage());
+			System.err.println("Error while copying TiKZ to clipboard: " + e.getMessage());
 			e.printStackTrace();
 			e.printStackTrace();
 			return false;
@@ -96,8 +92,7 @@ public class Workspace extends Activity implements OnClickListener,
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.err.println("Error while copying metapost to clipboard: "
-					+ e.getMessage());
+			System.err.println("Error while copying metapost to clipboard: " + e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
@@ -121,8 +116,7 @@ public class Workspace extends Activity implements OnClickListener,
 	}
 
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER
-				|| event.values.length < 3)
+		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER || event.values.length < 3)
 			return;
 
 		currentTime = System.currentTimeMillis();
@@ -135,9 +129,7 @@ public class Workspace extends Activity implements OnClickListener,
 			current_y = event.values[DATA_Y];
 			current_z = event.values[DATA_Z];
 
-			currenForce = Math.abs(current_x + current_y + current_z - last_x
-					- last_y - last_z)
-					/ diffTime * 10000;
+			currenForce = Math.abs(current_x + current_y + current_z - last_x - last_y - last_z) / diffTime * 10000;
 
 			if (currenForce > FORCE_THRESHOLD) {
 				controller.shake();
@@ -151,15 +143,13 @@ public class Workspace extends Activity implements OnClickListener,
 	}
 
 	private void shareTikz() {
-		String shareBody = GraphExporter.getTikz(controller.getGraph(),
-				controller.getTransformMatrix());
+		String shareBody = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
 
 		shareBody += "\n\n% Sent to you by Grapher";
 
 		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 		sharingIntent.setType("text/plain");
-		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-				controller.graphInfo());
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, controller.graphInfo());
 		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 		startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
 
@@ -172,8 +162,7 @@ public class Workspace extends Activity implements OnClickListener,
 
 		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 		sharingIntent.setType("text/plain");
-		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-				controller.graphInfo());
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, controller.graphInfo());
 		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 		startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
 
@@ -218,6 +207,43 @@ public class Workspace extends Activity implements OnClickListener,
 	 * */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+
+		case R.id.compute_treewidth:
+			int x = controller.treewidth();
+			if (x > 0)
+				shortToast("Treewidth = " + x);
+			else
+				shortToast("Application failure detected.");
+
+			return true;
+
+		case R.id.compute_claw_deletion:
+			int deletionSize = controller.showClawDeletion();
+			controller.redraw();
+			if (deletionSize == 0)
+				shortToast("Graph is claw-free");
+			else
+				shortToast("Claw-free deletion size " + deletionSize);
+			return true;
+
+		case R.id.compute_claws:
+			boolean hasclaw = controller.showAllClaws();
+			controller.redraw();
+			if (hasclaw)
+				shortToast("Found claw");
+			else
+				shortToast("Graph is claw-free");
+			return true;
+
+		case R.id.compute_cycle_4:
+			int c4s = controller.showAllCycle4();
+			controller.redraw();
+			if (c4s == 0)
+				shortToast("No C_4s");
+			else
+				shortToast("Number of C4s " + c4s);
+			return true;
+
 		case R.id.compute_regularity_deletion_set:
 			int regdel = controller.showRegularityDeletionSet();
 			controller.redraw();
@@ -285,6 +311,17 @@ public class Workspace extends Activity implements OnClickListener,
 			shortToast("Shaken, not stirred");
 			return true;
 
+		case R.id.brute_hamiltonian_path:
+			boolean bruteHamiltonianPath = controller.bruteForceHamiltonianPath();
+
+			if (bruteHamiltonianPath)
+				shortToast("Hamiltonian path highlighted (bf)");
+			else
+				shortToast("No hamiltonian path! (bf)");
+
+			controller.redraw();
+			return true;
+
 		case R.id.hamiltonian_path:
 			boolean hamiltonianPath = controller.showHamiltonianPath();
 
@@ -307,9 +344,22 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
+		case R.id.flow:
+			int flow = controller.showFlow();
+			if (flow < 0)
+				shortToast("Please select two vertices (hold to select)");
+			else if (flow == 0)
+				shortToast("Not connected");
+			else
+				shortToast("Max flow " + flow);
+			controller.redraw();
+			return true;
+
 		case R.id.path:
 			int res = controller.showPath();
 			if (res < 0)
+				shortToast("Please select two vertices (hold to select)");
+			else if (res == 0)
 				shortToast("No path!");
 			else
 				shortToast("Path length " + res);
@@ -560,8 +610,7 @@ public class Workspace extends Activity implements OnClickListener,
 				Editable value = input.getText();
 				try {
 					String json = new FileAccess().save(controller.getGraph());
-					FileOutputStream fOut = openFileOutput(value + ".json",
-							MODE_WORLD_READABLE);
+					FileOutputStream fOut = openFileOutput(value + ".json", MODE_WORLD_READABLE);
 					OutputStreamWriter osw = new OutputStreamWriter(fOut);
 
 					// Write the string to the file
@@ -581,12 +630,11 @@ public class Workspace extends Activity implements OnClickListener,
 			}
 		});
 
-		alert.setNegativeButton("Cancel",
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						// Canceled.
-					}
-				});
+		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int whichButton) {
+				// Canceled.
+			}
+		});
 
 		alert.show();
 	}
@@ -600,13 +648,11 @@ public class Workspace extends Activity implements OnClickListener,
 		builder.setTitle("Pick a file");
 		builder.setItems(files, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				Toast.makeText(getApplicationContext(), files[item],
-						Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), files[item], Toast.LENGTH_SHORT).show();
 				try {
 					StringBuffer stringBuffer = new StringBuffer();
 					String inputLine = "";
-					FileInputStream input = openFileInput(files[item]
-							.toString());
+					FileInputStream input = openFileInput(files[item].toString());
 					InputStreamReader isr = new InputStreamReader(input);
 					BufferedReader bufferedReader = new BufferedReader(isr);
 

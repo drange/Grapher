@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.util.PermutationIterator;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.GraphPath;
@@ -181,5 +182,40 @@ public class HamiltonianInspector {
 				hamPath.get(hamPath.size() - 1), edgeList, 0);
 
 		return path;
+	}
+
+	public static <V, E> GraphPath<V, E> bruteForceHamiltonianPath(
+			SimpleGraph<V, E> graph) {
+		if (graph == null)
+			throw new NullPointerException("Input graph was null.");
+		if (graph.vertexSet().size() < 2)
+			return null;
+
+		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
+		if (!con)
+			return null;
+
+		PermutationIterator<V> pit = new PermutationIterator<V>(
+				graph.vertexSet());
+		while (pit.hasNext()) {
+			ArrayList<V> pi = pit.next();
+			boolean isPath = true;
+			for (int i = 1; i < pi.size(); i++) {
+				if (!graph.containsEdge(pi.get(i - 1), pi.get(i))) {
+					isPath = false;
+					break;
+				}
+			}
+			if (isPath) {
+				ArrayList<E> edges = new ArrayList<E>(pi.size());
+				for (int i = 1; i < pi.size(); i++) {
+					edges.add(graph.getEdge(pi.get(i - 1), pi.get(i)));
+				}
+				GraphPath<V, E> path = new GraphPathImpl<V, E>(graph,
+						pi.get(0), pi.get(pi.size() - 1), edges, 0);
+				return path;
+			}
+		}
+		return null;
 	}
 }

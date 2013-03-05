@@ -4,19 +4,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.algorithms.BalancedSeparatorInspector;
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
+import no.uib.ii.algo.st8.algorithms.ClawInspector;
+import no.uib.ii.algo.st8.algorithms.ClawInspector.ClawCollection;
+import no.uib.ii.algo.st8.algorithms.ClawInspector.Pair;
 import no.uib.ii.algo.st8.algorithms.ConnectedVertexCover;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
+import no.uib.ii.algo.st8.algorithms.CycleInspector;
 import no.uib.ii.algo.st8.algorithms.DiameterInspector;
 import no.uib.ii.algo.st8.algorithms.EulerianInspector;
 import no.uib.ii.algo.st8.algorithms.ExactDominatingSet;
 import no.uib.ii.algo.st8.algorithms.ExactVertexCover;
 import no.uib.ii.algo.st8.algorithms.FeedbackVertexSet;
+import no.uib.ii.algo.st8.algorithms.FlowInspector;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
@@ -26,6 +32,7 @@ import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
+import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
 import no.uib.ii.algo.st8.model.DefaultVertex;
@@ -46,6 +53,7 @@ import android.view.View;
 
 public class GraphViewController {
 
+	private String info = "";
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 
@@ -66,8 +74,7 @@ public class GraphViewController {
 
 	public GraphViewController(Workspace activity, int width, int height) {
 
-		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				new DefaultEdgeFactory<DefaultVertex>());
+		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 
 		view = new GraphView(activity);
 
@@ -128,6 +135,19 @@ public class GraphViewController {
 			// debug_vertices_within_radi++;
 		}
 		return bestVertex;
+	}
+
+	private volatile long startTime = 0;
+
+	public void time(boolean start) {
+		long now = System.currentTimeMillis();
+		if (start) {
+			startTime = now;
+		} else {
+			long duration = now - startTime;
+			double sec = duration / 1000d;
+			System.out.printf("> %.3f\n", sec);
+		}
 	}
 
 	// TODO This does not work after introducing the transformationMatrix
@@ -208,9 +228,21 @@ public class GraphViewController {
 	 */
 	public void clear() {
 		clearAll();
-		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				new DefaultEdgeFactory<DefaultVertex>());
+		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 		layout = null;
+	}
+
+	public int treewidth() {
+		if (isEmptyGraph())
+			return -1;
+		for (int i = 1; i < 10; i++) {
+			// don't know if this helps
+			System.gc();
+			if (new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph, i).hasTreewidth()) {
+				return i - 1;
+			}
+		}
+		return -1;
 	}
 
 	public void selectAll() {
@@ -245,8 +277,7 @@ public class GraphViewController {
 		if (isEmptyGraph())
 			return;
 
-		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph
-				.vertexSet().size());
+		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph.vertexSet().size());
 		for (DefaultVertex v : graph.vertexSet()) {
 			if (!userSelectedVertices.contains(v)) {
 				select.add(v);
@@ -265,10 +296,8 @@ public class GraphViewController {
 	 * @return
 	 */
 	public Set<DefaultVertex> selectAllReachableVertices() {
-		Set<DefaultVertex> reachable = new HashSet<DefaultVertex>(graph
-				.vertexSet().size());
-		Set<DefaultVertex> userselect = new HashSet<DefaultVertex>(
-				userSelectedVertices);
+		Set<DefaultVertex> reachable = new HashSet<DefaultVertex>(graph.vertexSet().size());
+		Set<DefaultVertex> userselect = new HashSet<DefaultVertex>(userSelectedVertices);
 		reachable.addAll(userSelectedVertices);
 		clearAll();
 		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
@@ -305,8 +334,7 @@ public class GraphViewController {
 		if (userSelectedVertices == null || userSelectedVertices.size() == 0)
 			return;
 
-		ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph
-				.vertexSet().size());
+		ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph.vertexSet().size());
 		vertices.addAll(userSelectedVertices);
 
 		for (int i = 0; i < vertices.size(); i++) {
@@ -330,9 +358,10 @@ public class GraphViewController {
 		int deleted = 0;
 
 		for (DefaultVertex v : userSelectedVertices) {
-			graph.removeVertex(v);
-			deleted++;
+			if (graph.removeVertex(v))
+				deleted++;
 		}
+		graphInfo();
 		clearAll();
 		redraw();
 
@@ -349,9 +378,26 @@ public class GraphViewController {
 		return deleteSelectedVertices();
 	}
 
+	public boolean bruteForceHamiltonianPath() {
+		time(true);
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector.bruteForceHamiltonianPath(graph);
+		time(false);
+
+		clearAll();
+
+		if (hamPath == null) {
+			return false;
+		}
+
+		highlightPath(hamPath);
+		redraw();
+		return true;
+	}
+
 	public boolean showHamiltonianPath() {
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector
-				.getHamiltonianPath(graph);
+		time(true);
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector.getHamiltonianPath(graph);
+		time(false);
 
 		clearAll();
 
@@ -365,8 +411,7 @@ public class GraphViewController {
 	}
 
 	public boolean showHamiltonianCycle() {
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamCyc = HamiltonianCycleInspector
-				.getHamiltonianCycle(graph);
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamCyc = HamiltonianCycleInspector.getHamiltonianCycle(graph);
 
 		clearAll();
 
@@ -393,16 +438,17 @@ public class GraphViewController {
 		DefaultVertex s = ite.next();
 		DefaultVertex t = ite.next();
 
+		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph).pathExists(s, t)) {
+			return 0;
+		}
+
 		clearAll();
 
 		DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>> dp = new DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph, s, t);
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> path = dp
-				.getPath();
-		if (path == null || path.getEdgeList() == null)
-			return -1;
-		if (path.getEdgeList().size() == 0)
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> path = dp.getPath();
+		if (path == null || path.getEdgeList() == null || path.getEdgeList().size() == 0)
 			return 0;
 
 		highlightPath(path);
@@ -412,9 +458,23 @@ public class GraphViewController {
 		return path.getEdgeList().size() + 1;
 	}
 
+	public int showFlow() {
+		if (userSelectedVertices.size() != 2) {
+			return -1;
+		}
+		Iterator<DefaultVertex> ite = userSelectedVertices.iterator();
+		DefaultVertex s = ite.next();
+		DefaultVertex t = ite.next();
+
+		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph).pathExists(s, t)) {
+			return 0;
+		}
+
+		return FlowInspector.findFlow(graph, s, t);
+	}
+
 	public void constructPower() {
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph
-				.constructPowerGraph(graph);
+		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph.constructPowerGraph(graph);
 		this.graph = power;
 		redraw();
 	}
@@ -424,8 +484,7 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void highlightPath(
-			GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
+	private void highlightPath(GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
 		for (DefaultEdge<DefaultVertex> e : gp.getEdgeList()) {
 			markedEdges.add(e);
 			markedVertices.add(e.getSource());
@@ -438,8 +497,7 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void highlightGraph(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> h) {
+	private void highlightGraph(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> h) {
 		for (DefaultEdge<DefaultVertex> e : h.edgeSet()) {
 			DefaultVertex v = e.getSource();
 			DefaultVertex u = e.getTarget();
@@ -454,10 +512,8 @@ public class GraphViewController {
 
 	public boolean isEmptyGraph() {
 		if (graph == null) {
-			new NullPointerException("Graph was null, from isEmptyGraph")
-					.printStackTrace();
-			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					new DefaultEdgeFactory<DefaultVertex>());
+			new NullPointerException("Graph was null, from isEmptyGraph").printStackTrace();
+			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 		}
 		return graph.vertexSet().size() == 0;
 	}
@@ -485,8 +541,9 @@ public class GraphViewController {
 	 * @return the size of the separator, or -1 if no balanced separator exists.
 	 */
 	public int showSeparator() {
-		Collection<DefaultVertex> sep = BalancedSeparatorInspector
-				.getBalancedSeparator(graph);
+		time(true);
+		Collection<DefaultVertex> sep = BalancedSeparatorInspector.getBalancedSeparator(graph);
+		time(false);
 
 		if (sep == null)
 			return -1;
@@ -507,8 +564,7 @@ public class GraphViewController {
 		}
 		clearAll();
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector
-				.diameterPath(graph);
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector.diameterPath(graph);
 
 		if (gp == null || gp.getEdgeList() == null)
 			return -1;
@@ -605,8 +661,7 @@ public class GraphViewController {
 		}
 
 		clearAll();
-		Set<DefaultVertex> cuts = CutAndBridgeInspector
-				.findAllCutVertices(graph);
+		Set<DefaultVertex> cuts = CutAndBridgeInspector.findAllCutVertices(graph);
 		markedVertices.addAll(cuts);
 		return cuts.size();
 	}
@@ -642,8 +697,7 @@ public class GraphViewController {
 		}
 
 		clearAll();
-		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector
-				.findAllBridges(graph);
+		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector.findAllBridges(graph);
 		markedEdges.addAll(bridges);
 		return bridges.size();
 	}
@@ -665,8 +719,7 @@ public class GraphViewController {
 				x += v.getCoordinate().getX();
 				y += v.getCoordinate().getY();
 			}
-			pos = new Coordinate(x / deg + USER_MISS_RADIUS, y / deg
-					+ USER_MISS_RADIUS);
+			pos = new Coordinate(x / deg + USER_MISS_RADIUS, y / deg + USER_MISS_RADIUS);
 		}
 
 		DefaultVertex universal = new DefaultVertex(pos);
@@ -675,7 +728,7 @@ public class GraphViewController {
 			if (v != universal)
 				graph.addEdge(universal, v);
 		}
-
+		graphInfo();
 		return deg;
 	}
 
@@ -701,6 +754,7 @@ public class GraphViewController {
 			graph.addEdge(v, u);
 		}
 
+		graphInfo();
 		redraw();
 	}
 
@@ -724,8 +778,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Set<DefaultVertex> regdel = RegularityInspector
-				.regularDeletionSet(graph);
+		Set<DefaultVertex> regdel = RegularityInspector.regularDeletionSet(graph);
 		clearAll();
 		markedVertices.addAll(regdel);
 		redraw();
@@ -736,8 +789,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Collection<DefaultVertex> oct = OddCycleTransversal
-				.findOddCycleTransversal(graph);
+		Collection<DefaultVertex> oct = OddCycleTransversal.findOddCycleTransversal(graph);
 		clearAll();
 		markedVertices.addAll(oct);
 		redraw();
@@ -748,8 +800,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Collection<DefaultVertex> fvs = FeedbackVertexSet
-				.findExactFeedbackVertexSet(graph);
+		Collection<DefaultVertex> fvs = FeedbackVertexSet.findExactFeedbackVertexSet(graph);
 		clearAll();
 		markedVertices.addAll(fvs);
 		redraw();
@@ -760,7 +811,9 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
+		time(true);
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
+		time(false);
 		clearAll();
 		markedVertices.addAll(cover);
 		return cover.size();
@@ -777,8 +830,9 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = ConnectedVertexCover
-				.getConnectedVertexCover(graph);
+		time(true);
+		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = ConnectedVertexCover.getConnectedVertexCover(graph);
+		time(false);
 
 		if (cvc == null)
 			return -1;
@@ -816,8 +870,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
-		Collection<DefaultVertex> domset = ExactDominatingSet
-				.exactDominatingSet(graph);
+		Collection<DefaultVertex> domset = ExactDominatingSet.exactDominatingSet(graph);
 		clearAll();
 		markedVertices.addAll(domset);
 		redraw();
@@ -858,20 +911,64 @@ public class GraphViewController {
 		if (center == null)
 			return;
 		Matrix transformMatrix = view.getTransformMatrix();
-		Coordinate moveVector = center.getCoordinate().moveVector(
-				CENTER_COORDINATE);
+		Coordinate moveVector = center.getCoordinate().moveVector(CENTER_COORDINATE);
 		transformMatrix.postTranslate(moveVector.getX(), moveVector.getY());
 		redraw();
 		return;
 	}
 
+	public int showClawDeletion() {
+		Collection<DefaultEdge<DefaultVertex>> edges = ClawInspector.minimalClawDeletionSet(graph);
+		clearAll();
+		if (edges != null) {
+			markedEdges.addAll(edges);
+			redraw();
+			return edges.size();
+		}
+		return 0;
+	}
+
+	public boolean showAllClaws() {
+		ClawCollection<DefaultVertex> col = ClawInspector.getClaws(graph);
+		clearAll();
+		markedVertices.addAll(col.getCenters());
+		for (Pair<DefaultVertex> e : col.getArms()) {
+			markedEdges.add(graph.getEdge(e.getV1(), e.getV2()));
+		}
+		redraw();
+		return col.getCenters().size() > 0;
+	}
+
+	public int showAllCycle4() {
+		Collection<List<DefaultVertex>> cycles = CycleInspector.findAllC4(graph);
+		clearAll();
+		for (List<DefaultVertex> cycle : cycles) {
+			System.out.println("\t" + cycle);
+			for (int i = 0; i < cycle.size(); i++) {
+				DefaultVertex v = cycle.get(i % cycle.size());
+				DefaultVertex u = cycle.get((i + 1) % cycle.size());
+				markedVertices.add(v);
+				markedVertices.add(u);
+				if (graph.containsEdge(v, u)) {
+					DefaultEdge<DefaultVertex> e = graph.getEdge(v, u);
+					markedEdges.add(e);
+				} else {
+					System.err.println("Strange, lacks edge for v=" + v + ", u=" + u);
+					System.err.println(cycle);
+				}
+			}
+		}
+		return cycles.size();
+	}
+
 	public String graphInfo() {
 		isEmptyGraph(); // hack to test if null
-		return GraphInformation.graphInfo(graph);
+		info = GraphInformation.graphInfo(graph);
+		return info;
 	}
 
 	public void redraw() {
-		if (isEmptyGraph()) {
+		if (graph == null) {
 			return;
 		}
 
@@ -893,7 +990,8 @@ public class GraphViewController {
 				e.setColor(Color.GREEN);
 			}
 		}
-		view.redraw(graphInfo(), graph);
+
+		view.redraw(info, graph);
 	}
 
 	/**
@@ -902,8 +1000,7 @@ public class GraphViewController {
 	 */
 	private Coordinate translateCoordinate(Coordinate screenCoordinate) {
 
-		float[] screenPoint = { screenCoordinate.getX(),
-				screenCoordinate.getY() };
+		float[] screenPoint = { screenCoordinate.getX(), screenCoordinate.getY() };
 		Matrix invertedTransformMatrix = new Matrix();
 
 		view.getTransformMatrix().invert(invertedTransformMatrix);
@@ -939,7 +1036,11 @@ public class GraphViewController {
 			if (hit != null) {
 				graph.removeVertex(hit);
 				removeHighlight(hit);
+
+				graphInfo();
+
 				redraw();
+
 				return true;
 			} else {
 				return false;
@@ -957,6 +1058,7 @@ public class GraphViewController {
 				} else {
 					userSelectedVertices.add(hit);
 				}
+				graphInfo();
 			}
 			redraw();
 		}
@@ -969,12 +1071,14 @@ public class GraphViewController {
 				Coordinate gCoordinate = translateCoordinate(touchedCoord);
 
 				graph.addVertex(new DefaultVertex(gCoordinate));
+				graphInfo();
 			} else if (touchedVertex == null || prevTouch == touchedVertex) {
 				prevTouch = null;
 			} else if (prevTouch == null) {
 				prevTouch = touchedVertex;
 			} else {
 				toggleEdge(touchedVertex, prevTouch);
+				graphInfo();
 			}
 
 			touchedVertex = null;
@@ -983,36 +1087,26 @@ public class GraphViewController {
 		}
 
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 
 			switch (e2.getPointerCount()) {
 			case 2:
 				if (previousPointerCoords == null || previousPointerCount != 2) {
 					previousPointerCoords = new Coordinate[2];
-					previousPointerCoords[0] = new Coordinate(e2.getX(0),
-							e2.getY(0));
-					previousPointerCoords[1] = new Coordinate(e2.getX(1),
-							e2.getY(1));
+					previousPointerCoords[0] = new Coordinate(e2.getX(0), e2.getY(0));
+					previousPointerCoords[1] = new Coordinate(e2.getX(1), e2.getY(1));
 				} else {
-					Coordinate[] newCoords = {
-							new Coordinate(e2.getX(0), e2.getY(0)),
-							new Coordinate(e2.getX(1), e2.getY(1)) };
-					Coordinate VectorPrevious = previousPointerCoords[1]
-							.subtract(previousPointerCoords[0]);
+					Coordinate[] newCoords = { new Coordinate(e2.getX(0), e2.getY(0)), new Coordinate(e2.getX(1), e2.getY(1)) };
+					Coordinate VectorPrevious = previousPointerCoords[1].subtract(previousPointerCoords[0]);
 					Coordinate VectorNew = newCoords[1].subtract(newCoords[0]);
-					float diffAngle = VectorNew.angle()
-							- VectorPrevious.angle();
+					float diffAngle = VectorNew.angle() - VectorPrevious.angle();
 					float scale = VectorNew.length() / VectorPrevious.length();
 
 					// the transformations
-					view.getTransformMatrix().postTranslate(
-							-previousPointerCoords[0].getX(),
-							-previousPointerCoords[0].getY());
+					view.getTransformMatrix().postTranslate(-previousPointerCoords[0].getX(), -previousPointerCoords[0].getY());
 					view.getTransformMatrix().postRotate(diffAngle);
 					view.getTransformMatrix().postScale(scale, scale);
-					view.getTransformMatrix().postTranslate(
-							newCoords[0].getX(), newCoords[0].getY());
+					view.getTransformMatrix().postTranslate(newCoords[0].getX(), newCoords[0].getY());
 
 					previousPointerCoords = newCoords;
 				}
@@ -1020,14 +1114,12 @@ public class GraphViewController {
 			case 1:
 				previousPointerCoords = null;
 				if (touchedVertex != null) {
-					Coordinate sCoordinate = new Coordinate(e2.getX(),
-							e2.getY());
+					Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 					Coordinate gCoordinate = translateCoordinate(sCoordinate);
 					touchedVertex.setCoordinate(gCoordinate);
 				} else {
 					if (previousPointerCount == 1)
-						view.getTransformMatrix().postTranslate(-distanceX,
-								-distanceY);
+						view.getTransformMatrix().postTranslate(-distanceX, -distanceY);
 				}
 				break;
 			default: // 3 or more

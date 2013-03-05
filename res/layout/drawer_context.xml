@@ -8,6 +8,10 @@
     <!-- android:icon="@drawable/icon_search" -->
 
     <item
+        android:id="@+id/compute_treewidth"
+        android:title="Compute Treewidth"/>
+
+    <item
         android:id="@+id/compute_balanced_separator"
         android:title="Balanced Separator"/>
 
@@ -48,6 +52,18 @@
     <item
         android:id="@+id/compute_mst"
         android:title="Minimum Spanning Tree"/>
+
+    <item
+        android:id="@+id/compute_claw_deletion"
+        android:title="Claw-free deletion"/>
+
+    <item
+        android:id="@+id/compute_claws"
+        android:title="Show all claws"/>
+
+    <item
+        android:id="@+id/compute_cycle_4"
+        android:title="Show all C_4s"/>
 
     <item
         android:id="@+id/compute_diameter"
@@ -114,8 +130,16 @@
         android:title="Hamiltonian Path"/>
 
     <item
+        android:id="@+id/brute_hamiltonian_path"
+        android:title="Hamiltonian Path, O(n!)"/>
+
+    <item
         android:id="@+id/path"
         android:title="Path"/>
+
+    <item
+        android:id="@+id/flow"
+        android:title="Max flow"/>
 
     <item
         android:id="@+id/power"

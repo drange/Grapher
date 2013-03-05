@@ -24,6 +24,7 @@ public class GraphView extends View {
 
 	public GraphView(Context context) {
 		super(context);
+
 		System.out.println("done!?!");
 
 		System.out.println("GraphView initialized");
@@ -35,8 +36,7 @@ public class GraphView extends View {
 		return transformMatrix;
 	}
 
-	public void redraw(String info,
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public void redraw(String info, SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.info = info;
 		this.graph = graph;
 		invalidate();
@@ -47,10 +47,13 @@ public class GraphView extends View {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
+
 		Matrix m = canvas.getMatrix();
 		prev.set(m);
 		m.preConcat(transformMatrix);
 		canvas.setMatrix(m);
+
+		setBackgroundColor(Color.WHITE);
 
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			Coordinate c1 = e.getSource().getCoordinate();
@@ -63,48 +66,13 @@ public class GraphView extends View {
 
 			// Coordinate ce = e.getCoordinate();
 
-			p.setColor(Color.WHITE);
-			p.setColor(e.getColor());
+			p.setColor(Color.BLACK);
+			// p.setColor(e.getColor());
 
 			// if (ce != null) {
 			// // TODO what's the purpose of an edge's coordinate?
 			// // do we want a curve going through ce?
 			canvas.drawLine(x1, y1, x2, y2, p);
-			//
-			// Path p = new Path();
-			// Point mid = new Point((int) ce.getX(), (int) ce.getY());
-			// // ...
-			// Point start = new Point((int) x1, (int) y1);
-			// Point end = new Point((int) x2, (int) y2);
-			// mid.set((start.x + end.x) / 2, (start.y + end.y) / 2);
-			//
-			// // Draw line connecting the two points:
-			// p.reset();
-			// p.moveTo(start.x, start.y);
-			// p.quadTo((start.x + mid.x) / 2, start.y, mid.x, mid.y);
-			// p.quadTo((mid.x + end.x) / 2, end.y, end.x, end.y);
-			//
-			// Paint pLine = new Paint() {
-			// {
-			// setStyle(Paint.Style.STROKE);
-			// setAntiAlias(true);
-			// setStrokeWidth(1.5f);
-			// setColor(Color.GRAY); // Line color
-			// }
-			// };
-			// Paint pLineBorder = new Paint() {
-			// {
-			// setStyle(Paint.Style.STROKE);
-			// setAntiAlias(true);
-			// setStrokeWidth(3.0f);
-			// setStrokeCap(Cap.ROUND);
-			// setColor(Color.DKGRAY); // Darker version of the color
-			// }
-			// };
-			//
-			// canvas.drawPath(p, pLineBorder);
-			// canvas.drawPath(p, pLine);
-			//
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
@@ -120,7 +88,7 @@ public class GraphView extends View {
 	}
 
 	private void writeInfo(Canvas canvas) {
-		p.setColor(Color.WHITE);
+		p.setColor(Color.BLACK);
 		canvas.drawText(info, 10, 10, p);
 	}
 
