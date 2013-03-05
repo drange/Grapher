@@ -81,6 +81,11 @@ public class GraphView extends View {
 			float y = Math.round(c.getY() / 10) * 10;
 			p.setColor(v.getColor());
 			canvas.drawCircle(x, y, v.getSize(), p);
+			p.setColor(Color.WHITE);
+			if (v.getId() > 9)
+				canvas.drawText("" + v.getId(), x - 7, y + 4, p);
+			else
+				canvas.drawText("" + v.getId(), x - 4, y + 4, p);
 		}
 
 		canvas.setMatrix(prev);

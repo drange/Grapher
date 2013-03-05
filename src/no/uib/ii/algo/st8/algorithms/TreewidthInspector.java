@@ -61,11 +61,6 @@ public class TreewidthInspector<V, E> {
 	// private Map<Integer, BitSet> bMapInverse = new HashMap<Integer,
 	// BitSet>();
 
-	/**
-	 * We start dp on dp[{}][v] for this v.
-	 */
-	private int startingVertex = 0;
-
 	// know that n choose k grows to max on k=n/2, so if we iterate, we
 	// should iterate simultaneously from k=1 to n/2 and k=n-1 to n/2
 

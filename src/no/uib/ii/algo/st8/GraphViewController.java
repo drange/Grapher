@@ -849,9 +849,11 @@ public class GraphViewController {
 			return 0;
 		}
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
+
 		clearAll();
 		markedVertices.addAll(graph.vertexSet());
 		markedVertices.removeAll(cover);
+
 		return markedVertices.size();
 	}
 
@@ -973,7 +975,7 @@ public class GraphViewController {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
-			v.setColor(Color.RED);
+			v.setColor(Color.rgb(200, 0, 0));
 			if (markedVertices.contains(v)) {
 				v.setColor(Color.YELLOW);
 			}

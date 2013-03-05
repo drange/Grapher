@@ -24,8 +24,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class ExactVertexCover extends VertexCovers {
 
-	public static Set<DefaultVertex> findExactVertexCover(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public static Set<DefaultVertex> findExactVertexCover(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		KVertexCover kvc = new KVertexCover(graph);
 		return kvc.minVertexCover();
 	}
@@ -35,17 +34,14 @@ public class ExactVertexCover extends VertexCovers {
 class KVertexCover {
 	private final SimpleGraph<VcVertex, VcEdge> graph;
 
-	public KVertexCover(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> input) {
-		graph = new SimpleGraph<KVertexCover.VcVertex, KVertexCover.VcEdge>(
-				new EdgeFactory<VcVertex, VcEdge>() {
-					public VcEdge createEdge(VcVertex v, VcVertex u) {
-						return new VcEdge(v, u);
-					}
-				});
+	public KVertexCover(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> input) {
+		graph = new SimpleGraph<KVertexCover.VcVertex, KVertexCover.VcEdge>(new EdgeFactory<VcVertex, VcEdge>() {
+			public VcEdge createEdge(VcVertex v, VcVertex u) {
+				return new VcEdge(v, u);
+			}
+		});
 
-		HashMap<DefaultVertex, VcVertex> map = new HashMap<DefaultVertex, KVertexCover.VcVertex>(
-				input.vertexSet().size());
+		HashMap<DefaultVertex, VcVertex> map = new HashMap<DefaultVertex, KVertexCover.VcVertex>(input.vertexSet().size());
 		for (DefaultVertex v : input.vertexSet()) {
 			VcVertex nv = new VcVertex(v);
 			graph.addVertex(nv);
@@ -159,7 +155,7 @@ class KVertexCover {
 
 	public Set<DefaultVertex> minVertexCover() {
 		BitSet necessary = necessaryVertices();
-		for (int i = 1; i < graph.vertexSet().size(); i++) {
+		for (int i = 1; i <= graph.vertexSet().size(); i++) {
 			BitSet kNecessary = necessaryVertices(necessary, i);
 			BitSet kvc = kVertexCover(i - kNecessary.cardinality(), kNecessary);
 
@@ -167,7 +163,7 @@ class KVertexCover {
 				return bitSetToNodeSet(kvc);
 			}
 		}
-		return null;
+		throw new IllegalStateException("Could not compute vertex cover: " + graph.toString());
 	}
 
 	static class VcVertex {
@@ -217,10 +213,8 @@ class KVertexCover {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result
-					+ ((source == null) ? 0 : source.hashCode());
-			result = prime * result
-					+ ((target == null) ? 0 : target.hashCode());
+			result = prime * result + ((source == null) ? 0 : source.hashCode());
+			result = prime * result + ((target == null) ? 0 : target.hashCode());
 			return result;
 		}
 

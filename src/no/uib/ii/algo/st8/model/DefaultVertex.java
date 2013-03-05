@@ -9,8 +9,7 @@ import no.uib.ii.algo.st8.settings.Sized;
 import no.uib.ii.algo.st8.util.Coordinate;
 import android.graphics.Color;
 
-public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
-		Serializable {
+public class DefaultVertex implements Colorful, Geometric, Labelled, Sized, Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/** The counter for id's for DefaultVertices made */
@@ -26,15 +25,14 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized,
 	private final int id;
 
 	public DefaultVertex(Coordinate coordinate) {
-		this(Color.RED, coordinate, DEFAULT_SIZE);
+		this(Color.rgb(200, 0, 0), coordinate, DEFAULT_SIZE);
 	}
 
 	public DefaultVertex(int color, Coordinate coordinate, float size) {
 		this(color, coordinate, size, "");
 	}
 
-	public DefaultVertex(int color, Coordinate coordinate, float size,
-			String label) {
+	public DefaultVertex(int color, Coordinate coordinate, float size, String label) {
 		this.id = CURRENT_ID++;
 		this.color = color;
 		this.coordinate = coordinate;
