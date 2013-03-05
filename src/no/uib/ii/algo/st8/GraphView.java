@@ -66,13 +66,16 @@ public class GraphView extends View {
 
 			// Coordinate ce = e.getCoordinate();
 
-			p.setColor(Color.BLACK);
-			// p.setColor(e.getColor());
+			Paint edgePaint = new Paint();
+			edgePaint.setColor(e.getColor());
+			edgePaint.setStrokeWidth(2);
+			edgePaint.setStyle(Paint.Style.STROKE);
 
 			// if (ce != null) {
 			// // TODO what's the purpose of an edge's coordinate?
 			// // do we want a curve going through ce?
-			canvas.drawLine(x1, y1, x2, y2, p);
+
+			canvas.drawLine(x1, y1, x2, y2, edgePaint);
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {

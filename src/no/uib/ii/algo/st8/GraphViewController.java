@@ -53,6 +53,16 @@ import android.view.View;
 
 public class GraphViewController {
 
+	public int MARKED_VERTEX_COLOR = Color.rgb(0, 150, 30);
+
+	public int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
+
+	public int TOUCHED_VERTEX_COLOR = Color.rgb(0, 0, 100);
+
+	public int MARKED_EDGE_COLOR = Color.rgb(0, 200, 0);
+
+	public int DEFAULT_EDGE_COLOR = Color.BLACK;
+
 	private String info = "";
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
@@ -977,19 +987,19 @@ public class GraphViewController {
 		for (DefaultVertex v : graph.vertexSet()) {
 			v.setColor(Color.rgb(200, 0, 0));
 			if (markedVertices.contains(v)) {
-				v.setColor(Color.YELLOW);
+				v.setColor(MARKED_VERTEX_COLOR);
 			}
 			if (userSelectedVertices.contains(v)) {
-				v.setColor(Color.CYAN);
+				v.setColor(USERSELECTED_VERTEX_COLOR);
 			}
 			if (v.equals(prevTouch)) {
-				v.setColor(Color.BLUE);
+				v.setColor(TOUCHED_VERTEX_COLOR);
 			}
 		}
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
-			e.setColor(Color.WHITE);
+			e.setColor(DEFAULT_EDGE_COLOR);
 			if (markedEdges.contains(e)) {
-				e.setColor(Color.GREEN);
+				e.setColor(MARKED_EDGE_COLOR);
 			}
 		}
 
