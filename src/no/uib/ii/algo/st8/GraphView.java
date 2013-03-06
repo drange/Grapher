@@ -84,10 +84,12 @@ public class GraphView extends View {
 			float x = Math.round(c.getX() / 10) * 10;
 			float y = Math.round(c.getY() / 10) * 10;
 
+			vertexPaint.setStrokeWidth(2);
 			vertexPaint.setStyle(Style.STROKE);
 			vertexPaint.setColor(Color.BLACK);
 			canvas.drawCircle(x, y, v.getSize(), vertexPaint);
 
+			vertexPaint.setStrokeWidth(1);
 			vertexPaint.setStyle(Style.FILL);
 
 			vertexPaint.setColor(v.getColor());
