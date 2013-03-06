@@ -56,8 +56,11 @@ public class GraphView extends View {
 		setBackgroundColor(Color.WHITE);
 
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
-			Coordinate c1 = e.getSource().getCoordinate();
-			Coordinate c2 = e.getTarget().getCoordinate();
+			DefaultVertex v1 = e.getSource();
+			DefaultVertex v2 = e.getTarget();
+
+			Coordinate c1 = v1.getCoordinate();
+			Coordinate c2 = v2.getCoordinate();
 
 			float x1 = Math.round(c1.getX() / 10) * 10;
 			float y1 = Math.round(c1.getY() / 10) * 10;
@@ -75,14 +78,34 @@ public class GraphView extends View {
 			// // TODO what's the purpose of an edge's coordinate?
 			// // do we want a curve going through ce?
 
+			if (v1.getLabel() == "selected") {
+				x1 -= 3;
+				y1 -= 3;
+			}
+			if (v2.getLabel() == "selected") {
+				x2 -= 3;
+				y2 -= 3;
+			}
+
 			canvas.drawLine(x1, y1, x2, y2, edgePaint);
 		}
 
 		Paint vertexPaint = new Paint();
+		Paint shadow = new Paint();
+		shadow.setColor(Color.DKGRAY);
+
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
 			float x = Math.round(c.getX() / 10) * 10;
 			float y = Math.round(c.getY() / 10) * 10;
+
+			// this should be vertex.isSelected() / highlighted etc.
+			if (v.getLabel().equals("selected")) {
+				canvas.drawCircle(x + 3, y + 3, v.getSize(), shadow);
+
+				x -= 3;
+				y -= 3;
+			}
 
 			vertexPaint.setStrokeWidth(2);
 			vertexPaint.setStyle(Style.STROKE);

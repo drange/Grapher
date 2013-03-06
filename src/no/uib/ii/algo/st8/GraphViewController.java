@@ -986,6 +986,7 @@ public class GraphViewController {
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			v.setColor(Color.rgb(200, 0, 0));
+			v.setLabel(""); // TODO Remove labeling
 			if (markedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
 			}
@@ -994,6 +995,7 @@ public class GraphViewController {
 			}
 			if (v.equals(prevTouch)) {
 				v.setColor(TOUCHED_VERTEX_COLOR);
+				v.setLabel("selected");
 			}
 		}
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
