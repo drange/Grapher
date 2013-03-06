@@ -11,13 +11,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.view.View;
 
 public class GraphView extends View {
 
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private String info = "";
-	private Paint p = new Paint();
 	private Matrix transformMatrix = new Matrix();
 
 	private final Matrix prev = new Matrix();
@@ -78,17 +78,27 @@ public class GraphView extends View {
 			canvas.drawLine(x1, y1, x2, y2, edgePaint);
 		}
 
+		Paint vertexPaint = new Paint();
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
 			float x = Math.round(c.getX() / 10) * 10;
 			float y = Math.round(c.getY() / 10) * 10;
-			p.setColor(v.getColor());
-			canvas.drawCircle(x, y, v.getSize(), p);
-			p.setColor(Color.WHITE);
+
+			vertexPaint.setStyle(Style.STROKE);
+			vertexPaint.setColor(Color.BLACK);
+			canvas.drawCircle(x, y, v.getSize(), vertexPaint);
+
+			vertexPaint.setStyle(Style.FILL);
+
+			vertexPaint.setColor(v.getColor());
+			canvas.drawCircle(x, y, v.getSize(), vertexPaint);
+
+			vertexPaint.setStyle(Style.FILL_AND_STROKE);
+			vertexPaint.setColor(Color.WHITE);
 			if (v.getId() > 9)
-				canvas.drawText("" + v.getId(), x - 7, y + 4, p);
+				canvas.drawText("" + v.getId(), x - 7, y + 4, vertexPaint);
 			else
-				canvas.drawText("" + v.getId(), x - 4, y + 4, p);
+				canvas.drawText("" + v.getId(), x - 4, y + 4, vertexPaint);
 		}
 
 		canvas.setMatrix(prev);
@@ -96,8 +106,9 @@ public class GraphView extends View {
 	}
 
 	private void writeInfo(Canvas canvas) {
-		p.setColor(Color.BLACK);
-		canvas.drawText(info, 10, 10, p);
+		Paint textPaint = new Paint();
+		textPaint.setColor(Color.BLACK);
+		canvas.drawText(info, 10, 10, textPaint);
 	}
 
 }
