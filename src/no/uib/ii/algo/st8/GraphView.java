@@ -53,7 +53,7 @@ public class GraphView extends View {
 		m.preConcat(transformMatrix);
 		canvas.setMatrix(m);
 
-		setBackgroundColor(Color.WHITE);
+		// setBackgroundColor(Color.WHITE);
 
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			DefaultVertex v1 = e.getSource();

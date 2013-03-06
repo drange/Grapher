@@ -19,6 +19,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -57,7 +61,12 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 		// scaleGestureDetector = new ScaleGestureDetector(this,
 		// new SimpleScaleGestureDetector());
 
+		Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.bg_image);
+		BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
+		bitmapDrawable.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
 		controller = new GraphViewController(this, width, height);
+		controller.getView().setBackgroundDrawable(bitmapDrawable);
+
 		setContentView(controller.getView());
 
 		// shake
