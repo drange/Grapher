@@ -25,6 +25,11 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized, Seri
 
 	private final int id;
 
+	// This is a hack that allows reset of counter on re-launch of app
+	public static synchronized void resetCounter() {
+		CURRENT_ID = 1;
+	}
+
 	public DefaultVertex(Coordinate coordinate) {
 		this(Color.rgb(200, 0, 0), coordinate, DEFAULT_SIZE);
 	}
