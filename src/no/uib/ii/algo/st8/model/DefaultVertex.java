@@ -15,7 +15,8 @@ public class DefaultVertex implements Colorful, Geometric, Labelled, Sized, Seri
 	/** The counter for id's for DefaultVertices made */
 	private volatile static int CURRENT_ID = 1;
 
-	public final static float DEFAULT_SIZE = 10;
+	// TODO has always been 10!
+	public final static float DEFAULT_SIZE = 15;
 
 	private int color;
 	private Coordinate coordinate;

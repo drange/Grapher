@@ -36,6 +36,7 @@ import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
 import no.uib.ii.algo.st8.model.DefaultVertex;
+import no.uib.ii.algo.st8.model.EdgeStyle;
 import no.uib.ii.algo.st8.util.Coordinate;
 
 import org.jgrapht.GraphPath;
@@ -53,15 +54,17 @@ import android.view.View;
 
 public class GraphViewController {
 
-	public int MARKED_VERTEX_COLOR = Color.rgb(0, 150, 30);
+	public static int DEFAULT_VERTEX_COLOR = Color.rgb(100, 100, 100);
 
-	public int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
+	public static int MARKED_VERTEX_COLOR = Color.rgb(0, 150, 30);
 
-	public int TOUCHED_VERTEX_COLOR = Color.rgb(0, 0, 100);
+	public static int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
 
-	public int MARKED_EDGE_COLOR = Color.rgb(0, 200, 0);
+	public static int TOUCHED_VERTEX_COLOR = Color.rgb(0, 0, 100);
 
-	public int DEFAULT_EDGE_COLOR = Color.BLACK;
+	public static int MARKED_EDGE_COLOR = Color.rgb(100, 255, 255);
+
+	public static int DEFAULT_EDGE_COLOR = Color.GRAY;
 
 	private String info = "";
 	private GraphView view;
@@ -76,7 +79,9 @@ public class GraphViewController {
 	private DefaultVertex prevTouch;
 
 	// TODO this should depend on screen size and or zoom (scale of matrix)
-	public final static float USER_MISS_RADIUS = 40;
+	// TODO WAS 40, has always been 40
+	public final static float USER_MISS_RADIUS = 35;
+
 	private final Coordinate CENTER_COORDINATE;
 
 	// private DefaultVertex startedOnVertex;
@@ -525,6 +530,9 @@ public class GraphViewController {
 			new NullPointerException("Graph was null, from isEmptyGraph").printStackTrace();
 			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 		}
+		// this is a minor hack, nearly all functions call this before doing
+		// heavy work
+		System.gc();
 		return graph.vertexSet().size() == 0;
 	}
 
@@ -985,7 +993,7 @@ public class GraphViewController {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
-			v.setColor(Color.rgb(200, 0, 0));
+			v.setColor(DEFAULT_VERTEX_COLOR);
 			v.setLabel(""); // TODO Remove labeling
 			if (markedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
@@ -1001,7 +1009,7 @@ public class GraphViewController {
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			e.setColor(DEFAULT_EDGE_COLOR);
 			if (markedEdges.contains(e)) {
-				e.setColor(MARKED_EDGE_COLOR);
+				e.setStyle(EdgeStyle.BOLD);
 			}
 		}
 
