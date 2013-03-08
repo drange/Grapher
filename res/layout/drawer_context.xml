@@ -12,6 +12,10 @@
         android:title="Compute Treewidth"/>
 
     <item
+        android:id="@+id/compute_perfect_code"
+        android:title="Compute Perfect Code"/>
+
+    <item
         android:id="@+id/compute_balanced_separator"
         android:title="Balanced Separator"/>
 

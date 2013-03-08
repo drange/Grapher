@@ -29,6 +29,7 @@ import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
 import no.uib.ii.algo.st8.algorithms.HamiltonianInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
+import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
@@ -245,6 +246,7 @@ public class GraphViewController {
 		clearAll();
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 		layout = null;
+		redraw();
 	}
 
 	public int treewidth() {
@@ -407,6 +409,26 @@ public class GraphViewController {
 		highlightPath(hamPath);
 		redraw();
 		return true;
+	}
+
+	/**
+	 * Perfect code.
+	 */
+	public int showPerfectCode() {
+		time(true);
+		Collection<DefaultVertex> perfCode = PerfectCodeInspector.getPerfectCode(graph);
+		time(false);
+
+		clearAll();
+
+		if (perfCode == null) {
+			return -1;
+		}
+
+		markedVertices.addAll(perfCode);
+
+		redraw();
+		return perfCode.size();
 	}
 
 	public boolean showHamiltonianPath() {
@@ -787,7 +809,7 @@ public class GraphViewController {
 	public void shake() {
 		if (layout == null)
 			layout = new SpringLayout(graph);
-		layout.iterate();
+		longShake(10);
 		fixPositions();
 		redraw();
 	}

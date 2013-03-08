@@ -61,7 +61,10 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 		// scaleGestureDetector = new ScaleGestureDetector(this,
 		// new SimpleScaleGestureDetector());
 
-		Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.bg_image);
+		// Bitmapbmp=BitmapFactory.decodeResource(getResources(),R.drawable.bg_image);
+
+		Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.bg_image_larger);
+
 		BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
 		bitmapDrawable.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
 		controller = new GraphViewController(this, width, height);
@@ -235,6 +238,15 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 				shortToast("Claw-free deletion size " + deletionSize);
 			return true;
 
+		case R.id.compute_perfect_code:
+			int perfCodeSize = controller.showPerfectCode();
+			controller.redraw();
+			if (perfCodeSize < 0)
+				shortToast("Not perfect code");
+			else
+				shortToast("Perfect code size " + perfCodeSize);
+			return true;
+
 		case R.id.compute_claws:
 			boolean hasclaw = controller.showAllClaws();
 			controller.redraw();
@@ -315,7 +327,7 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			return true;
 
 		case R.id.spring:
-			controller.longShake(100);
+			controller.longShake(200);
 			controller.redraw();
 			shortToast("Shaken, not stirred");
 			return true;

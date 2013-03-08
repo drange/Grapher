@@ -20,7 +20,7 @@ import org.jgrapht.graph.SimpleGraph;
 public class SpringLayout {
 
 	/** This spring's constant, see Hooke's law */
-	public static final float SPRING_CONSTANT = .000005f;
+	public static final float SPRING_CONSTANT = .000001f;
 
 	/** How much time "passes" between iterations */
 	public static final float TIME_CONSTANT = 300f;
@@ -36,8 +36,7 @@ public class SpringLayout {
 
 	private Map<DefaultVertex, Integer> vertexToComponent;
 
-	public SpringLayout(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public SpringLayout(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.graph = graph;
 		vertexToComponent = new HashMap<DefaultVertex, Integer>();
 		initialize();
@@ -134,8 +133,7 @@ public class SpringLayout {
 			}
 		}
 
-		layout = new SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>>(
-				new DefaultEdgeFactory<SpringVertex>());
+		layout = new SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>>(new DefaultEdgeFactory<SpringVertex>());
 
 		for (Geometric v : graph.vertexSet()) {
 			SpringVertex sp = new SpringVertex(v, vertexToComponent.get(v));
@@ -148,8 +146,7 @@ public class SpringLayout {
 			Geometric source = e.getSource();
 			Geometric target = e.getTarget();
 
-			layout.addEdge(fromGraphToLayout.get(source),
-					fromGraphToLayout.get(target));
+			layout.addEdge(fromGraphToLayout.get(source), fromGraphToLayout.get(target));
 		}
 	}
 
