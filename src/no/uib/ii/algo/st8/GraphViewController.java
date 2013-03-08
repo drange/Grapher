@@ -63,7 +63,7 @@ public class GraphViewController {
 
 	public static int TOUCHED_VERTEX_COLOR = Color.rgb(0, 0, 100);
 
-	public static int MARKED_EDGE_COLOR = Color.rgb(100, 255, 255);
+	public static int MARKED_EDGE_COLOR = Color.rgb(180, 255, 200);
 
 	public static int DEFAULT_EDGE_COLOR = Color.GRAY;
 
@@ -1015,8 +1015,14 @@ public class GraphViewController {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
+			v.setLabel(""); // todo fix
+		}
+		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
+			e.setStyle(EdgeStyle.SOLID); // todo fix
+		}
+
+		for (DefaultVertex v : graph.vertexSet()) {
 			v.setColor(DEFAULT_VERTEX_COLOR);
-			v.setLabel(""); // TODO Remove labeling
 			if (markedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
 			}

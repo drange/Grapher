@@ -107,6 +107,7 @@ public class GraphView extends View {
 
 		Paint shadowPaint = new Paint();
 		shadowPaint.setColor(Color.DKGRAY);
+		shadowPaint.setAlpha(100);  // transparent
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
