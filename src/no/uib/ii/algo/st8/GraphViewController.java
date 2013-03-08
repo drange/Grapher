@@ -552,9 +552,6 @@ public class GraphViewController {
 			new NullPointerException("Graph was null, from isEmptyGraph").printStackTrace();
 			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 		}
-		// this is a minor hack, nearly all functions call this before doing
-		// heavy work
-		System.gc();
 		return graph.vertexSet().size() == 0;
 	}
 
