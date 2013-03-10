@@ -32,6 +32,7 @@ import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
+import no.uib.ii.algo.st8.algorithms.SimplicialInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
 import no.uib.ii.algo.st8.model.DefaultEdge;
@@ -429,6 +430,22 @@ public class GraphViewController {
 
 		redraw();
 		return perfCode.size();
+	}
+
+	/**
+	 * Simplicial vertices
+	 */
+	public int showSimplicialVertices() {
+		time(true);
+		Collection<DefaultVertex> simplicials = SimplicialInspector.getSimplicialVertices(graph);
+		time(false);
+
+		clearAll();
+
+		markedVertices.addAll(simplicials);
+
+		redraw();
+		return simplicials.size();
 	}
 
 	public boolean showHamiltonianPath() {

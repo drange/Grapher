@@ -58,8 +58,8 @@
         android:title="Minimum Spanning Tree"/>
 
     <item
-        android:id="@+id/compute_claw_deletion"
-        android:title="Claw-free deletion"/>
+        android:id="@+id/compute_simplicial_vertices"
+        android:title="Show simplicial vertices"/>
 
     <item
         android:id="@+id/compute_claws"
@@ -134,12 +134,12 @@
         android:title="Hamiltonian Path"/>
 
     <item
-        android:id="@+id/brute_hamiltonian_path"
-        android:title="Hamiltonian Path, O(n!)"/>
+        android:id="@+id/compute_claw_deletion"
+        android:title="Claw-free edge deletion"/>
 
     <item
         android:id="@+id/path"
-        android:title="Path"/>
+        android:title="Show shortest s-t path"/>
 
     <item
         android:id="@+id/flow"

@@ -229,6 +229,17 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
 			return true;
 
+		case R.id.compute_simplicial_vertices:
+			int simplicials = controller.showSimplicialVertices();
+			if (simplicials > 1)
+				shortToast(simplicials + " simplicial vertices");
+			else if (simplicials == 1)
+				shortToast(simplicials + " simplicial vertex");
+			else
+				shortToast("No simplicial vertices.");
+
+			return true;
+
 		case R.id.compute_claw_deletion:
 			int deletionSize = controller.showClawDeletion();
 			controller.redraw();
@@ -330,17 +341,6 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			controller.longShake(200);
 			controller.redraw();
 			shortToast("Shaken, not stirred");
-			return true;
-
-		case R.id.brute_hamiltonian_path:
-			boolean bruteHamiltonianPath = controller.bruteForceHamiltonianPath();
-
-			if (bruteHamiltonianPath)
-				shortToast("Hamiltonian path highlighted (bf)");
-			else
-				shortToast("No hamiltonian path! (bf)");
-
-			controller.redraw();
 			return true;
 
 		case R.id.hamiltonian_path:
