@@ -237,7 +237,14 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 				shortToast(simplicials + " simplicial vertex");
 			else
 				shortToast("No simplicial vertices.");
+			return true;
 
+		case R.id.compute_chordality:
+			boolean isChordal = controller.isChordal();
+			if (isChordal)
+				shortToast("Graph is chordal.");
+			else
+				shortToast("Graph is not chordal.");
 			return true;
 
 		case R.id.compute_claw_deletion:

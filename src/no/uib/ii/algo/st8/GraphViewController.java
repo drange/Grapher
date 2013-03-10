@@ -451,6 +451,15 @@ public class GraphViewController {
 		return simplicials.size();
 	}
 
+	/**
+	 * Chordality (tmp)
+	 */
+	public boolean isChordal() {
+		clearAll();
+		redraw();
+		return SimplicialInspector.isChordal(graph);
+	}
+
 	public boolean showHamiltonianPath() {
 		time(true);
 		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector.getHamiltonianPath(graph);

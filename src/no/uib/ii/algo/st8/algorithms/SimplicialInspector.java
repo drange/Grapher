@@ -31,4 +31,18 @@ public class SimplicialInspector {
 		}
 		return simpls;
 	}
+
+	@SuppressWarnings("unchecked")
+	public static <V, E> boolean isChordal(SimpleGraph<V, E> graph) {
+		SimpleGraph<V, E> gg = (SimpleGraph<V, E>) graph.clone();
+		while (gg.vertexSet().size() > 3) {
+			Collection<V> simpls = getSimplicialVertices(gg);
+			if (simpls.size() > 1) {
+				gg.removeAllVertices(simpls);
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
 }

@@ -9,8 +9,8 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class GraphInformation {
 
-	public static String graphInfo(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public static String graphInfo(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+
 		int vertexCount = graph.vertexSet().size();
 		if (vertexCount == 0) {
 			return "The empty graph";
@@ -34,10 +34,14 @@ public class GraphInformation {
 		}
 
 		boolean acyclic = GirthInspector.isAcyclic(graph);
+		boolean isChordal = SimplicialInspector.isChordal(graph);
 
 		int maxDegree = maxDegree(graph);
 		int minDegree = minDegree(graph);
 		String s = "";
+		if (isChordal) {
+			s += "Chordal: ";
+		}
 		if (isConnected) {
 			s += (acyclic ? "Tree" : "Connected graph");
 		} else {
@@ -57,8 +61,7 @@ public class GraphInformation {
 					else
 						s += " union of cycles,";
 				}
-				StronglyRegularWitness srw = RegularityInspector
-						.isStronglyRegular(graph);
+				StronglyRegularWitness srw = RegularityInspector.isStronglyRegular(graph);
 				if (srw != null) {
 					// graph is strongly regular!
 					s += " " + srw;
@@ -72,8 +75,7 @@ public class GraphInformation {
 		return s;
 	}
 
-	public static int maxDegree(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public static int maxDegree(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		// TODO What to do on empty graphs?
 
 		int d = 0;
@@ -85,8 +87,7 @@ public class GraphInformation {
 		return d;
 	}
 
-	public static int minDegree(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public static int minDegree(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		// TODO What to do on empty graphs?
 		int d = graph.vertexSet().size();
 

@@ -62,6 +62,10 @@
         android:title="Show simplicial vertices"/>
 
     <item
+        android:id="@+id/compute_chordality"
+        android:title="Is chordal?"/>
+
+    <item
         android:id="@+id/compute_claws"
         android:title="Show all claws"/>
 
