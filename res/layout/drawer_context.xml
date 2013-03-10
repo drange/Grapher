@@ -213,6 +213,10 @@
         android:id="@+id/load"
         android:title="Load a graph into workspace"/>
 
+    <item
+        android:id="@+id/toggle_label_drawing"
+        android:title="Toggle showing labels"/>
+
     <item>
     </item>
 
