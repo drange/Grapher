@@ -608,6 +608,16 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			load();
 			return true;
 
+		case R.id.toggle_label_drawing:
+			boolean doShow = !GraphViewController.DO_SHOW_LABELS;
+			GraphViewController.DO_SHOW_LABELS = doShow;
+			if (doShow)
+				shortToast("Showing labels");
+			else
+				shortToast("Not showing labels");
+			controller.redraw();
+			return true;
+
 		default:
 			return super.onOptionsItemSelected(item);
 		}

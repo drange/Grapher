@@ -68,6 +68,9 @@ public class GraphViewController {
 
 	public static int DEFAULT_EDGE_COLOR = Color.GRAY;
 
+	/** true if the labels should be drawn or not */
+	public static boolean DO_SHOW_LABELS = true;
+
 	private String info = "";
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;

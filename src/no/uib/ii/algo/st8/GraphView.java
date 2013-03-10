@@ -23,6 +23,12 @@ public class GraphView extends View {
 
 	private final Matrix prev = new Matrix();
 
+	private final Paint edgePaint = new Paint();
+	private final Paint vertexPaint = new Paint();
+	private final Paint vertexOutlinePaint = new Paint();
+	private final Paint vertexTextPaint = new Paint();
+	private final Paint shadowPaint = new Paint();
+
 	public GraphView(Context context) {
 		super(context);
 
@@ -56,7 +62,6 @@ public class GraphView extends View {
 
 		// setBackgroundColor(Color.WHITE);
 
-		Paint edgePaint = new Paint();
 		edgePaint.setStrokeWidth(2);
 		edgePaint.setStyle(Paint.Style.STROKE);
 
@@ -93,21 +98,17 @@ public class GraphView extends View {
 		}
 
 		// the inner part of vertex
-		Paint vertexPaint = new Paint();
 		vertexPaint.setStrokeWidth(1);
 		vertexPaint.setStyle(Style.FILL);
 
 		// The outline of the vertex
-		Paint vertexOutlinePaint = new Paint();
 		vertexOutlinePaint.setStrokeWidth(5);
 		vertexOutlinePaint.setStyle(Style.STROKE);
 
-		Paint vertexTextPaint = new Paint();
 		vertexTextPaint.setColor(Color.WHITE);
 
-		Paint shadowPaint = new Paint();
 		shadowPaint.setColor(Color.DKGRAY);
-		shadowPaint.setAlpha(100);  // transparent
+		shadowPaint.setAlpha(100); // transparent
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
@@ -137,11 +138,15 @@ public class GraphView extends View {
 			// draws vertex
 			canvas.drawCircle(x, y, v.getSize(), vertexPaint);
 
-			// a hack for now
-			if (v.getId() > 9)
-				canvas.drawText("" + v.getId(), x - 7, y + 4, vertexTextPaint);
-			else
-				canvas.drawText("" + v.getId(), x - 4, y + 4, vertexTextPaint);
+			// HAHAHA: A global static public variable flag!
+			// Talk about nice coding practice!
+			if (GraphViewController.DO_SHOW_LABELS) {
+				// a hack for now
+				if (v.getId() > 9)
+					canvas.drawText("" + v.getId(), x - 7, y + 4, vertexTextPaint);
+				else
+					canvas.drawText("" + v.getId(), x - 4, y + 4, vertexTextPaint);
+			}
 		}
 
 		canvas.setMatrix(prev);
