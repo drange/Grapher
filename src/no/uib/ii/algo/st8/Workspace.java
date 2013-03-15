@@ -42,7 +42,8 @@ import android.widget.Toast;
 /**
  * @author pgd
  */
-public class Workspace extends Activity implements OnClickListener, SensorEventListener {
+public class Workspace extends Activity implements OnClickListener,
+		SensorEventListener {
 
 	private GraphViewController controller;
 
@@ -63,10 +64,12 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
 		// Bitmapbmp=BitmapFactory.decodeResource(getResources(),R.drawable.bg_image);
 
-		Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.bg_image_larger);
+		Bitmap bmp = BitmapFactory.decodeResource(getResources(),
+				R.drawable.bg_image_larger);
 
 		BitmapDrawable bitmapDrawable = new BitmapDrawable(bmp);
-		bitmapDrawable.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
+		bitmapDrawable.setTileModeXY(Shader.TileMode.REPEAT,
+				Shader.TileMode.REPEAT);
 		controller = new GraphViewController(this, width, height);
 		controller.getView().setBackgroundDrawable(bitmapDrawable);
 
@@ -77,20 +80,23 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 		this.sensors = sensorManager.getSensorList(Sensor.TYPE_ACCELEROMETER);
 		if (sensors.size() > 0) {
 			sensor = sensors.get(0);
-			sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+			sensorManager.registerListener(this, sensor,
+					SensorManager.SENSOR_DELAY_GAME);
 			System.out.println("PAAL REGISTERED SENSOR");
 		}
 		controller.redraw();
 	}
 
 	private boolean copyTikzToClipboard() {
-		String text = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
+		String text = GraphExporter.getTikz(controller.getGraph(),
+				controller.getTransformMatrix());
 		try {
 			ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.err.println("Error while copying TiKZ to clipboard: " + e.getMessage());
+			System.err.println("Error while copying TiKZ to clipboard: "
+					+ e.getMessage());
 			e.printStackTrace();
 			e.printStackTrace();
 			return false;
@@ -104,7 +110,8 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			clipboard.setText(text);
 			return true;
 		} catch (Exception e) {
-			System.err.println("Error while copying metapost to clipboard: " + e.getMessage());
+			System.err.println("Error while copying metapost to clipboard: "
+					+ e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
@@ -128,7 +135,8 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 	}
 
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER || event.values.length < 3)
+		if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER
+				|| event.values.length < 3)
 			return;
 
 		currentTime = System.currentTimeMillis();
@@ -141,7 +149,9 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			current_y = event.values[DATA_Y];
 			current_z = event.values[DATA_Z];
 
-			currenForce = Math.abs(current_x + current_y + current_z - last_x - last_y - last_z) / diffTime * 10000;
+			currenForce = Math.abs(current_x + current_y + current_z - last_x
+					- last_y - last_z)
+					/ diffTime * 10000;
 
 			if (currenForce > FORCE_THRESHOLD) {
 				controller.shake();
@@ -155,13 +165,15 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 	}
 
 	private void shareTikz() {
-		String shareBody = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
+		String shareBody = GraphExporter.getTikz(controller.getGraph(),
+				controller.getTransformMatrix());
 
 		shareBody += "\n\n% Sent to you by Grapher";
 
 		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 		sharingIntent.setType("text/plain");
-		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, controller.graphInfo());
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+				controller.graphInfo());
 		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 		startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
 
@@ -174,7 +186,8 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
 		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 		sharingIntent.setType("text/plain");
-		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, controller.graphInfo());
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+				controller.graphInfo());
 		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
 		startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
 
@@ -310,6 +323,15 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 				shortToast("Feedback Vertex Set number " + fvs);
 			return true;
 
+		case R.id.compute_connected_feedback_vertex_set:
+			int cfvs = controller.showConnectedFeedbackVertexSet();
+			controller.redraw();
+			if (cfvs == 0)
+				shortToast("Graph is acyclic");
+			else
+				shortToast("Connected Feedback Vertex Set number " + cfvs);
+			return true;
+
 		case R.id.compute_vertex_cover:
 			int vc = controller.showVertexCover();
 			controller.redraw();
@@ -345,7 +367,7 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			return true;
 
 		case R.id.spring:
-			controller.longShake(200);
+			controller.longShake(300);
 			controller.redraw();
 			shortToast("Shaken, not stirred");
 			return true;
@@ -648,7 +670,8 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 				Editable value = input.getText();
 				try {
 					String json = new FileAccess().save(controller.getGraph());
-					FileOutputStream fOut = openFileOutput(value + ".json", MODE_WORLD_READABLE);
+					FileOutputStream fOut = openFileOutput(value + ".json",
+							MODE_WORLD_READABLE);
 					OutputStreamWriter osw = new OutputStreamWriter(fOut);
 
 					// Write the string to the file
@@ -668,11 +691,12 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 			}
 		});
 
-		alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				// Canceled.
-			}
-		});
+		alert.setNegativeButton("Cancel",
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Canceled.
+					}
+				});
 
 		alert.show();
 	}
@@ -686,11 +710,13 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 		builder.setTitle("Pick a file");
 		builder.setItems(files, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int item) {
-				Toast.makeText(getApplicationContext(), files[item], Toast.LENGTH_SHORT).show();
+				Toast.makeText(getApplicationContext(), files[item],
+						Toast.LENGTH_SHORT).show();
 				try {
 					StringBuffer stringBuffer = new StringBuffer();
 					String inputLine = "";
-					FileInputStream input = openFileInput(files[item].toString());
+					FileInputStream input = openFileInput(files[item]
+							.toString());
 					InputStreamReader isr = new InputStreamReader(input);
 					BufferedReader bufferedReader = new BufferedReader(isr);
 

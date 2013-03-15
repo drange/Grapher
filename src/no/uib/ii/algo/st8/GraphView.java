@@ -43,7 +43,8 @@ public class GraphView extends View {
 		return transformMatrix;
 	}
 
-	public void redraw(String info, SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+	public void redraw(String info,
+			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.info = info;
 		this.graph = graph;
 		invalidate();
@@ -72,10 +73,13 @@ public class GraphView extends View {
 			Coordinate c1 = v1.getCoordinate();
 			Coordinate c2 = v2.getCoordinate();
 
-			float x1 = Math.round(c1.getX() / 10) * 10;
-			float y1 = Math.round(c1.getY() / 10) * 10;
-			float x2 = Math.round(c2.getX() / 10) * 10;
-			float y2 = Math.round(c2.getY() / 10) * 10;
+			// float x1 = Math.round(c1.getX() / 10) * 10;
+			// float y1 = Math.round(c1.getY() / 10) * 10;
+			// float x2 = Math.round(c2.getX() / 10) * 10;
+			// float y2 = Math.round(c2.getY() / 10) * 10;
+
+			float x1 = c1.getX(), y1 = c1.getY(), x2 = c2.getX(), y2 = c2
+					.getY();
 
 			// in case the vertex appears lifted and thus moved 3 px up,left
 			if (v1.getLabel() == "selected") {
@@ -112,8 +116,10 @@ public class GraphView extends View {
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
-			float x = Math.round(c.getX() / 10) * 10;
-			float y = Math.round(c.getY() / 10) * 10;
+			// float x = Math.round(c.getX() / 10) * 10;
+			// float y = Math.round(c.getY() / 10) * 10;
+
+			float x = c.getX(), y = c.getY();
 
 			// this should be vertex.isSelected() / highlighted etc.
 			if (v.getLabel().equals("selected")) {
@@ -131,7 +137,8 @@ public class GraphView extends View {
 			vertexPaint.setColor(v.getColor());
 
 			double darken = .8; // Yes, completely arbitrary
-			vertexOutlinePaint.setColor(Color.rgb((int) (red * darken), (int) (green * darken), (int) (blue * darken)));
+			vertexOutlinePaint.setColor(Color.rgb((int) (red * darken),
+					(int) (green * darken), (int) (blue * darken)));
 			// draws outline
 			canvas.drawCircle(x, y, v.getSize(), vertexOutlinePaint);
 
@@ -143,9 +150,11 @@ public class GraphView extends View {
 			if (GraphViewController.DO_SHOW_LABELS) {
 				// a hack for now
 				if (v.getId() > 9)
-					canvas.drawText("" + v.getId(), x - 7, y + 4, vertexTextPaint);
+					canvas.drawText("" + v.getId(), x - 7, y + 4,
+							vertexTextPaint);
 				else
-					canvas.drawText("" + v.getId(), x - 4, y + 4, vertexTextPaint);
+					canvas.drawText("" + v.getId(), x - 4, y + 4,
+							vertexTextPaint);
 			}
 		}
 

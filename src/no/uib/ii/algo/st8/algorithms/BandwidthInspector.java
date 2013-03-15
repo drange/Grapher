@@ -4,10 +4,19 @@ import java.util.List;
 
 import no.uib.ii.algo.st8.util.PermutationIterator;
 
-import org.jgrapht.UndirectedGraph;
+import org.jgrapht.graph.SimpleGraph;
 
-public class BandwidthInspector {
-	public static <V, E> int computeBandwidth(UndirectedGraph<V, E> graph) {
+public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer, Integer> {
+
+	private final SimpleGraph<V, E> graph;
+
+	public BandwidthInspector(SimpleGraph<V, E> graph) {
+		this.graph = graph;
+
+	}
+
+	@Override
+	public Integer doInBackground() {
 		PermutationIterator<V> perm = new PermutationIterator<V>(
 				graph.vertexSet());
 		int bandwidth = graph.vertexSet().size();
@@ -28,7 +37,7 @@ public class BandwidthInspector {
 			// obtain a witness
 			bandwidth = Math.min(current, bandwidth);
 		}
-
 		return bandwidth;
 	}
+
 }
