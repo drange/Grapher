@@ -31,7 +31,9 @@
         android:id="@+id/compute_feedback_vertex_set"
         android:title="Feedback Vertex Set"/>
 
-    <!-- To use values/strings.xml (resources): @string/compute_vertex_cover -->
+    <item
+        android:id="@+id/compute_connected_feedback_vertex_set"
+        android:title="Connected Feedback Vertex Set"/>
 
     <item
         android:id="@+id/compute_vertex_cover"
