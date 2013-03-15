@@ -8,6 +8,7 @@ import java.util.HashSet;
 import no.uib.ii.algo.st8.util.InducedSubgraph;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
 public class FeedbackVertexSet {
@@ -46,7 +47,6 @@ public class FeedbackVertexSet {
 		return currentBestFvs;
 	}
 
-
 	public static <V, E> Collection<V> findExactConnectedFeedbackVertexSet(
 			SimpleGraph<V, E> graph) {
 		if (graph == null)
@@ -72,8 +72,9 @@ public class FeedbackVertexSet {
 			vertices.addAll(graph.vertexSet());
 			vertices.removeAll(fvs);
 			SimpleGraph<V, E> hfvs = InducedSubgraph.inducedSubgraphOf(graph,
-					vertices);
-			if (!new ConnectivityInspector<V, E>(hfvs).isGraphConnected()) continue;
+					fvs);
+			if (!new ConnectivityInspector<V, E>(hfvs).isGraphConnected())
+				continue;
 
 			vertices.clear();
 			vertices.addAll(graph.vertexSet());
@@ -87,8 +88,5 @@ public class FeedbackVertexSet {
 		}
 		return currentBestFvs;
 	}
-
-
-
 
 }
