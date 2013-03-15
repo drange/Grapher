@@ -1,217 +1,110 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 
-import org.jgrapht.DirectedGraph;
-import org.jgrapht.EdgeFactory;
-import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.jgrapht.graph.SimpleGraph;
 
+import android.util.Pair;
+
+/**
+ * 
+ * @author markussd
+ * 
+ */
 public class FlowInspector {
 
-	public static <V, E> int findFlow(SimpleGraph<V, E> graph, V s, V t) {
-		DirectedGraph<FlowVertex<V>, FlowEdge<E>> dgraph;
+	/**
+	 * Given a graph, a source and a target vertex the function computes the
+	 * flow and returns the size of the flow and a set of edges demonstrating
+	 * the flow in the graph.
+	 * 
+	 * @param graph
+	 *            A simple graph
+	 * @param source
+	 *            The source
+	 * @param target
+	 *            The target
+	 * @return The flow from source to target and a set of edges demonstrating
+	 *         the flow
+	 */
+	public static <V, E> Pair<Integer, Collection<E>> findFlow(
+			SimpleGraph<V, E> graph, V source, V target) {
+		Set<Pair<V, V>> flowEdges = new HashSet<Pair<V, V>>();
 
-		FlowEdgeFactory<V, E> factory;
-		factory = new FlowEdgeFactory<V, E>(graph.getEdgeFactory());
-
-		dgraph = new DirectedWeightedMultigraph<FlowVertex<V>, FlowEdge<E>>(factory);
-
-		Map<V, Pair<FlowVertex<V>>> map = new HashMap<V, Pair<FlowVertex<V>>>();
-
-		for (V v : graph.vertexSet()) {
-			FlowVertex<V> v1 = new FlowVertex<V>(v, 1);
-			dgraph.addVertex(v1);
-
-			FlowVertex<V> v2 = new FlowVertex<V>(v, 2);
-			dgraph.addVertex(v2);
-
-			dgraph.addEdge(v1, v2);
-
-			map.put(v, new Pair<FlowVertex<V>>(v1, v2));
-		}
-
-		for (E e : graph.edgeSet()) {
-			Pair<FlowVertex<V>> source = map.get(graph.getEdgeSource(e));
-			Pair<FlowVertex<V>> target = map.get(graph.getEdgeTarget(e));
-
-			dgraph.addEdge(source.getX2(), target.getX1());
-			dgraph.addEdge(target.getX2(), source.getX1());
-		}
-
-		FlowVertex<V> source = map.get(s).getX2();
-		FlowVertex<V> target = map.get(t).getX1();
+		// Compute flow
 		int flow = 0;
-		while (flowIncreasingPath(dgraph, source, target))
+		while (flowIncreasingPath(graph, flowEdges, source, target))
 			++flow;
 
-		return flow;
+		// Retrieve edges with flow
+		Set<E> edges = new HashSet<E>();
+		for (Pair<V, V> p : flowEdges)
+			edges.add(graph.getEdge(p.first, p.second));
+
+		return new Pair<Integer, Collection<E>>(flow, edges);
 	}
 
-	private static <V, E> boolean flowIncreasingPath(DirectedGraph<FlowVertex<V>, FlowEdge<E>> dgraph, FlowVertex<V> source,
-			FlowVertex<V> target) {
+	/**
+	 * Finds a flow increasing path in the graph from source to target avoiding
+	 * the directed edges in flowEdges.
+	 * 
+	 * @param graph
+	 *            The graph
+	 * @param flowEdges
+	 *            The directed edges that should not be used in the flow
+	 *            increasing path
+	 * @param source
+	 *            The source
+	 * @param target
+	 *            The target
+	 * @return True if a flow increasing path exist, false otherwise.
+	 */
+	private static <V, E> boolean flowIncreasingPath(SimpleGraph<V, E> graph,
+			Set<Pair<V, V>> flowEdges, V source, V target) {
+		Map<V, V> prev = new HashMap<V, V>();
+		Queue<V> next = new LinkedList<V>();
 
-		Map<FlowVertex<V>, FlowVertex<V>> prev = new HashMap<FlowInspector.FlowVertex<V>, FlowInspector.FlowVertex<V>>();
-		Queue<FlowVertex<V>> next = new LinkedList<FlowInspector.FlowVertex<V>>();
+		// Initialise search
 		next.add(source);
-		prev.put(source, source);
+		prev.put(source, null);
 
+		// Search the graph
 		while (!next.isEmpty()) {
-			FlowVertex<V> v = next.poll();
+			V v = next.poll();
 
 			if (v == target)
 				break;
 
-			for (FlowEdge<E> e : dgraph.outgoingEdgesOf(v)) {
-				FlowVertex<V> n = dgraph.getEdgeTarget(e);
-				if (!prev.containsKey(n)) {
-					next.add(n);
-					prev.put(n, v);
+			// Look at the neighbourhood
+			for (V nghbr : Neighbors.openNeighborhood(graph, v)) {
+				// If the edge is not in flowEdges and the neighbour is not
+				// already visited we want to search the neighbour
+				if (!flowEdges.contains(new Pair<V, V>(v, nghbr))
+						&& !prev.containsKey(nghbr)) {
+					next.add(nghbr);
+					prev.put(nghbr, v);
 				}
 			}
 		}
 
-		if (prev.containsKey(target)) {
-			FlowVertex<V> v = prev.get(target);
-			while (v != source) {
-				dgraph.addEdge(v, prev.get(v));
-				dgraph.removeEdge(prev.get(v), v);
-				v = prev.get(v);
-			}
-
-			return true;
-		} else {
+		// No path found
+		if (!prev.containsKey(target))
 			return false;
-		}
-	}
 
-	public static class FlowVertex<V> {
-		private final V original;
-		private final int id;
-
-		public FlowVertex(V original, int id) {
-			this.original = original;
-			this.id = id;
+		// Updates flowEdges according to the path found
+		V v = target;
+		while (v != source) {
+			flowEdges.add(new Pair<V, V>(prev.get(v), v));
+			flowEdges.add(new Pair<V, V>(v, prev.get(v)));
+			v = prev.get(v);
 		}
 
-		public V getOriginal() {
-			return original;
-		}
-
-		public int getId() {
-			return id;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + id;
-			result = prime * result + ((original == null) ? 0 : original.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			@SuppressWarnings("rawtypes")
-			FlowVertex other = (FlowVertex) obj;
-			if (id != other.id)
-				return false;
-			if (original == null) {
-				if (other.original != null)
-					return false;
-			} else if (!original.equals(other.original))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "FlowVertex: " + original + " (" + id + ")";
-		}
-	}
-
-	public static class FlowEdge<E> {
-		private final E edge;
-
-		public FlowEdge(E edge) {
-			this.edge = edge;
-		}
-
-		public E getEdge() {
-			return edge;
-		}
-	}
-
-	public static class FlowEdgeFactory<V, E> implements EdgeFactory<FlowVertex<V>, FlowEdge<E>> {
-
-		EdgeFactory<V, E> factory;
-
-		public FlowEdgeFactory(EdgeFactory<V, E> factory) {
-			this.factory = factory;
-		}
-
-		public FlowEdge<E> createEdge(FlowVertex<V> arg0, FlowVertex<V> arg1) {
-			return new FlowEdge<E>(factory.createEdge(arg0.original, arg1.original));
-		}
-	}
-
-	public static class Pair<X> {
-		private final X x1;
-		private final X x2;
-
-		public Pair(X x1, X x2) {
-			this.x1 = x1;
-			this.x2 = x2;
-		}
-
-		public X getX1() {
-			return x1;
-		}
-
-		public X getX2() {
-			return x2;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((x1 == null) ? 0 : x1.hashCode());
-			result = prime * result + ((x2 == null) ? 0 : x2.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			@SuppressWarnings("rawtypes")
-			Pair other = (Pair) obj;
-			if (x1 == null) {
-				if (other.x1 != null)
-					return false;
-			} else if (!x1.equals(other.x1))
-				return false;
-			if (x2 == null) {
-				if (other.x2 != null)
-					return false;
-			} else if (!x2.equals(other.x2))
-				return false;
-			return true;
-		}
+		return true;
 	}
 }
