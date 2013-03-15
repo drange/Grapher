@@ -1021,11 +1021,17 @@ public class GraphViewController {
 		}
 
 		clearAll();
-		BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>> bi = new BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
 
-		AsyncTask<Void, Integer, Integer> task = bi.execute();
+		// TODO don't know
 
+		new AsyncTask<Void, Integer, Integer>() {
+			@Override
+			protected Integer doInBackground(Void... params) {
+				BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>> bi = new BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+						graph);
+				return bi.execute();
+			}
+		}.execute();
 		redraw();
 		return 0;
 	}

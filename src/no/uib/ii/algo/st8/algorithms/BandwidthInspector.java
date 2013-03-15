@@ -6,7 +6,7 @@ import no.uib.ii.algo.st8.util.PermutationIterator;
 
 import org.jgrapht.graph.SimpleGraph;
 
-public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer, Integer> {
+public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 
 	private final SimpleGraph<V, E> graph;
 
@@ -16,7 +16,7 @@ public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer, Integer> 
 	}
 
 	@Override
-	public Integer doInBackground() {
+	public Integer execute() {
 		PermutationIterator<V> perm = new PermutationIterator<V>(
 				graph.vertexSet());
 		int bandwidth = graph.vertexSet().size();

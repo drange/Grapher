@@ -1,9 +1,6 @@
 package no.uib.ii.algo.st8.algorithms;
 
-import android.os.AsyncTask;
-
-public abstract class Algorithm<V, E, Progress, Result> extends
-		AsyncTask<Void, Progress, Result> {
+public abstract class Algorithm<V, E, Return> {
 
 	protected ProgressListener progressListener;
 
@@ -11,11 +8,6 @@ public abstract class Algorithm<V, E, Progress, Result> extends
 		this.progressListener = progressListener;
 	}
 
-	public abstract Result doInBackground();
-
-	@Override
-	public final Result doInBackground(Void... params) {
-		return doInBackground();
-	}
+	public abstract Return execute();
 
 }
