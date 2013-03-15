@@ -6,6 +6,8 @@ import java.util.HashSet;
 
 import org.jgrapht.graph.SimpleGraph;
 
+import android.util.Pair;
+
 public class ClawInspector {
 
 	private static <V, E> Claw<V, E> findClaw(SimpleGraph<V, E> graph) {
@@ -45,7 +47,8 @@ public class ClawInspector {
 		return null;
 	}
 
-	public static <V, E> Collection<E> minimalClawDeletionSet(SimpleGraph<V, E> graph) {
+	public static <V, E> Collection<E> minimalClawDeletionSet(
+			SimpleGraph<V, E> graph) {
 
 		if (getClaws(graph).getCenters().isEmpty())
 			return new HashSet<E>();
@@ -59,11 +62,13 @@ public class ClawInspector {
 				return solution;
 			}
 		}
-		System.err.println("Should never come here!  Did not find solution set");
+		System.err
+				.println("Should never come here!  Did not find solution set");
 		return null;
 	}
 
-	private static <V, E> Collection<E> minimalClawDeletionSet(SimpleGraph<V, E> graph, int k) {
+	private static <V, E> Collection<E> minimalClawDeletionSet(
+			SimpleGraph<V, E> graph, int k) {
 
 		Claw<V, E> claw = findClaw(graph);
 
@@ -132,14 +137,15 @@ public class ClawInspector {
 
 	public static class ClawCollection<U> {
 		private final Collection<U> centers = new HashSet<U>();
-		private final Collection<Pair<U>> arms = new HashSet<Pair<U>>();
+		private final Collection<Pair<U, U>> arms = new HashSet<Pair<U, U>>();
 
-		public boolean addClaw(SimpleGraph<U, ?> graph, U center, U v1, U v2, U v3) {
+		public boolean addClaw(SimpleGraph<U, ?> graph, U center, U v1, U v2,
+				U v3) {
 
 			centers.add(center);
-			arms.add(new Pair<U>(center, v1));
-			arms.add(new Pair<U>(center, v2));
-			arms.add(new Pair<U>(center, v3));
+			arms.add(new Pair<U, U>(center, v1));
+			arms.add(new Pair<U, U>(center, v2));
+			arms.add(new Pair<U, U>(center, v3));
 
 			return true;
 		}
@@ -148,7 +154,7 @@ public class ClawInspector {
 			return centers;
 		}
 
-		public Collection<Pair<U>> getArms() {
+		public Collection<Pair<U, U>> getArms() {
 			return arms;
 		}
 	}
@@ -201,7 +207,8 @@ public class ClawInspector {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((center == null) ? 0 : center.hashCode());
+			result = prime * result
+					+ ((center == null) ? 0 : center.hashCode());
 			result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
 			result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
 			result = prime * result + ((v3 == null) ? 0 : v3.hashCode());
@@ -245,56 +252,5 @@ public class ClawInspector {
 		public String toString() {
 			return "Claw " + edges;
 		}
-	}
-
-	public static class Pair<X> {
-		private final X v1;
-		private final X v2;
-
-		public Pair(X v1, X v2) {
-			this.v1 = v1;
-			this.v2 = v2;
-		}
-
-		public X getV1() {
-			return v1;
-		}
-
-		public X getV2() {
-			return v2;
-		}
-
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((v1 == null) ? 0 : v1.hashCode());
-			result = prime * result + ((v2 == null) ? 0 : v2.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			@SuppressWarnings("rawtypes")
-			Pair other = (Pair) obj;
-			if (v1 == null) {
-				if (other.v1 != null)
-					return false;
-			} else if (!v1.equals(other.v1))
-				return false;
-			if (v2 == null) {
-				if (other.v2 != null)
-					return false;
-			} else if (!v2.equals(other.v2))
-				return false;
-			return true;
-		}
-
 	}
 }
