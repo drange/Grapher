@@ -12,6 +12,18 @@ public class Main extends Activity {
 
 		DefaultVertex.resetCounter();
 
-		startActivity(new Intent(this, Workspace.class));
+		System.out.println("Launching workspace");
+		Intent ws = new Intent(this, Workspace.class);
+		startActivityForResult(ws, 1397);
+
+		System.out.println("MAIN main main");
+		System.out.println("finish?");
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == 1397 && resultCode == 0)
+			finish();
 	}
 }

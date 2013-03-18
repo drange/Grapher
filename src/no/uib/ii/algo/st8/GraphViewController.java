@@ -46,9 +46,11 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.Vibrator;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
@@ -63,7 +65,7 @@ public class GraphViewController {
 
 	public static int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
 
-	public static int TOUCHED_VERTEX_COLOR = Color.rgb(0, 0, 100);
+	public static int TOUCHED_VERTEX_COLOR = Color.rgb(255, 75, 0);
 
 	public static int MARKED_EDGE_COLOR = Color.rgb(180, 255, 200);
 
@@ -72,31 +74,60 @@ public class GraphViewController {
 	/** true if the labels should be drawn or not */
 	public static boolean DO_SHOW_LABELS = true;
 
+	/** true if the labels should be drawn or not */
+	public static boolean EDGE_DRAW_MODE = true;
+
 	private String info = "";
 	private GraphView view;
 	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 
 	private SpringLayout layout = null;
 
-	private Set<DefaultVertex> markedVertices = new HashSet<DefaultVertex>();
+	private Set<DefaultVertex> highlightedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultEdge<DefaultVertex>> markedEdges = new HashSet<DefaultEdge<DefaultVertex>>();
 
-	private DefaultVertex prevTouch;
+	/** MARKED VERTEX FOR EDGE EDITING */
+	// private DefaultVertex activeVertex;
 
 	// TODO this should depend on screen size and or zoom (scale of matrix)
 	// TODO WAS 40, has always been 40
-	public final static float USER_MISS_RADIUS = 35;
+	public final static float USER_MISS_RADIUS = 40;
 
 	private final Coordinate CENTER_COORDINATE;
 
 	// private DefaultVertex startedOnVertex;
 	// private Coordinate startedOnCoordinate;
 
+	private final Workspace activity;
+	private final Vibrator vibrator;
+	private final Undo graphWithMemory;
+
+	public boolean toggleEdgeDraw() {
+		EDGE_DRAW_MODE = !EDGE_DRAW_MODE;
+
+		activity.shortToast(EDGE_DRAW_MODE ? "Draw edges."
+				: "Tap to create vertices.");
+
+		clearAll();
+		redraw();
+		return EDGE_DRAW_MODE;
+	}
+
+	public void setEdgeDrawMode(boolean mode) {
+		if (EDGE_DRAW_MODE != mode)
+			toggleEdgeDraw();
+	}
+
 	public GraphViewController(Workspace activity, int width, int height) {
+		this.activity = activity;
+		vibrator = (Vibrator) activity
+				.getSystemService(Context.VIBRATOR_SERVICE);
 
 		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				new DefaultEdgeFactory<DefaultVertex>());
+
+		this.graphWithMemory = new Undo(graph);
 
 		view = new GraphView(activity);
 
@@ -116,6 +147,12 @@ public class GraphViewController {
 	public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getGraph() {
 		return graph;
 
+	}
+
+	public boolean undo() {
+		boolean ret = graphWithMemory.undo();
+		redraw();
+		return ret;
 	}
 
 	public Matrix getTransformMatrix() {
@@ -172,86 +209,35 @@ public class GraphViewController {
 		}
 	}
 
-	// TODO This does not work after introducing the transformationMatrix
-	private void fixPositions() {
-
-		int height = view.getHeight();
-		int width = view.getWidth();
-
-		boolean sane = true;
-
-		for (DefaultVertex v : graph.vertexSet()) {
-			Coordinate c = v.getCoordinate();
-			if (c.getX() < 0 || c.getX() > width) {
-				sane = false;
-				break;
-			}
-			if (c.getY() < 0 || c.getY() > height) {
-				sane = false;
-				break;
-			}
-		}
-
-		if (sane)
-			return;
-
-		float xmin = width, xmax = 0, ymin = height, ymax = 0;
-		for (DefaultVertex v : graph.vertexSet()) {
-			Coordinate c = v.getCoordinate();
-			xmin = Math.min(xmin, c.getX());
-			xmax = Math.max(xmax, c.getX());
-
-			ymin = Math.min(ymin, c.getY());
-			ymax = Math.max(ymax, c.getY());
-		}
-
-		for (DefaultVertex v : graph.vertexSet()) {
-			Coordinate c = v.getCoordinate();
-			if (xmin < 0) {
-				v.setCoordinate(c.add(new Coordinate(-xmin, 0)));
-			}
-			if (xmax > width) {
-				v.setCoordinate(c.add(new Coordinate(width - xmax, 0)));
-			}
-
-			if (ymin < 0) {
-				v.setCoordinate(c.add(new Coordinate(0, -ymin)));
-			}
-			if (ymax > height) {
-				v.setCoordinate(c.add(new Coordinate(0, height - ymax)));
-			}
-		}
-
-	}
-
 	/**
 	 * Deselects all selected vertices and edges
 	 */
 	public void clearAll() {
-		prevTouch = null;
+		// activeVertex = null;
 		markedEdges.clear();
 		userSelectedVertices.clear();
-		markedVertices.clear();
+		highlightedVertices.clear();
 	}
 
 	/**
 	 * Deselects all selected vertices and edges
 	 */
 	public void removeHighlight(Object obj) {
-		if (prevTouch == obj)
-			prevTouch = null;
+		// if (activeVertex == obj)
+		// activeVertex = null;
 		markedEdges.remove(obj);
 		userSelectedVertices.remove(obj);
-		markedVertices.remove(obj);
+		highlightedVertices.remove(obj);
 	}
 
 	/**
 	 * Tabula rasa, remove the graph and all we know.
 	 */
-	public void clear() {
+	public void newGraph() {
 		clearAll();
-		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				new DefaultEdgeFactory<DefaultVertex>());
+
+		while (!graph.vertexSet().isEmpty())
+			graphWithMemory.removeVertex(graph.vertexSet().iterator().next());
 		layout = null;
 		redraw();
 	}
@@ -289,8 +275,8 @@ public class GraphViewController {
 		if (isEmptyGraph())
 			return;
 
-		userSelectedVertices.addAll(markedVertices);
-		markedVertices.clear();
+		userSelectedVertices.addAll(highlightedVertices);
+		highlightedVertices.clear();
 		redraw();
 	}
 
@@ -345,7 +331,8 @@ public class GraphViewController {
 		for (DefaultVertex v : userSelectedVertices) {
 			for (DefaultVertex u : userSelectedVertices) {
 				if (u != v && !graph.containsEdge(u, v)) {
-					graph.addEdge(u, v);
+					graphWithMemory.addEdge(u, v);
+					redraw();
 				}
 			}
 		}
@@ -387,8 +374,9 @@ public class GraphViewController {
 		int deleted = 0;
 
 		for (DefaultVertex v : userSelectedVertices) {
-			if (graph.removeVertex(v))
+			if (graphWithMemory.removeVertex(v)) {
 				deleted++;
+			}
 		}
 		graphInfo();
 		clearAll();
@@ -439,7 +427,7 @@ public class GraphViewController {
 			return -1;
 		}
 
-		markedVertices.addAll(perfCode);
+		highlightedVertices.addAll(perfCode);
 
 		redraw();
 		return perfCode.size();
@@ -456,7 +444,7 @@ public class GraphViewController {
 
 		clearAll();
 
-		markedVertices.addAll(simplicials);
+		highlightedVertices.addAll(simplicials);
 
 		redraw();
 		return simplicials.size();
@@ -583,8 +571,8 @@ public class GraphViewController {
 			GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
 		for (DefaultEdge<DefaultVertex> e : gp.getEdgeList()) {
 			markedEdges.add(e);
-			markedVertices.add(e.getSource());
-			markedVertices.add(e.getTarget());
+			highlightedVertices.add(e.getSource());
+			highlightedVertices.add(e.getTarget());
 		}
 	}
 
@@ -602,17 +590,14 @@ public class GraphViewController {
 			if (edge != null) {
 				markedEdges.add(edge);
 			}
-			markedVertices.add(v);
-			markedVertices.add(u);
+			highlightedVertices.add(v);
+			highlightedVertices.add(u);
 		}
 	}
 
 	public boolean isEmptyGraph() {
 		if (graph == null) {
-			new NullPointerException("Graph was null, from isEmptyGraph")
-					.printStackTrace();
-			graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					new DefaultEdgeFactory<DefaultVertex>());
+			throw new NullPointerException("Graph was null, from isEmptyGraph");
 		}
 		return graph.vertexSet().size() == 0;
 	}
@@ -629,7 +614,7 @@ public class GraphViewController {
 
 		Set<DefaultVertex> odds = EulerianInspector.getOddDegreeVertices(graph);
 		clearAll();
-		markedVertices.addAll(odds);
+		highlightedVertices.addAll(odds);
 		redraw();
 		return odds.size() == 0;
 	}
@@ -649,7 +634,7 @@ public class GraphViewController {
 			return -1;
 
 		clearAll();
-		markedVertices.addAll(sep);
+		highlightedVertices.addAll(sep);
 		return sep.size();
 	}
 
@@ -696,7 +681,7 @@ public class GraphViewController {
 			return false;
 		}
 
-		markedVertices.addAll(part);
+		highlightedVertices.addAll(part);
 
 		redraw();
 		return true;
@@ -746,7 +731,7 @@ public class GraphViewController {
 		DefaultVertex v = CutAndBridgeInspector.findCutVertex(graph);
 		if (v == null)
 			return false;
-		markedVertices.add(v);
+		highlightedVertices.add(v);
 		return true;
 	}
 
@@ -764,7 +749,7 @@ public class GraphViewController {
 		clearAll();
 		Set<DefaultVertex> cuts = CutAndBridgeInspector
 				.findAllCutVertices(graph);
-		markedVertices.addAll(cuts);
+		highlightedVertices.addAll(cuts);
 		return cuts.size();
 	}
 
@@ -827,10 +812,10 @@ public class GraphViewController {
 		}
 
 		DefaultVertex universal = new DefaultVertex(pos);
-		graph.addVertex(universal);
+		graphWithMemory.addVertex(universal);
 		for (DefaultVertex v : graph.vertexSet()) {
 			if (v != universal)
-				graph.addEdge(universal, v);
+				graphWithMemory.addEdge(universal, v);
 		}
 		graphInfo();
 		return deg;
@@ -853,9 +838,9 @@ public class GraphViewController {
 			return;
 
 		if (graph.containsEdge(v, u)) {
-			graph.removeEdge(v, u);
+			graphWithMemory.removeEdge(v, u);
 		} else {
-			graph.addEdge(v, u);
+			graphWithMemory.addEdge(v, u);
 		}
 
 		graphInfo();
@@ -866,7 +851,6 @@ public class GraphViewController {
 		if (layout == null)
 			layout = new SpringLayout(graph);
 		layout.iterate(n);
-		fixPositions();
 		redraw();
 	}
 
@@ -874,7 +858,6 @@ public class GraphViewController {
 		if (layout == null)
 			layout = new SpringLayout(graph);
 		longShake(20);
-		fixPositions();
 		redraw();
 	}
 
@@ -885,7 +868,7 @@ public class GraphViewController {
 		Set<DefaultVertex> regdel = RegularityInspector
 				.regularDeletionSet(graph);
 		clearAll();
-		markedVertices.addAll(regdel);
+		highlightedVertices.addAll(regdel);
 		redraw();
 		return regdel.size();
 	}
@@ -897,7 +880,7 @@ public class GraphViewController {
 		Collection<DefaultVertex> oct = OddCycleTransversal
 				.findOddCycleTransversal(graph);
 		clearAll();
-		markedVertices.addAll(oct);
+		highlightedVertices.addAll(oct);
 		redraw();
 		return oct.size();
 	}
@@ -909,7 +892,7 @@ public class GraphViewController {
 		Collection<DefaultVertex> fvs = FeedbackVertexSet
 				.findExactFeedbackVertexSet(graph);
 		clearAll();
-		markedVertices.addAll(fvs);
+		highlightedVertices.addAll(fvs);
 		redraw();
 		return fvs.size();
 	}
@@ -921,7 +904,7 @@ public class GraphViewController {
 		Collection<DefaultVertex> fvs = FeedbackVertexSet
 				.findExactConnectedFeedbackVertexSet(graph);
 		clearAll();
-		markedVertices.addAll(fvs);
+		highlightedVertices.addAll(fvs);
 		redraw();
 		return fvs.size();
 	}
@@ -934,7 +917,7 @@ public class GraphViewController {
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		time(false);
 		clearAll();
-		markedVertices.addAll(cover);
+		highlightedVertices.addAll(cover);
 		return cover.size();
 	}
 
@@ -971,10 +954,10 @@ public class GraphViewController {
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 
 		clearAll();
-		markedVertices.addAll(graph.vertexSet());
-		markedVertices.removeAll(cover);
+		highlightedVertices.addAll(graph.vertexSet());
+		highlightedVertices.removeAll(cover);
 
-		return markedVertices.size();
+		return highlightedVertices.size();
 	}
 
 	public int showMaximumClique() {
@@ -983,7 +966,7 @@ public class GraphViewController {
 		}
 		Set<DefaultVertex> clique = MaximalClique.findExactMaximumClique(graph);
 		clearAll();
-		markedVertices.addAll(clique);
+		highlightedVertices.addAll(clique);
 		redraw();
 		return clique.size();
 	}
@@ -995,7 +978,7 @@ public class GraphViewController {
 		Collection<DefaultVertex> domset = ExactDominatingSet
 				.exactDominatingSet(graph);
 		clearAll();
-		markedVertices.addAll(domset);
+		highlightedVertices.addAll(domset);
 		redraw();
 		return domset.size();
 	}
@@ -1009,7 +992,7 @@ public class GraphViewController {
 		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return false;
-		markedVertices.add(center);
+		highlightedVertices.add(center);
 		redraw();
 		return true;
 
@@ -1066,7 +1049,7 @@ public class GraphViewController {
 	public boolean showAllClaws() {
 		ClawCollection<DefaultVertex> col = ClawInspector.getClaws(graph);
 		clearAll();
-		markedVertices.addAll(col.getCenters());
+		highlightedVertices.addAll(col.getCenters());
 		for (Pair<DefaultVertex, DefaultVertex> e : col.getArms()) {
 			markedEdges.add(graph.getEdge(e.first, e.second));
 		}
@@ -1083,8 +1066,8 @@ public class GraphViewController {
 			for (int i = 0; i < cycle.size(); i++) {
 				DefaultVertex v = cycle.get(i % cycle.size());
 				DefaultVertex u = cycle.get((i + 1) % cycle.size());
-				markedVertices.add(v);
-				markedVertices.add(u);
+				highlightedVertices.add(v);
+				highlightedVertices.add(u);
 				if (graph.containsEdge(v, u)) {
 					DefaultEdge<DefaultVertex> e = graph.getEdge(v, u);
 					markedEdges.add(e);
@@ -1105,9 +1088,12 @@ public class GraphViewController {
 	}
 
 	public void redraw() {
+
 		if (graph == null) {
 			return;
 		}
+
+		graphInfo();
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			v.setLabel(""); // todo fix
@@ -1117,17 +1103,18 @@ public class GraphViewController {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
-			v.setColor(DEFAULT_VERTEX_COLOR);
-			if (markedVertices.contains(v)) {
+			v.setColor(EDGE_DRAW_MODE ? DEFAULT_VERTEX_COLOR
+					: TOUCHED_VERTEX_COLOR);
+			if (highlightedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
 			}
 			if (userSelectedVertices.contains(v)) {
 				v.setColor(USERSELECTED_VERTEX_COLOR);
 			}
-			if (v.equals(prevTouch)) {
-				v.setColor(TOUCHED_VERTEX_COLOR);
-				v.setLabel("selected");
-			}
+			// if (v.equals(activeVertex)) {
+			// v.setColor(TOUCHED_VERTEX_COLOR);
+			// v.setLabel("selected");
+			// }
 		}
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			e.setColor(DEFAULT_EDGE_COLOR);
@@ -1156,11 +1143,13 @@ public class GraphViewController {
 	}
 
 	private class PrivateGestureListener extends SimpleOnGestureListener {
+		/** This vertex was touch, e.g. for scrolling and moving purposes */
 		private DefaultVertex touchedVertex = null;
 		private int previousPointerCount = 0;
 		private Coordinate[] previousPointerCoords = null;
 
 		public boolean onDown(MotionEvent e) {
+
 			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			previousPointerCount = -1; // make any ongoing scroll restart
@@ -1173,63 +1162,89 @@ public class GraphViewController {
 			return super.onDown(e);
 		}
 
-		public boolean onDoubleTap(MotionEvent e) {
-			// TODO fix that a double tap actually hits same vertex both times
-			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+				float velocityY) {
+
+			Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
+			float dist = (float) Math.round(Math.sqrt((velocityX * velocityX)
+					+ (velocityY * velocityY)));
+
+			System.out.println("dist=" + dist + " \tdx=" + velocityX + " \tdy="
+					+ velocityY);
+
+			if (dist < 4000)
+				return true;
+
+			System.out.print("fling: ");
+
 			if (hit != null) {
-				graph.removeVertex(hit);
-				removeHighlight(hit);
-
-				graphInfo();
-
+				System.out.println(hit.getId());
+				clearAll();
+				graphWithMemory.removeVertex(hit);
+				touchedVertex = null;
 				redraw();
-
 				return true;
 			} else {
-				return false;
+				System.out.println("miss");
 			}
+
+			return true;
 		}
 
-		public void onLongPress(MotionEvent e) {
-			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
-			Coordinate gCoordinate = translateCoordinate(sCoordinate);
-			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			if (EDGE_DRAW_MODE) {
 
-			if (hit != null) {
-				if (userSelectedVertices.contains(hit)) {
-					userSelectedVertices.remove(hit);
-				} else {
-					userSelectedVertices.add(hit);
+				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+				Coordinate gCoordinate = translateCoordinate(sCoordinate);
+				DefaultVertex hit = getClosestVertex(gCoordinate,
+						USER_MISS_RADIUS);
+
+				if (hit == null) {
+					clearAll();
+					touchedVertex = null;
+					redraw();
+					return true;
 				}
-				graphInfo();
-			}
-			redraw();
-		}
 
-		public boolean onSingleTapUp(MotionEvent e) {
-			if (e.getPointerCount() != 1)
-				return false; // TODO Is this needed?
-			if (touchedVertex == null && prevTouch == null) {
-				Coordinate touchedCoord = new Coordinate(e.getX(), e.getY());
-				Coordinate gCoordinate = translateCoordinate(touchedCoord);
-
-				graph.addVertex(new DefaultVertex(gCoordinate));
 				graphInfo();
-			} else if (touchedVertex == null || prevTouch == touchedVertex) {
-				prevTouch = null;
-			} else if (prevTouch == null) {
-				prevTouch = touchedVertex;
+
 			} else {
-				toggleEdge(touchedVertex, prevTouch);
-				graphInfo();
+
+				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
+				Coordinate gCoordinate = translateCoordinate(sCoordinate);
+				DefaultVertex hit = getClosestVertex(gCoordinate,
+						USER_MISS_RADIUS);
+
+				if (hit == null) {
+					DefaultVertex newvertex = new DefaultVertex(gCoordinate);
+					graphWithMemory.addVertex(newvertex);
+
+					graphInfo();
+				} else {
+					if (userSelectedVertices.contains(hit)) {
+						userSelectedVertices.remove(hit);
+					} else {
+						userSelectedVertices.add(hit);
+					}
+				}
 			}
 
 			touchedVertex = null;
+
 			redraw();
 			return true;
+
+		}
+
+		public void onLongPress(MotionEvent e) {
+
+			vibrator.vibrate(50);
+			toggleEdgeDraw();
 		}
 
 		@Override
@@ -1268,16 +1283,35 @@ public class GraphViewController {
 				}
 				break;
 			case 1:
-				previousPointerCoords = null;
-				if (touchedVertex != null) {
+				if (EDGE_DRAW_MODE) {
 					Coordinate sCoordinate = new Coordinate(e2.getX(),
 							e2.getY());
 					Coordinate gCoordinate = translateCoordinate(sCoordinate);
-					touchedVertex.setCoordinate(gCoordinate);
+					DefaultVertex hit = getClosestVertex(gCoordinate,
+							USER_MISS_RADIUS);
+
+					if (hit != null) {
+						System.out.println("HIT " + hit.getId());
+						if (touchedVertex != null && touchedVertex != hit) {
+							toggleEdge(hit, touchedVertex);
+						}
+						touchedVertex = hit;
+					}
+
 				} else {
-					if (previousPointerCount == 1)
-						view.getTransformMatrix().postTranslate(-distanceX,
-								-distanceY);
+					previousPointerCoords = null;
+
+					if (touchedVertex != null) {
+						Coordinate sCoordinate = new Coordinate(e2.getX(),
+								e2.getY());
+						Coordinate gCoordinate = translateCoordinate(sCoordinate);
+						touchedVertex.setCoordinate(gCoordinate);
+					} else {
+						if (previousPointerCount == 1)
+							view.getTransformMatrix().postTranslate(-distanceX,
+									-distanceY);
+					}
+
 				}
 				break;
 			default: // 3 or more

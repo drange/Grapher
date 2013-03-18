@@ -1,11 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <!--
-         Single menu item
-         Set id, icon and Title for each menu item
-    -->
-    <!-- android:icon="@drawable/icon_search" -->
+    <item
+        android:id="@+id/finish"
+        android:title="Exit Grapher"/>
+
+    <item
+        android:id="@+id/finish_and_save"
+        android:title="Save and exit"/>
+
+    <item
+        android:id="@+id/toggle_edge_edit"
+        android:title="Draw/Move"/>
+
+    <item
+        android:id="@+id/new_graph"
+        android:title="New graph"/>
+
+    <item
+        android:id="@+id/compute_maximum_clique"
+        android:title="Maximum Clique"/>
+
+    <item
+        android:id="@+id/compute_maximum_independent_set"
+        android:title="Max Independent Set"/>
+
+    <item
+        android:id="@+id/compute_vertex_cover"
+        android:title="Compute Vertex Cover"/>
+
+    <item
+        android:id="@+id/compute_connected_vertex_cover"
+        android:title="Compute Connected Vertex Cover"/>
 
     <item
         android:id="@+id/compute_treewidth"
@@ -34,22 +60,6 @@
     <item
         android:id="@+id/compute_connected_feedback_vertex_set"
         android:title="Connected Feedback Vertex Set"/>
-
-    <item
-        android:id="@+id/compute_vertex_cover"
-        android:title="Compute Vertex Cover"/>
-
-    <item
-        android:id="@+id/compute_connected_vertex_cover"
-        android:title="Compute Connected Vertex Cover"/>
-
-    <item
-        android:id="@+id/compute_maximum_clique"
-        android:title="Maximum Clique"/>
-
-    <item
-        android:id="@+id/compute_maximum_independent_set"
-        android:title="Maximum Independent Set"/>
 
     <item
         android:id="@+id/compute_minimum_dominating_set"
@@ -87,21 +97,9 @@
         android:id="@+id/bipartition"
         android:title="Bipartite"/>
 
-    <!--
-         <item
-        android:id="@+id/compute_cut"
-        android:title="Cut vertex"/>
-    -->
-
     <item
         android:id="@+id/compute_all_cuts"
         android:title="Cut vertices"/>
-
-    <!--
-          <item
-        android:id="@+id/compute_bridge"
-        android:title="Bridge"/>
-    -->
 
     <item
         android:id="@+id/compute_all_bridges"
@@ -208,10 +206,6 @@
         android:title="Induce subgraph by selected vertices"/>
 
     <item
-        android:id="@+id/clear"
-        android:title="Deselect all"/>
-
-    <item
         android:id="@+id/save"
         android:title="Save the current graph"/>
 
@@ -222,8 +216,5 @@
     <item
         android:id="@+id/toggle_label_drawing"
         android:title="Toggle showing labels"/>
-
-    <item>
-    </item>
 
 </menu>

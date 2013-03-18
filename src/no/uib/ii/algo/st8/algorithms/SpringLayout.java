@@ -23,13 +23,13 @@ public class SpringLayout {
 	public static final float SPRING_CONSTANT = .000002f; // or 1?
 
 	/** How much time "passes" between iterations */
-	public static final float TIME_CONSTANT = 350f; // or 300?
+	public static final float TIME_CONSTANT = 400f; // or 300?
 
 	/**
 	 * The most a vertex is allowed to move during one iteration. If net force
 	 * is greater, we scale it down to this value.
 	 */
-	public static final float MAX_MOVEMENT = 150; // or 100?
+	public static final float MAX_MOVEMENT = 50; // or 100?
 
 	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private SimpleGraph<SpringVertex, DefaultEdge<SpringVertex>> layout;

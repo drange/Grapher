@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Date;
 import java.util.List;
 
 import no.uib.ii.algo.st8.util.FileAccess;
@@ -45,7 +46,15 @@ import android.widget.Toast;
 public class Workspace extends Activity implements OnClickListener,
 		SensorEventListener {
 
+	@Override
+	public void onBackPressed() {
+		if (!controller.undo())
+			super.onBackPressed();
+	}
+
 	private GraphViewController controller;
+
+	private volatile boolean saveOnExit = false;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -85,6 +94,37 @@ public class Workspace extends Activity implements OnClickListener,
 			System.out.println("PAAL REGISTERED SENSOR");
 		}
 		controller.redraw();
+		GraphViewController.EDGE_DRAW_MODE = false;
+
+		String title = "Grapher";
+		String message = "Tap to create vertices."
+				+ "\nHold to toggle between vertex creation and edge drawing mode.";
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(message).setTitle(title);
+
+		builder.setPositiveButton("Ok!", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				shortToast("Go ahead and graph!");
+			}
+		});
+		builder.setNeutralButton("Load", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				load();
+			}
+		});
+		// builder.setNegativeButton("Quit",
+		// new DialogInterface.OnClickListener() {
+		// @Override
+		// public void onClick(DialogInterface dialog, int which) {
+		// finish();
+		// }
+		// });
+
+		AlertDialog dialog = builder.create();
+		dialog.show();
 	}
 
 	private boolean copyTikzToClipboard() {
@@ -209,6 +249,30 @@ public class Workspace extends Activity implements OnClickListener,
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+
+		if (controller.getGraph().vertexSet().size() > 0 && saveOnExit) {
+			try {
+				String json = new FileAccess().save(controller.getGraph());
+				FileOutputStream fOut = openFileOutput(new Date().toGMTString()
+						+ " " + controller.graphInfo() + ".json",
+						MODE_WORLD_READABLE);
+				OutputStreamWriter osw = new OutputStreamWriter(fOut);
+
+				// Write the string to the file
+				osw.write(json);
+
+				/*
+				 * ensure that everything is really written out and close
+				 */
+				osw.flush();
+				osw.close();
+
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		// Unregister from SensorManager.
 		sensorManager.unregisterListener(this);
 		sensorManager.unregisterListener(this, sensor);
@@ -217,29 +281,60 @@ public class Workspace extends Activity implements OnClickListener,
 		}
 	}
 
-	private void shortToast(String toast) {
-		Toast.makeText(Workspace.this, toast, Toast.LENGTH_SHORT).show();
+	public void longToast(String toast) {
+		Toast.makeText(Workspace.this, toast, Toast.LENGTH_LONG).show();
 	}
 
-	// private void longToast(String toast) {
-	// Toast.makeText(SuperTango8Activity.this, toast, Toast.LENGTH_LONG)
-	// .show();
-	// }
+	public void shortToast(String toast) {
+		Toast.makeText(Workspace.this, toast, Toast.LENGTH_SHORT).show();
+	}
 
 	/**
 	 * Event Handling for Individual menu item selected Identify single menu
 	 * item by it's id
 	 * */
 	public boolean onOptionsItemSelected(MenuItem item) {
+
+		System.out.println("MenuItem      \t" + item.getTitle());
+		System.out.println(" > Condensed  \t" + item.getTitleCondensed());
+		System.out.println(" > numeric id \t" + item.getItemId());
+		System.out.println();
+
 		switch (item.getItemId()) {
+
+		case R.id.finish:
+			saveOnExit = false;
+			finish();
+			return true;
+
+		case R.id.finish_and_save:
+			saveOnExit = true;
+			finish();
+			return true;
+
+		case R.id.new_graph:
+			controller.newGraph();
+			controller.redraw();
+			return true;
+
+		case R.id.compute_maximum_independent_set:
+			int mis = controller.showMaximumIndependentSet();
+			controller.redraw();
+			shortToast("Independent Set Number " + mis);
+			return true;
+
+		case R.id.compute_maximum_clique:
+			int mc = controller.showMaximumClique();
+			controller.redraw();
+			shortToast("Clique Number " + mc);
+			return true;
 
 		case R.id.compute_treewidth:
 			int x = controller.treewidth();
 			if (x > 0)
 				shortToast("Treewidth = " + x);
 			else
-				shortToast("Application failure detected.");
-
+				shortToast("Treewidth undefined");
 			return true;
 
 		case R.id.compute_simplicial_vertices:
@@ -348,18 +443,6 @@ public class Workspace extends Activity implements OnClickListener,
 			}
 			return true;
 
-		case R.id.compute_maximum_independent_set:
-			int mis = controller.showMaximumIndependentSet();
-			controller.redraw();
-			shortToast("Independent Set Number " + mis);
-			return true;
-
-		case R.id.compute_maximum_clique:
-			int mc = controller.showMaximumClique();
-			controller.redraw();
-			shortToast("Clique Number " + mc);
-			return true;
-
 		case R.id.compute_minimum_dominating_set:
 			int ds = controller.showDominatingSet();
 			controller.redraw();
@@ -466,14 +549,6 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
-			// case R.id.compute_cut:
-			// boolean hascut = controller.showCutVertex();
-			// if (!hascut)
-			// Toast.makeText(SuperTango8Activity.this, "No cut vertices",
-			// Toast.LENGTH_SHORT).show();
-			// controller.redraw();
-			// return true;
-
 		case R.id.compute_all_cuts:
 			int cuts = controller.showAllCutVertices();
 			if (cuts == 0)
@@ -485,14 +560,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast(cuts + " cut vertices");
 			controller.redraw();
 			return true;
-
-			// case R.id.compute_bridge:
-			// boolean hasbridge = controller.showBridge();
-			// if (!hasbridge)
-			// Toast.makeText(SuperTango8Activity.this, "No bridges",
-			// Toast.LENGTH_SHORT).show();
-			// controller.redraw();
-			// return true;
 
 		case R.id.compute_all_bridges:
 			int bridges = controller.showAllBridges();
@@ -624,9 +691,9 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.redraw();
 			return true;
 
-		case R.id.clear:
-			controller.clearAll();
-			controller.redraw();
+		case R.id.toggle_edge_edit:
+			boolean edgedraw = controller.toggleEdgeDraw();
+			shortToast(edgedraw ? "Edge draw mode" : "Vertex move mode");
 			return true;
 
 		case R.id.save:
@@ -648,6 +715,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		default:
+			System.out.println("Option item selected, " + item.getTitle());
 			return super.onOptionsItemSelected(item);
 		}
 	}

@@ -56,6 +56,23 @@ public class GraphView extends View {
 		if (graph == null)
 			return;
 
+		/*
+		 * int w = canvas.getWidth(); int h = canvas.getHeight();
+		 * 
+		 * System.out.println("width=" + w); System.out.println("height=" + h);
+		 * 
+		 * float left = 10, top = h - 140, right = w - 10, bottom = h - 80;
+		 * 
+		 * Paint ppp = new Paint(); ppp.setColor(Color.GRAY);
+		 * canvas.drawRect(left, top, right, bottom, ppp);
+		 * ppp.setColor(Color.DKGRAY);
+		 * 
+		 * canvas.drawCircle(left + 70, top + 30, 20, ppp);
+		 * 
+		 * ppp.setStrokeWidth(3); canvas.drawLine(left + 320, top + 20, left +
+		 * 370, top + 50, ppp);
+		 */
+
 		Matrix m = canvas.getMatrix();
 		prev.set(m);
 		m.preConcat(transformMatrix);
@@ -122,11 +139,23 @@ public class GraphView extends View {
 			float x = c.getX(), y = c.getY();
 
 			// this should be vertex.isSelected() / highlighted etc.
-			if (v.getLabel().equals("selected")) {
-				canvas.drawCircle(x + 3, y + 3, v.getSize(), shadowPaint);
+			if (v.getLabel().equals("selected")
+					|| !GraphViewController.EDGE_DRAW_MODE) {
+				float[] shadow = new float[] { 1, 1 };
 
-				x -= 3;
-				y -= 3;
+				m.mapVectors(shadow);
+				float sx = shadow[0];
+				float sy = shadow[1];
+
+				double length = Math.sqrt((sx * sx) + (sy * sy));
+
+				sx = (float) ((length * sx) / Math.abs(length));
+				sy = (float) ((length * sy) / Math.abs(length));
+
+				canvas.drawCircle(x + sx, y + sy, v.getSize() + 2, shadowPaint);
+
+				x -= sx;
+				y -= sy;
 			}
 
 			int vcolor = v.getColor();
