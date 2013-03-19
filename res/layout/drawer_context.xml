@@ -214,6 +214,10 @@
         android:title="Load a graph into workspace"/>
 
     <item
+        android:id="@+id/delete"
+        android:title="Delete a saved graph"/>
+
+    <item
         android:id="@+id/toggle_label_drawing"
         android:title="Toggle showing labels"/>
 

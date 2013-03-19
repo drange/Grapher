@@ -535,6 +535,8 @@ public class GraphViewController {
 
 		Collection<DefaultEdge<DefaultVertex>> edges = flow.second;
 
+		highlightedVertices.add(s);
+		highlightedVertices.add(t);
 		for (DefaultEdge<DefaultVertex> e : edges) {
 			markedEdges.add(e);
 		}
@@ -1104,10 +1106,6 @@ public class GraphViewController {
 			if (userSelectedVertices.contains(v)) {
 				v.setColor(USERSELECTED_VERTEX_COLOR);
 			}
-			// if (v.equals(activeVertex)) {
-			// v.setColor(TOUCHED_VERTEX_COLOR);
-			// v.setLabel("selected");
-			// }
 		}
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
 			e.setColor(DEFAULT_EDGE_COLOR);

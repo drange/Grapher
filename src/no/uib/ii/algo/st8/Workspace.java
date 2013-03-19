@@ -115,13 +115,6 @@ public class Workspace extends Activity implements OnClickListener,
 				load();
 			}
 		});
-		// builder.setNegativeButton("Quit",
-		// new DialogInterface.OnClickListener() {
-		// @Override
-		// public void onClick(DialogInterface dialog, int which) {
-		// finish();
-		// }
-		// });
 
 		AlertDialog dialog = builder.create();
 		dialog.show();
@@ -704,6 +697,10 @@ public class Workspace extends Activity implements OnClickListener,
 			load();
 			return true;
 
+		case R.id.delete:
+			delete();
+			return true;
+
 		case R.id.toggle_label_drawing:
 			boolean doShow = !GraphViewController.DO_SHOW_LABELS;
 			GraphViewController.DO_SHOW_LABELS = doShow;
@@ -769,8 +766,27 @@ public class Workspace extends Activity implements OnClickListener,
 		alert.show();
 	}
 
-	public void load() {
+	public void delete() {
+		final String[] files = fileList();
 
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Delete file");
+		builder.setItems(files, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int item) {
+				System.out.println("DELETE REQUEST " + item + " -- "
+						+ files[item]);
+
+				if (deleteFile(files[item]))
+					shortToast("Deleted file " + files[item]);
+				else
+					shortToast("Unable to delete file!");
+			}
+		});
+		AlertDialog alert = builder.create();
+		alert.show();
+	}
+
+	public void load() {
 		System.out.println("load");
 		final String[] files = fileList();
 
