@@ -87,17 +87,10 @@ public class GraphViewController {
 	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultEdge<DefaultVertex>> markedEdges = new HashSet<DefaultEdge<DefaultVertex>>();
 
-	/** MARKED VERTEX FOR EDGE EDITING */
-	// private DefaultVertex activeVertex;
-
 	// TODO this should depend on screen size and or zoom (scale of matrix)
-	// TODO WAS 40, has always been 40
 	public final static float USER_MISS_RADIUS = 40;
 
 	private final Coordinate CENTER_COORDINATE;
-
-	// private DefaultVertex startedOnVertex;
-	// private Coordinate startedOnCoordinate;
 
 	private final Workspace activity;
 	private final Vibrator vibrator;
@@ -181,8 +174,6 @@ public class GraphViewController {
 		float bestDistance = radius;
 		DefaultVertex bestVertex = null;
 
-		// int debug_vertices_within_radi = 0;
-
 		for (DefaultVertex currentVertex : vertices) {
 			Coordinate pos = currentVertex.getCoordinate();
 			float currentDistance = pos.distance(coordinate);
@@ -190,8 +181,6 @@ public class GraphViewController {
 				bestVertex = currentVertex;
 				bestDistance = currentDistance;
 			}
-			// if (currentDistance < radius)
-			// debug_vertices_within_radi++;
 		}
 		return bestVertex;
 	}
@@ -213,7 +202,6 @@ public class GraphViewController {
 	 * Deselects all selected vertices and edges
 	 */
 	public void clearAll() {
-		// activeVertex = null;
 		markedEdges.clear();
 		userSelectedVertices.clear();
 		highlightedVertices.clear();
@@ -223,8 +211,6 @@ public class GraphViewController {
 	 * Deselects all selected vertices and edges
 	 */
 	public void removeHighlight(Object obj) {
-		// if (activeVertex == obj)
-		// activeVertex = null;
 		markedEdges.remove(obj);
 		userSelectedVertices.remove(obj);
 		highlightedVertices.remove(obj);
@@ -246,8 +232,6 @@ public class GraphViewController {
 		if (isEmptyGraph())
 			return -1;
 		for (int i = 1; i < 10; i++) {
-			// don't know if this helps
-			System.gc();
 			if (new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 					graph, i).hasTreewidth()) {
 				return i - 1;
@@ -414,6 +398,9 @@ public class GraphViewController {
 
 	/**
 	 * Perfect code.
+	 * 
+	 * @return the number of vertices in efficient dominating set or -1 if none
+	 *         exists
 	 */
 	public int showPerfectCode() {
 		time(true);
@@ -832,19 +819,24 @@ public class GraphViewController {
 	 *            vertex v
 	 * @param u
 	 *            vertex u
+	 * @return returns the edge if it is added, null if it is removed
 	 */
-	private void toggleEdge(DefaultVertex v, DefaultVertex u) {
+	private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v,
+			DefaultVertex u) {
 		if (isEmptyGraph())
-			return;
+			return null;
+
+		DefaultEdge<DefaultVertex> edge = null;
 
 		if (graph.containsEdge(v, u)) {
 			graphWithMemory.removeEdge(v, u);
 		} else {
-			graphWithMemory.addEdge(v, u);
+			edge = graphWithMemory.addEdge(v, u);
 		}
 
 		graphInfo();
 		redraw();
+		return edge;
 	}
 
 	public void longShake(int n) {
@@ -951,6 +943,7 @@ public class GraphViewController {
 		if (isEmptyGraph()) {
 			return 0;
 		}
+
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 
 		clearAll();
@@ -1196,7 +1189,7 @@ public class GraphViewController {
 		}
 
 		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
+		public boolean onSingleTapUp(MotionEvent e) {
 			if (EDGE_DRAW_MODE) {
 
 				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
@@ -1293,7 +1286,13 @@ public class GraphViewController {
 					if (hit != null) {
 						System.out.println("HIT " + hit.getId());
 						if (touchedVertex != null && touchedVertex != hit) {
-							toggleEdge(hit, touchedVertex);
+							DefaultEdge<DefaultVertex> edge = toggleEdge(hit,
+									touchedVertex);
+							userSelectedVertices.remove(touchedVertex);
+							userSelectedVertices.add(hit);
+							markedEdges.clear();
+							if (edge != null)
+								markedEdges.add(edge);
 						}
 						touchedVertex = hit;
 					}
