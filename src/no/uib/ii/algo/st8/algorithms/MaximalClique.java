@@ -3,6 +3,8 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.HashSet;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.model.DefaultVertex;
+
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -12,7 +14,7 @@ import org.jgrapht.graph.SimpleGraph;
  * @author pdr081
  * 
  */
-public class MaximalClique<V, E> {
+public class MaximalClique<V, E> extends Algorithm<V, E, Set<V>>{
 
 	private final SimpleGraph<V, E> graph;
 
@@ -20,13 +22,15 @@ public class MaximalClique<V, E> {
 		this.graph = graph;
 	}
 
-	public static <V, E> Set<V> findExactMaximumClique(SimpleGraph<V, E> graph) {
+	public <V, E> Set<V> findExactMaximumClique(SimpleGraph<V, E> graph) {
 		Set<V> maximum = null;
+		int maxSize = graph.vertexSet().size();
 
 		MaximalClique<V, E> mc = new MaximalClique<V, E>(graph);
 		for (Set<V> maxCliq : mc.maxCliques()) {
 			if (maximum == null || maxCliq.size() > maximum.size()) {
 				maximum = maxCliq;
+				progress(maximum.size(), maxSize);
 			}
 		}
 
@@ -127,6 +131,11 @@ public class MaximalClique<V, E> {
 			}
 		}
 		return minus;
+	}
+
+	@Override
+	public Set<V> execute() {
+		return findExactMaximumClique(graph);
 	}
 
 }

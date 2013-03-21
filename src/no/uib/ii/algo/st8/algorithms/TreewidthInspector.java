@@ -9,6 +9,9 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.model.DefaultVertex;
+
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -39,7 +42,7 @@ import org.jgrapht.graph.SimpleGraph;
  * @param <E>
  *            Any edge type
  */
-public class TreewidthInspector<V, E> {
+public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 	private SimpleGraph<V, E> graph;
 	private int k;
 	private int n;
@@ -64,8 +67,7 @@ public class TreewidthInspector<V, E> {
 	// know that n choose k grows to max on k=n/2, so if we iterate, we
 	// should iterate simultaneously from k=1 to n/2 and k=n-1 to n/2
 
-	public TreewidthInspector(SimpleGraph<V, E> graph, int k) {
-		this.k = k;
+	public TreewidthInspector(SimpleGraph<V, E> graph) {
 		this.n = graph.vertexSet().size();
 		this.graph = graph;
 
@@ -146,6 +148,33 @@ public class TreewidthInspector<V, E> {
 		return reach;
 	}
 
+
+	@Override
+	public Integer execute() {
+		for (int i = 1; i <= n/2+1; i++) {
+
+			// this is necessary, but why?
+			dp.clear();
+			REACH.clear();
+			
+			progress(i-1,n/2);
+			this.k = i;
+			if(hasTreewidth()) {
+				return i - 1;
+			}
+			
+			// in case tw is larger than n/2:
+			dp.clear();
+			REACH.clear();
+			
+			this.k = n-i+1;
+			if(!hasTreewidth()) {
+				return k;
+			}
+		}
+		return -1; // should never be reached
+	}
+	
 	public boolean hasTreewidth() {
 		// TODO: bitset of k ones, connected?
 
@@ -245,4 +274,5 @@ public class TreewidthInspector<V, E> {
 
 		return returnValue;
 	}
+
 }

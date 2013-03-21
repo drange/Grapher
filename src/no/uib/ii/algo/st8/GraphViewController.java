@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.algorithms.Algorithm;
 import no.uib.ii.algo.st8.algorithms.BalancedSeparatorInspector;
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
@@ -215,7 +216,7 @@ public class GraphViewController {
 		userSelectedVertices.remove(obj);
 		highlightedVertices.remove(obj);
 	}
-
+	
 	/**
 	 * Tabula rasa, remove the graph and all we know.
 	 */
@@ -228,16 +229,21 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public int treewidth() {
-		if (isEmptyGraph())
-			return -1;
-		for (int i = 1; i < 10; i++) {
-			if (new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-					graph, i).hasTreewidth()) {
-				return i - 1;
+	public void treewidth() {	
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>,Integer> algorithm;
+		AlgoWrapper<Integer> algoWrapper;
+		
+		algorithm = new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Integer>(activity, algorithm) {
+			
+			@Override
+			protected String resultText(Integer result) {
+				return "tree width is " + result;
 			}
-		}
-		return -1;
+		};
+		
+		algoWrapper.setTitle("Computing tree width...");
+		algoWrapper.execute();
 	}
 
 	public void selectAll() {
@@ -402,22 +408,28 @@ public class GraphViewController {
 	 * @return the number of vertices in efficient dominating set or -1 if none
 	 *         exists
 	 */
-	public int showPerfectCode() {
-		time(true);
-		Collection<DefaultVertex> perfCode = PerfectCodeInspector
-				.getPerfectCode(graph);
-		time(false);
-
-		clearAll();
-
-		if (perfCode == null) {
-			return -1;
-		}
-
-		highlightedVertices.addAll(perfCode);
-
-		redraw();
-		return perfCode.size();
+	public void showPerfectCode() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> perfectCodeAlgo;
+		AlgoWrapper<Collection<DefaultVertex>> algoWrapper;
+		
+		perfectCodeAlgo = new PerfectCodeInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>> (activity, perfectCodeAlgo) {
+			
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				clearAll();
+				if (result == null) {
+					return "Not perfect code";
+				} else {
+					highlightedVertices.addAll(result);
+					redraw();
+					return "Perfect code size " + result.size();
+				}
+			}
+		};
+		
+		algoWrapper.setTitle("Computing perfect code ...");
+		algoWrapper.execute();
 	}
 
 	/**
@@ -955,15 +967,21 @@ public class GraphViewController {
 		return highlightedVertices.size();
 	}
 
-	public int showMaximumClique() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Set<DefaultVertex> clique = MaximalClique.findExactMaximumClique(graph);
-		clearAll();
-		highlightedVertices.addAll(clique);
-		redraw();
-		return clique.size();
+	public void showMaximumClique() {
+		Algorithm<DefaultVertex,DefaultEdge<DefaultVertex>,Set<DefaultVertex>> algorithm = 
+				new MaximalClique<DefaultVertex,DefaultEdge<DefaultVertex>>(graph);
+		AlgoWrapper<Set<DefaultVertex>> algoWrapper = new AlgoWrapper<Set<DefaultVertex>>(activity, algorithm) {
+			
+			@Override
+			protected String resultText(Set<DefaultVertex> result) {
+				clearAll();
+				highlightedVertices.addAll(result);
+				redraw();
+				return "Clique Number is " + result.size();
+			}
+		};
+		algoWrapper.setTitle("Computing maximum clique...");
+		algoWrapper.execute();
 	}
 
 	public int showDominatingSet() {

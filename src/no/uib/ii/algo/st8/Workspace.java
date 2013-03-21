@@ -317,17 +317,11 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_maximum_clique:
-			int mc = controller.showMaximumClique();
-			controller.redraw();
-			shortToast("Clique Number " + mc);
+			controller.showMaximumClique();
 			return true;
 
 		case R.id.compute_treewidth:
-			int x = controller.treewidth();
-			if (x > 0)
-				shortToast("Treewidth = " + x);
-			else
-				shortToast("Treewidth undefined");
+			controller.treewidth();
 			return true;
 
 		case R.id.compute_simplicial_vertices:
@@ -358,12 +352,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_perfect_code:
-			int perfCodeSize = controller.showPerfectCode();
-			controller.redraw();
-			if (perfCodeSize < 0)
-				shortToast("Not perfect code");
-			else
-				shortToast("Perfect code size " + perfCodeSize);
+			controller.showPerfectCode();
 			return true;
 
 		case R.id.compute_claws:

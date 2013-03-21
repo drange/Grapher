@@ -8,7 +8,7 @@ import no.uib.ii.algo.st8.util.NChooseKIterator;
 
 import org.jgrapht.graph.SimpleGraph;
 
-public class PerfectCodeInspector {
+public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 
 	/**
 	 * Has perfect code
@@ -87,6 +87,31 @@ public class PerfectCodeInspector {
 			}
 		}
 
+		return null;
+	}
+
+	private SimpleGraph<V,E> graph;
+	
+	public PerfectCodeInspector (SimpleGraph<V,E> graph) {
+		this.graph = graph;
+	}
+	
+	/**
+	 * Has perfect code
+	 * 
+	 * @param graph
+	 * @return set of vertices or null if not perfect code
+	 * 
+	 */
+	@Override
+	public Collection<V> execute() {
+		int numOfVertices = graph.vertexSet().size();
+		for (int i = 1; i <= numOfVertices; i++) {
+			Collection<V> C = getPerfectCode(graph, i);
+			if (C != null)
+				return C;
+			progress(i, numOfVertices); // publish progress
+		}
 		return null;
 	}
 }
