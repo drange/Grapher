@@ -8,6 +8,8 @@ import no.uib.ii.algo.st8.util.Coordinate;
 import org.jgrapht.graph.SimpleGraph;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -28,6 +30,13 @@ public class GraphView extends View {
 	private final Paint vertexOutlinePaint = new Paint();
 	private final Paint vertexTextPaint = new Paint();
 	private final Paint shadowPaint = new Paint();
+
+	private final Bitmap trashBitmap = BitmapFactory.decodeResource(
+			getResources(), R.drawable.trash64x64);
+	private final Bitmap trashRedBitmap = BitmapFactory.decodeResource(
+			getResources(), R.drawable.trash_red64x64);
+
+	private final Paint trashPaint = new Paint();
 
 	public GraphView(Context context) {
 		super(context);
@@ -188,6 +197,13 @@ public class GraphView extends View {
 		}
 
 		canvas.setMatrix(prev);
+
+		if (GraphViewController.TRASH_CAN == 1) {
+			canvas.drawBitmap(trashBitmap, 10, 10, trashPaint);
+		} else if (GraphViewController.TRASH_CAN == 2) {
+			canvas.drawBitmap(trashRedBitmap, 10, 10, trashPaint);
+		}
+
 		writeInfo(canvas);
 	}
 

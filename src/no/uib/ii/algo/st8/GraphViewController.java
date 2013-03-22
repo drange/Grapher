@@ -78,6 +78,8 @@ public class GraphViewController {
 	/** true if the labels should be drawn or not */
 	public static boolean EDGE_DRAW_MODE = true;
 
+	public static int TRASH_CAN = 0;
+
 	private String info = "";
 	private GraphView view;
 	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
@@ -87,6 +89,8 @@ public class GraphViewController {
 	private Set<DefaultVertex> highlightedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultEdge<DefaultVertex>> markedEdges = new HashSet<DefaultEdge<DefaultVertex>>();
+
+	private DefaultVertex deleteVertex = null;
 
 	// TODO this should depend on screen size and or zoom (scale of matrix)
 	public final static float USER_MISS_RADIUS = 40;
@@ -113,6 +117,11 @@ public class GraphViewController {
 			toggleEdgeDraw();
 	}
 
+	public void trashCan(int mode) {
+		TRASH_CAN = mode;
+		redraw();
+	}
+
 	public GraphViewController(Workspace activity, int width, int height) {
 		this.activity = activity;
 		vibrator = (Vibrator) activity
@@ -131,6 +140,15 @@ public class GraphViewController {
 			GestureDetector gd = new GestureDetector(gl); // TODO deprecated!
 
 			public boolean onTouch(View view, MotionEvent event) {
+				if (event.getAction() == MotionEvent.ACTION_UP) {
+					if (TRASH_CAN == 2) {
+						if (deleteVertex != null) {
+							graphWithMemory.removeVertex(deleteVertex);
+							deleteVertex = null;
+						}
+					}
+					trashCan(0);
+				}
 				return gd.onTouchEvent(event);
 			}
 		});
@@ -1189,7 +1207,7 @@ public class GraphViewController {
 		private Coordinate[] previousPointerCoords = null;
 
 		public boolean onDown(MotionEvent e) {
-
+			trashCan(0);
 			Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			previousPointerCount = -1; // make any ongoing scroll restart
@@ -1205,7 +1223,7 @@ public class GraphViewController {
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
-
+			trashCan(0);
 			Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
@@ -1237,6 +1255,7 @@ public class GraphViewController {
 
 		@Override
 		public boolean onSingleTapUp(MotionEvent e) {
+			trashCan(0);
 			if (EDGE_DRAW_MODE) {
 
 				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
@@ -1282,7 +1301,7 @@ public class GraphViewController {
 		}
 
 		public void onLongPress(MotionEvent e) {
-
+			trashCan(0);
 			vibrator.vibrate(50);
 			toggleEdgeDraw();
 		}
@@ -1290,9 +1309,9 @@ public class GraphViewController {
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2,
 				float distanceX, float distanceY) {
-
 			switch (e2.getPointerCount()) {
 			case 2:
+				trashCan(0);
 				if (previousPointerCoords == null || previousPointerCount != 2) {
 					previousPointerCoords = new Coordinate[2];
 					previousPointerCoords[0] = new Coordinate(e2.getX(0),
@@ -1346,13 +1365,29 @@ public class GraphViewController {
 
 				} else {
 					previousPointerCoords = null;
-
 					if (touchedVertex != null) {
+						trashCan(1);
+
 						Coordinate sCoordinate = new Coordinate(e2.getX(),
 								e2.getY());
+
+						System.out
+								.println("X:" + e2.getX() + "\tY" + e2.getY());
+
+						if (e2.getX() < 100 && e2.getY() < 100) {
+							trashCan(2);
+							deleteVertex = touchedVertex;
+						} else {
+							trashCan(1);
+							deleteVertex = null;
+
+						}
+
 						Coordinate gCoordinate = translateCoordinate(sCoordinate);
 						touchedVertex.setCoordinate(gCoordinate);
+
 					} else {
+						trashCan(0);
 						if (previousPointerCount == 1)
 							view.getTransformMatrix().postTranslate(-distanceX,
 									-distanceY);
@@ -1361,6 +1396,7 @@ public class GraphViewController {
 				}
 				break;
 			default: // 3 or more
+				trashCan(0);
 				previousPointerCoords = null;
 				previousPointerCount = e2.getPointerCount();
 				return false;
