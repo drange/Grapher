@@ -240,13 +240,13 @@ public class Workspace extends Activity implements OnClickListener,
 	}
 
 	@Override
+	@SuppressLint("WorldReadableFiles")
 	protected void onDestroy() {
 		super.onDestroy();
 
 		if (controller.getGraph().vertexSet().size() > 0 && saveOnExit) {
 			try {
 				String json = new FileAccess().save(controller.getGraph());
-				@SuppressLint("WorldReadableFiles")
 				FileOutputStream fOut = openFileOutput(new Date().toGMTString()
 						+ " " + controller.graphInfo() + ".json",
 						MODE_WORLD_READABLE);
@@ -384,12 +384,8 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_odd_cycle_transversal:
-			int oct = controller.showOddCycleTransversal();
+			controller.showOddCycleTransversal();
 			controller.redraw();
-			if (oct == 0)
-				shortToast("Graph is bipartite (has no odd cycles)");
-			else
-				shortToast("Odd Cycle Transversal number " + oct);
 			return true;
 
 		case R.id.compute_feedback_vertex_set:

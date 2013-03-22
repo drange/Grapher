@@ -10,11 +10,16 @@ import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.graph.SimpleGraph;
 
-public class OddCycleTransversal {
-	public static <V, E> Collection<V> findOddCycleTransversal(
-			SimpleGraph<V, E> graph) {
-		if (graph == null)
-			throw new NullPointerException("Input graph to OCT was null!");
+public class OddCycleTransversal<V, E> extends Algorithm<V, E, Collection<V>> {
+
+	private final SimpleGraph<V, E> graph;
+
+	public OddCycleTransversal(SimpleGraph<V, E> graph) {
+		this.graph = graph;
+	}
+
+	@Override
+	public Collection<V> execute() {
 
 		if (isBipartite(graph))
 			return new HashSet<V>();
@@ -27,6 +32,8 @@ public class OddCycleTransversal {
 			Collection<V> oct = subsets.next();
 			if (oct.size() >= currentBestOct.size())
 				continue;
+
+			progress(oct.size(), graph.vertexSet().size());
 
 			Collection<V> vertices = new HashSet<V>();
 			vertices.addAll(graph.vertexSet());

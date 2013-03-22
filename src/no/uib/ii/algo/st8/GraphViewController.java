@@ -900,16 +900,25 @@ public class GraphViewController {
 		return regdel.size();
 	}
 
-	public int showOddCycleTransversal() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Collection<DefaultVertex> oct = OddCycleTransversal
-				.findOddCycleTransversal(graph);
-		clearAll();
-		highlightedVertices.addAll(oct);
-		redraw();
-		return oct.size();
+	public void showOddCycleTransversal() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new OddCycleTransversal<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo, "Odd cycle transveral") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				if (result.size() == 0) {
+					return "Graph is bipartite";
+				} else {
+					clearAll();
+					highlightedVertices.addAll(result);
+					redraw();
+					return "OCT of size " + result.size();
+				}
+			}
+		};
+		alg.execute();
 	}
 
 	public int showFeedbackVertexSet() {
