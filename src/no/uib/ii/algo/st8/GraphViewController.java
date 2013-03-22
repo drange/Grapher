@@ -80,7 +80,7 @@ public class GraphViewController {
 
 	private String info = "";
 	private GraphView view;
-	private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
+	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 
 	private SpringLayout layout = null;
 
@@ -216,7 +216,7 @@ public class GraphViewController {
 		userSelectedVertices.remove(obj);
 		highlightedVertices.remove(obj);
 	}
-	
+
 	/**
 	 * Tabula rasa, remove the graph and all we know.
 	 */
@@ -229,19 +229,20 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public void treewidth() {	
-		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>,Integer> algorithm;
+	public void treewidth() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Integer> algorithm;
 		AlgoWrapper<Integer> algoWrapper;
-		
-		algorithm = new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+
+		algorithm = new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
 		algoWrapper = new AlgoWrapper<Integer>(activity, algorithm) {
-			
+
 			@Override
 			protected String resultText(Integer result) {
 				return "tree width is " + result;
 			}
 		};
-		
+
 		algoWrapper.setTitle("Computing tree width...");
 		algoWrapper.execute();
 	}
@@ -411,10 +412,12 @@ public class GraphViewController {
 	public void showPerfectCode() {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> perfectCodeAlgo;
 		AlgoWrapper<Collection<DefaultVertex>> algoWrapper;
-		
-		perfectCodeAlgo = new PerfectCodeInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
-		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>> (activity, perfectCodeAlgo) {
-			
+
+		perfectCodeAlgo = new PerfectCodeInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity,
+				perfectCodeAlgo) {
+
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
 				clearAll();
@@ -427,7 +430,7 @@ public class GraphViewController {
 				}
 			}
 		};
-		
+
 		algoWrapper.setTitle("Computing perfect code ...");
 		algoWrapper.execute();
 	}
@@ -559,7 +562,12 @@ public class GraphViewController {
 	public void constructPower() {
 		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph
 				.constructPowerGraph(graph);
-		this.graph = power;
+		for (DefaultEdge<DefaultVertex> edge : power.edgeSet()) {
+			DefaultVertex a = power.getEdgeSource(edge);
+			DefaultVertex b = power.getEdgeTarget(edge);
+			if (!graph.containsEdge(a, b))
+				graphWithMemory.addEdge(a, b);
+		}
 		redraw();
 	}
 
@@ -968,10 +976,11 @@ public class GraphViewController {
 	}
 
 	public void showMaximumClique() {
-		Algorithm<DefaultVertex,DefaultEdge<DefaultVertex>,Set<DefaultVertex>> algorithm = 
-				new MaximalClique<DefaultVertex,DefaultEdge<DefaultVertex>>(graph);
-		AlgoWrapper<Set<DefaultVertex>> algoWrapper = new AlgoWrapper<Set<DefaultVertex>>(activity, algorithm) {
-			
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<DefaultVertex>> algorithm = new MaximalClique<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Set<DefaultVertex>> algoWrapper = new AlgoWrapper<Set<DefaultVertex>>(
+				activity, algorithm) {
+
 			@Override
 			protected String resultText(Set<DefaultVertex> result) {
 				clearAll();
