@@ -246,6 +246,7 @@ public class Workspace extends Activity implements OnClickListener,
 		if (controller.getGraph().vertexSet().size() > 0 && saveOnExit) {
 			try {
 				String json = new FileAccess().save(controller.getGraph());
+				@SuppressLint("WorldReadableFiles")
 				FileOutputStream fOut = openFileOutput(new Date().toGMTString()
 						+ " " + controller.graphInfo() + ".json",
 						MODE_WORLD_READABLE);
@@ -493,12 +494,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_balanced_separator:
-			int sep = controller.showSeparator();
-			if (sep < 0)
-				shortToast("No balanced separator.");
-			else
-				shortToast("Found balanced separator of size " + sep);
-			controller.redraw();
+			controller.showSeparator();
 			return true;
 
 		case R.id.compute_diameter:

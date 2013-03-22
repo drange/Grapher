@@ -9,10 +9,10 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import no.uib.ii.algo.st8.model.DefaultEdge;
-import no.uib.ii.algo.st8.model.DefaultVertex;
-
 import org.jgrapht.graph.SimpleGraph;
+
+import android.annotation.SuppressLint;
+import android.util.SparseArray;
 
 /**
  * 
@@ -42,7 +42,7 @@ import org.jgrapht.graph.SimpleGraph;
  * @param <E>
  *            Any edge type
  */
-public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
+public class TreewidthInspector<V, E> extends Algorithm<V, E, Integer> {
 	private SimpleGraph<V, E> graph;
 	private int k;
 	private int n;
@@ -50,15 +50,15 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 	/**
 	 * The actual DP table, used in the memorization
 	 */
-	private HashMap<BitSet, HashMap<Integer, Boolean>> dp;
+	private HashMap<BitSet, SparseArray<Boolean>> dp;
 
 	/**
 	 * Memorized reachability: r[B][v] = R(B,v)
 	 */
-	private HashMap<BitSet, HashMap<Integer, BitSet>> REACH;
+	private HashMap<BitSet, SparseArray<BitSet>> REACH;
 
 	private Map<V, Integer> vertexToInt = new HashMap<V, Integer>();
-	private Map<Integer, V> intToVertex = new HashMap<Integer, V>();
+	SparseArray<V> intToVertex = new SparseArray<V>();
 
 	// private Map<BitSet, Integer> bMap = new HashMap<BitSet, Integer>();
 	// private Map<Integer, BitSet> bMapInverse = new HashMap<Integer,
@@ -89,8 +89,8 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 		 * Boolean[bCounter][id]; REACH = new BitSet[bCounter][id];
 		 */
 
-		dp = new HashMap<BitSet, HashMap<Integer, Boolean>>();
-		REACH = new HashMap<BitSet, HashMap<Integer, BitSet>>();
+		dp = new HashMap<BitSet, SparseArray<Boolean>>();
+		REACH = new HashMap<BitSet, SparseArray<BitSet>>();
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 	 */
 	public BitSet reachability(BitSet separator, int pin) {
 		if (REACH.get(separator) == null)
-			REACH.put(separator, new HashMap<Integer, BitSet>());
+			REACH.put(separator, new SparseArray<BitSet>());
 
 		if (REACH.get(separator).get(pin) != null)
 			return REACH.get(separator).get(pin);
@@ -148,33 +148,32 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 		return reach;
 	}
 
-
 	@Override
 	public Integer execute() {
-		for (int i = 1; i <= n/2+1; i++) {
+		for (int i = 1; i <= n / 2 + 1; i++) {
 
 			// this is necessary, but why?
 			dp.clear();
 			REACH.clear();
-			
-			progress(i-1,n/2);
+
+			progress(i - 1, n / 2);
 			this.k = i;
-			if(hasTreewidth()) {
+			if (hasTreewidth()) {
 				return i - 1;
 			}
-			
+
 			// in case tw is larger than n/2:
 			dp.clear();
 			REACH.clear();
-			
-			this.k = n-i+1;
-			if(!hasTreewidth()) {
+
+			this.k = n - i + 1;
+			if (!hasTreewidth()) {
 				return k;
 			}
 		}
 		return -1; // should never be reached
 	}
-	
+
 	public boolean hasTreewidth() {
 		// TODO: bitset of k ones, connected?
 
@@ -208,10 +207,11 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 	 *            the pin
 	 * @return true if and only if above is true.
 	 */
+	@SuppressLint("UseSparseArrays")
 	private boolean hasTreewidth(BitSet B, int vertex) {
-		if (dp.get(B) == null)
-			dp.put(B, new HashMap<Integer, Boolean>());
-
+		if (dp.get(B) == null) {
+			dp.put(B, new SparseArray<Boolean>());
+		}
 		if (dp.get(B).get(vertex) != null)
 			return dp.get(B).get(vertex);
 
@@ -246,12 +246,14 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 
 			}
 		} else {
-			for (int newBagVertex = S.nextSetBit(0); newBagVertex >= 0; newBagVertex = S.nextSetBit(newBagVertex + 1)) {
+			for (int newBagVertex = S.nextSetBit(0); newBagVertex >= 0; newBagVertex = S
+					.nextSetBit(newBagVertex + 1)) {
 				BitSet Bprime = (BitSet) B.clone();
 				Bprime.set(newBagVertex);
 
 				boolean valid = true;
-				for (int pin = S.nextSetBit(0); pin >= 0; pin = S.nextSetBit(pin + 1)) {
+				for (int pin = S.nextSetBit(0); pin >= 0; pin = S
+						.nextSetBit(pin + 1)) {
 					if (pin == newBagVertex)
 						continue;
 
@@ -274,5 +276,4 @@ public class TreewidthInspector<V, E> extends Algorithm<V,E,Integer>{
 
 		return returnValue;
 	}
-
 }

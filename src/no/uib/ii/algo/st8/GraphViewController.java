@@ -206,6 +206,7 @@ public class GraphViewController {
 		markedEdges.clear();
 		userSelectedVertices.clear();
 		highlightedVertices.clear();
+		redraw();
 	}
 
 	/**
@@ -222,7 +223,7 @@ public class GraphViewController {
 	 */
 	public void newGraph() {
 		clearAll();
-
+		setEdgeDrawMode(false);
 		while (!graph.vertexSet().isEmpty())
 			graphWithMemory.removeVertex(graph.vertexSet().iterator().next());
 		layout = null;
@@ -239,11 +240,11 @@ public class GraphViewController {
 
 			@Override
 			protected String resultText(Integer result) {
-				return "tree width is " + result;
+				return "Treewidth is " + result;
 			}
 		};
 
-		algoWrapper.setTitle("Computing tree width...");
+		algoWrapper.setTitle("Computing treewidth ...");
 		algoWrapper.execute();
 	}
 
@@ -633,18 +634,30 @@ public class GraphViewController {
 	 * 
 	 * @return the size of the separator, or -1 if no balanced separator exists.
 	 */
-	public int showSeparator() {
+	public void showSeparator() {
 		time(true);
-		Collection<DefaultVertex> sep = BalancedSeparatorInspector
-				.getBalancedSeparator(graph);
+		AlgoWrapper<Collection<DefaultVertex>> algoWrapper;
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> balsam = new BalancedSeparatorInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+
+		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity,
+				balsam) {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				if (result == null)
+					return "No balanced separator";
+				else {
+					clearAll();
+					highlightedVertices.addAll(result);
+					redraw();
+					return "Balanced separator of size " + result.size();
+				}
+			}
+		};
+		algoWrapper.setTitle("Computing balanced separator ...");
+		algoWrapper.execute();
 		time(false);
-
-		if (sep == null)
-			return -1;
-
-		clearAll();
-		highlightedVertices.addAll(sep);
-		return sep.size();
 	}
 
 	/**

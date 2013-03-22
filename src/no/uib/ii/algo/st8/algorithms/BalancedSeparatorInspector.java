@@ -12,19 +12,33 @@ import no.uib.ii.algo.st8.util.InducedSubgraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
-public class BalancedSeparatorInspector {
+public class BalancedSeparatorInspector<V, E> extends
+		Algorithm<V, E, Collection<V>> {
+
+	private SimpleGraph<V, E> graph;
+	private float threshold;
+
+	public final static float DEFAULT_THRESHOLD = 0.333334f;
+
+	public BalancedSeparatorInspector(SimpleGraph<V, E> graph) {
+		this(graph, DEFAULT_THRESHOLD);
+	}
+
+	public BalancedSeparatorInspector(SimpleGraph<V, E> graph, float threshold) {
+		this.graph = graph;
+		this.threshold = threshold;
+	}
 
 	/**
 	 * Returns a 1/3-balanced separator, i.e. a set of vertices such whose
 	 * removal separates the graph into two components of size a and b and b/3
 	 * <= a <= 2b/3.
 	 * 
-	 * @param graph
 	 * @return balanced separator or null if none exists
 	 */
-	public static <V, E> Collection<V> getBalancedSeparator(
-			SimpleGraph<V, E> graph) {
-		return getBalancedSeparator(graph, 0.333334f);
+	@Override
+	public Collection<V> execute() {
+		return getBalancedSeparator();
 	}
 
 	/**
@@ -32,20 +46,22 @@ public class BalancedSeparatorInspector {
 	 * removal separates the graph into two components of size a and b and
 	 * b*threshold <= a <= 2*b*threshold.
 	 * 
-	 * @param graph
 	 * @return balanced separator or null if none exists
 	 */
-	public static <V, E> Collection<V> getBalancedSeparator(
-			SimpleGraph<V, E> graph, float threshold) {
+	public Collection<V> getBalancedSeparator() {
 		if (threshold <= 0 || threshold > 0.5)
 			iae("Balancing threshold must be 0 <= t <= 0.5, got " + threshold);
 		Iterator<SimpleGraph<V, E>> it = InducedSubgraph
 				.inducedSubgraphIteratorLargeToSmall(graph);
 
+		int graphsize = graph.vertexSet().size();
+
 		while (it.hasNext()) {
 			SimpleGraph<V, E> separated = it.next();
 			ConnectivityInspector<V, E> ci = new ConnectivityInspector<V, E>(
 					separated);
+
+			progress(graphsize - separated.vertexSet().size(), graphsize);
 
 			if (ci.isGraphConnected())
 				continue;
