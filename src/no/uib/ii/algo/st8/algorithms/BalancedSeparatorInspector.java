@@ -15,7 +15,6 @@ import org.jgrapht.graph.SimpleGraph;
 public class BalancedSeparatorInspector<V, E> extends
 		Algorithm<V, E, Collection<V>> {
 
-	private SimpleGraph<V, E> graph;
 	private float threshold;
 
 	public final static float DEFAULT_THRESHOLD = 0.333334f;
@@ -25,7 +24,7 @@ public class BalancedSeparatorInspector<V, E> extends
 	}
 
 	public BalancedSeparatorInspector(SimpleGraph<V, E> graph, float threshold) {
-		this.graph = graph;
+		super(graph);
 		this.threshold = threshold;
 	}
 

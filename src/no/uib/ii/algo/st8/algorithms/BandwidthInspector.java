@@ -8,11 +8,8 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 
-	private final SimpleGraph<V, E> graph;
-
 	public BandwidthInspector(SimpleGraph<V, E> graph) {
-		this.graph = graph;
-
+		super(graph);
 	}
 
 	@Override

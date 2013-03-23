@@ -21,10 +21,9 @@ import org.jgrapht.graph.SimpleGraph;
  * 
  */
 public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
-	private final SimpleGraph<V, E> graph;
 
 	public ExactDominatingSet(SimpleGraph<V, E> graph) {
-		this.graph = graph;
+		super(graph);
 	}
 
 	public Collection<V> execute() {

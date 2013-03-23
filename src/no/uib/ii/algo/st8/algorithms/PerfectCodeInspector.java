@@ -8,7 +8,7 @@ import no.uib.ii.algo.st8.util.NChooseKIterator;
 
 import org.jgrapht.graph.SimpleGraph;
 
-public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
+public class PerfectCodeInspector<V, E> extends Algorithm<V, E, Collection<V>> {
 
 	/**
 	 * Has perfect code
@@ -17,9 +17,9 @@ public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 	 * @return set of vertices or null if not perfect code
 	 * 
 	 */
-	public static <V, E> Collection<V> getPerfectCode(SimpleGraph<V, E> graph) {
+	public Collection<V> getPerfectCode() {
 		for (int i = 1; i <= graph.vertexSet().size(); i++) {
-			Collection<V> C = getPerfectCode(graph, i);
+			Collection<V> C = getPerfectCode(i);
 			if (C != null)
 				return C;
 		}
@@ -29,13 +29,12 @@ public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 	/**
 	 * Has perfect code of size at most k
 	 * 
-	 * @param graph
 	 * @param k
 	 *            size of code
 	 * @return set of vertices of size at most k or null if not perfect code at
 	 *         most k
 	 */
-	public static <V, E> Collection<V> getPerfectCode(SimpleGraph<V, E> graph, int k) {
+	public Collection<V> getPerfectCode(int k) {
 		// if we have no edges, the set of vertices is a perfect code
 		if (graph.vertexSet().size() == 0 || graph.edgeSet().size() == 0)
 			return graph.vertexSet();
@@ -48,7 +47,8 @@ public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 			counter++;
 		}
 
-		NChooseKIterator<V> iterator = new NChooseKIterator<V>(graph.vertexSet(), k);
+		NChooseKIterator<V> iterator = new NChooseKIterator<V>(
+				graph.vertexSet(), k);
 		while (iterator.hasNext()) {
 			ArrayList<V> C = new ArrayList<V>(iterator.next());
 			int[] degrees = new int[counter];
@@ -90,12 +90,10 @@ public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 		return null;
 	}
 
-	private SimpleGraph<V,E> graph;
-	
-	public PerfectCodeInspector (SimpleGraph<V,E> graph) {
-		this.graph = graph;
+	public PerfectCodeInspector(SimpleGraph<V, E> graph) {
+		super(graph);
 	}
-	
+
 	/**
 	 * Has perfect code
 	 * 
@@ -107,7 +105,7 @@ public class PerfectCodeInspector<V,E> extends Algorithm<V, E, Collection<V>>{
 	public Collection<V> execute() {
 		int numOfVertices = graph.vertexSet().size();
 		for (int i = 1; i <= numOfVertices; i++) {
-			Collection<V> C = getPerfectCode(graph, i);
+			Collection<V> C = getPerfectCode(i);
 			if (C != null)
 				return C;
 			progress(i, numOfVertices); // publish progress

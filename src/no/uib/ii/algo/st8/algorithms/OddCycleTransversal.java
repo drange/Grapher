@@ -12,10 +12,8 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class OddCycleTransversal<V, E> extends Algorithm<V, E, Collection<V>> {
 
-	private final SimpleGraph<V, E> graph;
-
 	public OddCycleTransversal(SimpleGraph<V, E> graph) {
-		this.graph = graph;
+		super(graph);
 	}
 
 	@Override

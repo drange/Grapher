@@ -14,10 +14,8 @@ import org.jgrapht.graph.SimpleGraph;
  */
 public class MaximalClique<V, E> extends Algorithm<V, E, Set<V>> {
 
-	private final SimpleGraph<V, E> graph;
-
 	public MaximalClique(SimpleGraph<V, E> graph) {
-		this.graph = graph;
+		super(graph);
 	}
 
 	public Set<V> findExactMaximumClique(SimpleGraph<V, E> graph) {

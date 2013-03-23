@@ -11,10 +11,8 @@ import org.jgrapht.graph.SimpleGraph;
 public class ConnectedVertexCover<V, E> extends
 		Algorithm<V, E, SimpleGraph<V, E>> {
 
-	private final SimpleGraph<V, E> graph;
-
 	public ConnectedVertexCover(SimpleGraph<V, E> graph) {
-		this.graph = graph;
+		super(graph);
 	}
 
 	public SimpleGraph<V, E> execute() {

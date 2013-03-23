@@ -1,8 +1,15 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import org.jgrapht.graph.SimpleGraph;
+
 public abstract class Algorithm<V, E, Return> {
 
 	protected ProgressListener progressListener;
+	protected final SimpleGraph<V, E> graph;
+
+	public Algorithm(SimpleGraph<V, E> graph) {
+		this.graph = graph;
+	}
 
 	public void setProgressListener(ProgressListener progressListener) {
 		this.progressListener = progressListener;
@@ -15,16 +22,16 @@ public abstract class Algorithm<V, E, Return> {
 		}
 	}
 
-	/** 
-	 * Notifies the progress listener of the current progress 
-	 * (reached check point k out of n) 
+	/**
+	 * Notifies the progress listener of the current progress (reached check
+	 * point k out of n)
 	 */
 	protected void progress(int k, int n) {
 		if (progressListener != null) {
 			progressListener.progress(k, n);
 		}
 	}
-	
+
 	public abstract Return execute();
 
 }

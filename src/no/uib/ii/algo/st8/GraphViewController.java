@@ -14,6 +14,7 @@ import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.ClawInspector;
 import no.uib.ii.algo.st8.algorithms.ClawInspector.ClawCollection;
+import no.uib.ii.algo.st8.algorithms.ConnectedFeedbackVertexSet;
 import no.uib.ii.algo.st8.algorithms.ConnectedVertexCover;
 import no.uib.ii.algo.st8.algorithms.CutAndBridgeInspector;
 import no.uib.ii.algo.st8.algorithms.CycleInspector;
@@ -939,28 +940,46 @@ public class GraphViewController {
 		alg.execute();
 	}
 
-	public int showFeedbackVertexSet() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Collection<DefaultVertex> fvs = FeedbackVertexSet
-				.findExactFeedbackVertexSet(graph);
-		clearAll();
-		highlightedVertices.addAll(fvs);
-		redraw();
-		return fvs.size();
+	public void showFeedbackVertexSet() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new FeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo, "Feedback vertex set") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				if (result.size() == 0) {
+					return "Graph is acyclic";
+				} else {
+					clearAll();
+					highlightedVertices.addAll(result);
+					redraw();
+					return "FVS of size " + result.size();
+				}
+			}
+		};
+		alg.execute();
 	}
 
-	public int showConnectedFeedbackVertexSet() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Collection<DefaultVertex> fvs = FeedbackVertexSet
-				.findExactConnectedFeedbackVertexSet(graph);
-		clearAll();
-		highlightedVertices.addAll(fvs);
-		redraw();
-		return fvs.size();
+	public void showConnectedFeedbackVertexSet() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new ConnectedFeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo, "Connected feedback vertex set") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				if (result.size() == 0) {
+					return "Graph is acyclic";
+				} else {
+					clearAll();
+					highlightedVertices.addAll(result);
+					redraw();
+					return "Connected FVS of size " + result.size();
+				}
+			}
+		};
+		alg.execute();
 	}
 
 	public int showVertexCover() {

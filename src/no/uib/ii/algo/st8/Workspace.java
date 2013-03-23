@@ -389,21 +389,13 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_feedback_vertex_set:
-			int fvs = controller.showFeedbackVertexSet();
+			controller.showFeedbackVertexSet();
 			controller.redraw();
-			if (fvs == 0)
-				shortToast("Graph is acyclic");
-			else
-				shortToast("Feedback Vertex Set number " + fvs);
 			return true;
 
 		case R.id.compute_connected_feedback_vertex_set:
-			int cfvs = controller.showConnectedFeedbackVertexSet();
+			controller.showConnectedFeedbackVertexSet();
 			controller.redraw();
-			if (cfvs == 0)
-				shortToast("Graph is acyclic");
-			else
-				shortToast("Connected Feedback Vertex Set number " + cfvs);
 			return true;
 
 		case R.id.compute_vertex_cover:

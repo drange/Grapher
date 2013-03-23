@@ -43,7 +43,6 @@ import android.util.SparseArray;
  *            Any edge type
  */
 public class TreewidthInspector<V, E> extends Algorithm<V, E, Integer> {
-	private SimpleGraph<V, E> graph;
 	private int k;
 	private int n;
 
@@ -68,8 +67,8 @@ public class TreewidthInspector<V, E> extends Algorithm<V, E, Integer> {
 	// should iterate simultaneously from k=1 to n/2 and k=n-1 to n/2
 
 	public TreewidthInspector(SimpleGraph<V, E> graph) {
+		super(graph);
 		this.n = graph.vertexSet().size();
-		this.graph = graph;
 
 		Iterator<V> iter = graph.vertexSet().iterator();
 		int id = 0;
