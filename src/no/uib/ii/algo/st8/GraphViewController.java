@@ -51,7 +51,6 @@ import org.jgrapht.graph.SimpleGraph;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.os.AsyncTask;
 import android.os.Vibrator;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -406,23 +405,6 @@ public class GraphViewController {
 		return deleteSelectedVertices();
 	}
 
-	public boolean bruteForceHamiltonianPath() {
-		time(true);
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector
-				.bruteForceHamiltonianPath(graph);
-		time(false);
-
-		clearAll();
-
-		if (hamPath == null) {
-			return false;
-		}
-
-		highlightPath(hamPath);
-		redraw();
-		return true;
-	}
-
 	/**
 	 * Perfect code.
 	 * 
@@ -481,21 +463,30 @@ public class GraphViewController {
 		return SimplicialInspector.isChordal(graph);
 	}
 
-	public boolean showHamiltonianPath() {
-		time(true);
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamPath = HamiltonianInspector
-				.getHamiltonianPath(graph);
-		time(false);
+	public void showHamiltonianPath() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> hamPathAlgo;
+		AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> algoWrapper;
 
-		clearAll();
+		hamPathAlgo = new HamiltonianInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		algoWrapper = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(
+				activity, hamPathAlgo) {
 
-		if (hamPath == null) {
-			return false;
-		}
-
-		highlightPath(hamPath);
-		redraw();
-		return true;
+			@Override
+			protected String resultText(
+					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+				clearAll();
+				if (result == null) {
+					return "No hamiltonian path";
+				} else {
+					highlightPath(result);
+					redraw();
+					return "Hamiltonian path";
+				}
+			}
+		};
+		algoWrapper.setTitle("Computing hamiltonian path ...");
+		algoWrapper.execute();
 	}
 
 	public boolean showHamiltonianCycle() {
@@ -907,16 +898,25 @@ public class GraphViewController {
 		redraw();
 	}
 
-	public int showRegularityDeletionSet() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Set<DefaultVertex> regdel = RegularityInspector
-				.regularDeletionSet(graph);
-		clearAll();
-		highlightedVertices.addAll(regdel);
-		redraw();
-		return regdel.size();
+	public void showRegularityDeletionSet() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new RegularityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo, "Regularity Deletion Set") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				if (result.size() == 0) {
+					return "Graph is regular";
+				} else {
+					clearAll();
+					highlightedVertices.addAll(result);
+					redraw();
+					return "Regularity deletion set of size " + result.size();
+				}
+			}
+		};
+		alg.execute();
 	}
 
 	public void showOddCycleTransversal() {
@@ -1083,25 +1083,20 @@ public class GraphViewController {
 
 	}
 
-	public int computeBandwidth() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
+	public void computeBandwidth() {
+		BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>> bwalgo = new BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Integer> algo = new AlgoWrapper<Integer>(activity, bwalgo,
+				"Bandwidth") {
 
-		clearAll();
-
-		// TODO don't know
-
-		new AsyncTask<Void, Integer, Integer>() {
 			@Override
-			protected Integer doInBackground(Void... params) {
-				BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>> bi = new BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-						graph);
-				return bi.execute();
+			protected String resultText(Integer result) {
+				clearAll();
+				redraw();
+				return "Bandwidth is " + result;
 			}
-		}.execute();
-		redraw();
-		return 0;
+		};
+		algo.execute();
 	}
 
 	public void centralize() {

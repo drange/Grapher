@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.util.PermutationIterator;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.GraphPath;
@@ -15,10 +14,16 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.GraphPathImpl;
 import org.jgrapht.graph.SimpleGraph;
 
-public class HamiltonianInspector {
-	public static <V, E> GraphPath<V, E> getHamiltonianPath(
-			SimpleGraph<V, E> graph) {
+import android.util.SparseArray;
 
+public class HamiltonianInspector<V, E> extends
+		Algorithm<V, E, GraphPath<V, E>> {
+
+	public HamiltonianInspector(SimpleGraph<V, E> graph) {
+		super(graph);
+	}
+
+	public GraphPath<V, E> execute() {
 		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
 		if (!con)
 			return null;
@@ -26,12 +31,12 @@ public class HamiltonianInspector {
 		int n = graph.vertexSet().size();
 		int npow = (int) Math.pow(2, n);
 
-		Map<Integer, V> idToVertex = new HashMap<Integer, V>(n);
+		SparseArray<V> idToVertex = new SparseArray<V>(n);
 		Map<V, Integer> vertexToId = new HashMap<V, Integer>(n);
 
 		Map<Collection<V>, Integer> collectionToId = new HashMap<Collection<V>, Integer>(
 				npow);
-		Map<Integer, Collection<V>> idToCollection = new HashMap<Integer, Collection<V>>(
+		SparseArray<Collection<V>> idToCollection = new SparseArray<Collection<V>>(
 				npow);
 
 		PowersetIterator<V> pi = new PowersetIterator<V>(graph.vertexSet());
@@ -71,6 +76,10 @@ public class HamiltonianInspector {
 
 		// s is the id for a subset currentSet
 		for (int s = 0; s < npow; s++) {
+			if (cancelFlag)
+				return null;
+			progress(s, npow);
+
 			// currentSet is the set corresponding to 's'
 			Collection<V> currentSet = idToCollection.get(s);
 
@@ -103,15 +112,6 @@ public class HamiltonianInspector {
 			}
 		}
 
-		// for (int x = 0; x < dp.length; x++) {
-		// for (int y = 0; y < dp[x].length; y++) {
-		// int out = dp[x][y] ? 1 : 0;
-		// System.out.print(out);
-		// }
-		// System.out.println();
-		// }
-		// System.out.println("\n======\n\n");
-
 		int pathEnds = -1;
 		for (int i = 0; i < n; i++) {
 			if (dp[i][collectionToId.get(graph.vertexSet())]) {
@@ -121,12 +121,8 @@ public class HamiltonianInspector {
 		}
 
 		if (pathEnds < 0) {
-			// System.out.println("No hamiltonian path");
 			return null;
 		}
-
-		// System.out.println("We found hamiltonian path ending in " + pathEnds
-		// + " = " + idToVertex.get(pathEnds));
 
 		// we need to reconstruct path from dp table!
 		ArrayList<V> hamPath = new ArrayList<V>(n);
@@ -182,40 +178,5 @@ public class HamiltonianInspector {
 				hamPath.get(hamPath.size() - 1), edgeList, 0);
 
 		return path;
-	}
-
-	public static <V, E> GraphPath<V, E> bruteForceHamiltonianPath(
-			SimpleGraph<V, E> graph) {
-		if (graph == null)
-			throw new NullPointerException("Input graph was null.");
-		if (graph.vertexSet().size() < 2)
-			return null;
-
-		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
-		if (!con)
-			return null;
-
-		PermutationIterator<V> pit = new PermutationIterator<V>(
-				graph.vertexSet());
-		while (pit.hasNext()) {
-			ArrayList<V> pi = pit.next();
-			boolean isPath = true;
-			for (int i = 1; i < pi.size(); i++) {
-				if (!graph.containsEdge(pi.get(i - 1), pi.get(i))) {
-					isPath = false;
-					break;
-				}
-			}
-			if (isPath) {
-				ArrayList<E> edges = new ArrayList<E>(pi.size());
-				for (int i = 1; i < pi.size(); i++) {
-					edges.add(graph.getEdge(pi.get(i - 1), pi.get(i)));
-				}
-				GraphPath<V, E> path = new GraphPathImpl<V, E>(graph,
-						pi.get(0), pi.get(pi.size() - 1), edges, 0);
-				return path;
-			}
-		}
-		return null;
 	}
 }

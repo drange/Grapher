@@ -150,12 +150,15 @@ public class TreewidthInspector<V, E> extends Algorithm<V, E, Integer> {
 	@Override
 	public Integer execute() {
 		for (int i = 1; i <= n / 2 + 1; i++) {
+			if (cancelFlag)
+				return -2;
 
 			// this is necessary, but why?
 			dp.clear();
 			REACH.clear();
 
 			progress(i - 1, n / 2);
+
 			this.k = i;
 			if (hasTreewidth()) {
 				return i - 1;

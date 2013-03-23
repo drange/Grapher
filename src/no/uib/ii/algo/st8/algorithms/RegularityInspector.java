@@ -10,15 +10,22 @@ import no.uib.ii.algo.st8.util.InducedSubgraph;
 
 import org.jgrapht.graph.SimpleGraph;
 
-public class RegularityInspector {
-	public static <V, E> boolean isRegular(SimpleGraph<V, E> g) {
-		if (g == null)
-			throw new NullPointerException("Input was null");
-		if (g.vertexSet().size() == 0)
+public class RegularityInspector<V, E> extends Algorithm<V, E, Collection<V>> {
+
+	public RegularityInspector(SimpleGraph<V, E> graph) {
+		super(graph);
+	}
+
+	public boolean isRegular() {
+		return isRegular(graph);
+	}
+
+	public boolean isRegular(SimpleGraph<V, E> h) {
+		if (h.vertexSet().size() == 0)
 			return true;
-		int deg = g.degreeOf(g.vertexSet().iterator().next());
-		for (V v : g.vertexSet()) {
-			if (g.degreeOf(v) != deg) {
+		int deg = h.degreeOf(h.vertexSet().iterator().next());
+		for (V v : h.vertexSet()) {
+			if (h.degreeOf(v) != deg) {
 				return false;
 			}
 		}
@@ -28,30 +35,41 @@ public class RegularityInspector {
 	/**
 	 * Returns -1 if non-regular, otherwise degree of all vertices.
 	 * 
-	 * @param g
 	 * @return degree or -1 if non-regular
 	 */
-	public static <V, E> int getRegularity(SimpleGraph<V, E> g) {
-		if (g == null)
+	public int getRegularity() {
+		return getRegularity(graph);
+	}
+
+	/**
+	 * Returns -1 if non-regular, otherwise degree of all vertices.
+	 * 
+	 * @return degree or -1 if non-regular
+	 */
+	public int getRegularity(SimpleGraph<V, E> h) {
+		if (h == null)
 			throw new NullPointerException("Input was null");
-		if (g.vertexSet().size() == 0)
+		if (h.vertexSet().size() == 0)
 			return 0;
-		int deg = g.degreeOf(g.vertexSet().iterator().next());
-		for (V v : g.vertexSet()) {
-			if (g.degreeOf(v) != deg) {
+		int deg = h.degreeOf(h.vertexSet().iterator().next());
+		for (V v : h.vertexSet()) {
+			if (h.degreeOf(v) != deg) {
 				return -1;
 			}
 		}
 		return deg;
 	}
 
-	public static <V, E> Set<V> regularDeletionSet(SimpleGraph<V, E> graph) {
-
+	@Override
+	public Collection<V> execute() {
 		Iterator<SimpleGraph<V, E>> i = InducedSubgraph
 				.inducedSubgraphIteratorLargeToSmall(graph);
 
 		while (i.hasNext()) {
+			if (cancelFlag)
+				return null;
 			SimpleGraph<V, E> h = i.next();
+			progress(h.vertexSet().size(), graph.vertexSet().size());
 			if (isRegular(h)) {
 				Set<V> vertices = new HashSet<V>();
 				vertices.addAll(graph.vertexSet());
@@ -59,9 +77,7 @@ public class RegularityInspector {
 				return vertices;
 			}
 		}
-		System.err.println("Should never come here!");
-		return new HashSet<V>(0);
-
+		throw new IllegalStateException("Cannot possibly come here: " + graph);
 	}
 
 	/**
@@ -72,8 +88,7 @@ public class RegularityInspector {
 	 * @param degree
 	 * @return
 	 */
-	public static <V, E> Set<V> regularDeletionSet(SimpleGraph<V, E> graph,
-			int degree) {
+	public Collection<V> regularDeletionSet(SimpleGraph<V, E> graph, int degree) {
 		Iterator<SimpleGraph<V, E>> i = InducedSubgraph
 				.inducedSubgraphIteratorLargeToSmall(graph);
 
@@ -90,8 +105,7 @@ public class RegularityInspector {
 		return null;
 	}
 
-	public static <V, E> StronglyRegularWitness isStronglyRegular(
-			SimpleGraph<V, E> graph) {
+	public StronglyRegularWitness isStronglyRegular() {
 		int n = graph.vertexSet().size();
 
 		// C_5 is the least srg

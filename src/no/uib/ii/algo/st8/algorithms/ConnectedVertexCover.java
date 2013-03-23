@@ -26,6 +26,8 @@ public class ConnectedVertexCover<V, E> extends
 		while (it.hasNext()) {
 			cvc = it.next();
 			progress(cvc.vertexSet().size(), graph.vertexSet().size());
+			if (cancelFlag)
+				return null;
 			if (!new ConnectivityInspector<V, E>(cvc).isGraphConnected())
 				continue;
 			if (isVertexCover(graph, cvc.vertexSet()))

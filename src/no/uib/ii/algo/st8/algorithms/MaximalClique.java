@@ -24,6 +24,8 @@ public class MaximalClique<V, E> extends Algorithm<V, E, Set<V>> {
 
 		MaximalClique<V, E> mc = new MaximalClique<V, E>(graph);
 		for (Set<V> maxCliq : mc.maxCliques()) {
+			if (cancelFlag)
+				return null;
 			if (maximum == null || maxCliq.size() > maximum.size()) {
 				maximum = maxCliq;
 				progress(maximum.size(), maxSize);

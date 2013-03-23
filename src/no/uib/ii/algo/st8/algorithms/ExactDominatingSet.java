@@ -59,10 +59,13 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 				continue;
 			}
 
+			progress(current.size(), graph.vertexSet().size());
+			if (cancelFlag)
+				return null;
+
 			// test if current is a d.s.
 			if (isDominatingSet(g, current)) {
 				domset = current;
-				progress(current.size(), graph.vertexSet().size());
 			}
 		}
 

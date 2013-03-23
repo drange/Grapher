@@ -36,12 +36,14 @@ public abstract class AlgoWrapper<Result> extends
 
 	@Override
 	protected void onPreExecute() {
+		System.gc(); // TODO REMOVE!!!
 		pDialog.setOnCancelListener(new OnCancelListener() {
 
 			@Override
 			public void onCancel(DialogInterface dialog) {
 				activity.shortToast("Computation cancelled");
 				cancel(true);
+				algorithm.cancel();
 			}
 		});
 		pDialog.show();
@@ -61,6 +63,7 @@ public abstract class AlgoWrapper<Result> extends
 
 	@Override
 	protected void onCancelled() {
+		System.gc(); // TODO REMOVE!!!
 		pDialog.cancel();
 	}
 
@@ -130,6 +133,7 @@ public abstract class AlgoWrapper<Result> extends
 		this.pDialog = new ProgressDialog(activity);
 		this.algorithm.setProgressListener(this);
 		setUpProgressDialog();
+		System.gc(); // TODO REMOVE!!!
 	}
 
 	/**
@@ -150,10 +154,12 @@ public abstract class AlgoWrapper<Result> extends
 			String progressTitle) {
 		this(activity, algorithm);
 		pDialog.setTitle(progressTitle);
+		System.gc(); // TODO REMOVE!!!
 	}
 
 	@Override
 	protected Result doInBackground(Void... params) {
+		System.gc(); // TODO REMOVE!!!
 		return algorithm.execute();
 	}
 

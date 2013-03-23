@@ -375,12 +375,8 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_regularity_deletion_set:
-			int regdel = controller.showRegularityDeletionSet();
+			controller.showRegularityDeletionSet();
 			controller.redraw();
-			if (regdel == 0)
-				shortToast("Graph is regular");
-			else
-				shortToast("Regularity deletion set number " + regdel);
 			return true;
 
 		case R.id.compute_odd_cycle_transversal:
@@ -421,13 +417,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.hamiltonian_path:
-			boolean hamiltonianPath = controller.showHamiltonianPath();
-
-			if (hamiltonianPath)
-				shortToast("Hamiltonian path highlighted");
-			else
-				shortToast("No hamiltonian path!");
-
+			controller.showHamiltonianPath();
 			controller.redraw();
 			return true;
 
@@ -568,8 +558,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_bandwidth:
-			int bandwidth = controller.computeBandwidth();
-			shortToast("Bandwidth " + bandwidth);
+			controller.computeBandwidth();
 			return true;
 
 		case R.id.metapost_to_clipboard:

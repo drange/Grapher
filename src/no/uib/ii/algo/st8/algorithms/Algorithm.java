@@ -4,11 +4,19 @@ import org.jgrapht.graph.SimpleGraph;
 
 public abstract class Algorithm<V, E, Return> {
 
+	protected volatile boolean cancelFlag = false;
 	protected ProgressListener progressListener;
 	protected final SimpleGraph<V, E> graph;
 
 	public Algorithm(SimpleGraph<V, E> graph) {
 		this.graph = graph;
+		System.gc(); // TODO REMOVE!!!
+	}
+
+	public void cancel() {
+		System.out.println("We have been cancelled.");
+		cancelFlag = true;
+		System.gc(); // TODO REMOVE!!!
 	}
 
 	public void setProgressListener(ProgressListener progressListener) {

@@ -8,11 +8,13 @@ import java.util.HashSet;
 import no.uib.ii.algo.st8.util.InducedSubgraph;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
-public class FeedbackVertexSet<V, E> extends Algorithm<V, E, Collection<V>> {
+public class ConnectedFeedbackVertexSet<V, E> extends
+		Algorithm<V, E, Collection<V>> {
 
-	public FeedbackVertexSet(SimpleGraph<V, E> graph) {
+	public ConnectedFeedbackVertexSet(SimpleGraph<V, E> graph) {
 		super(graph);
 	}
 
@@ -40,6 +42,14 @@ public class FeedbackVertexSet<V, E> extends Algorithm<V, E, Collection<V>> {
 			vertices.clear();
 			vertices.addAll(graph.vertexSet());
 			vertices.removeAll(fvs);
+			SimpleGraph<V, E> hfvs = InducedSubgraph.inducedSubgraphOf(graph,
+					fvs);
+			if (!new ConnectivityInspector<V, E>(hfvs).isGraphConnected())
+				continue;
+
+			vertices.clear();
+			vertices.addAll(graph.vertexSet());
+			vertices.removeAll(fvs);
 
 			SimpleGraph<V, E> h = InducedSubgraph.inducedSubgraphOf(graph,
 					vertices);
@@ -49,4 +59,5 @@ public class FeedbackVertexSet<V, E> extends Algorithm<V, E, Collection<V>> {
 		}
 		return currentBestFvs;
 	}
+
 }

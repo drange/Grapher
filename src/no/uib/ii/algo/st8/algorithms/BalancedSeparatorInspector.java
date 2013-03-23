@@ -61,6 +61,8 @@ public class BalancedSeparatorInspector<V, E> extends
 					separated);
 
 			progress(graphsize - separated.vertexSet().size(), graphsize);
+			if (cancelFlag)
+				return null;
 
 			if (ci.isGraphConnected())
 				continue;

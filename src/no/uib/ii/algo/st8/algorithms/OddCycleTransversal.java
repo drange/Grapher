@@ -27,6 +27,9 @@ public class OddCycleTransversal<V, E> extends Algorithm<V, E, Collection<V>> {
 		Collection<V> currentBestOct = graph.vertexSet();
 
 		while (subsets.hasNext()) {
+			if (cancelFlag)
+				return null;
+
 			Collection<V> oct = subsets.next();
 			if (oct.size() >= currentBestOct.size())
 				continue;
