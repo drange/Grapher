@@ -8,10 +8,16 @@ import no.uib.ii.algo.st8.util.InducedSubgraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
-public class ConnectedVertexCover {
-	public static <V, E> SimpleGraph<V, E> getConnectedVertexCover(
-			SimpleGraph<V, E> graph) {
+public class ConnectedVertexCover<V, E> extends
+		Algorithm<V, E, SimpleGraph<V, E>> {
 
+	private final SimpleGraph<V, E> graph;
+
+	public ConnectedVertexCover(SimpleGraph<V, E> graph) {
+		this.graph = graph;
+	}
+
+	public SimpleGraph<V, E> execute() {
 		if (!new ConnectivityInspector<V, E>(graph).isGraphConnected())
 			return null;
 
@@ -21,6 +27,7 @@ public class ConnectedVertexCover {
 
 		while (it.hasNext()) {
 			cvc = it.next();
+			progress(cvc.vertexSet().size(), graph.vertexSet().size());
 			if (!new ConnectivityInspector<V, E>(cvc).isGraphConnected())
 				continue;
 			if (isVertexCover(graph, cvc.vertexSet()))
@@ -29,7 +36,7 @@ public class ConnectedVertexCover {
 		return null;
 	}
 
-	private static <V, E> boolean isVertexCover(SimpleGraph<V, E> graph,
+	private boolean isVertexCover(SimpleGraph<V, E> graph,
 			Collection<V> vertices) {
 		for (E e : graph.edgeSet()) {
 			V v = graph.getEdgeSource(e);

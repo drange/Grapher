@@ -982,23 +982,22 @@ public class GraphViewController {
 	 * 
 	 * @return order of cvc, or -1 if none exists
 	 */
-	public int showConnectedVertexCover() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		time(true);
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = ConnectedVertexCover
-				.getConnectedVertexCover(graph);
-		time(false);
-
-		if (cvc == null)
-			return -1;
-
-		clearAll();
-
-		highlightGraph(cvc);
-
-		return cvc.vertexSet().size();
+	public void showConnectedVertexCover() {
+		ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> aw = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
+				activity, algo) {
+			@Override
+			protected String resultText(
+					SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+				clearAll();
+				highlightGraph(result);
+				redraw();
+				return "Connected vertex cover of size "
+						+ result.vertexSet().size();
+			}
+		};
+		aw.execute();
 	}
 
 	public int showMaximumIndependentSet() {

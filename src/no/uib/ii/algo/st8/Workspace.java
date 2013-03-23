@@ -413,13 +413,8 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_connected_vertex_cover:
-			int cvc = controller.showConnectedVertexCover();
+			controller.showConnectedVertexCover();
 			controller.redraw();
-			if (cvc < 0) {
-				shortToast("No connected vertex cover");
-			} else {
-				shortToast("Connected Vertex Cover Number " + cvc);
-			}
 			return true;
 
 		case R.id.compute_minimum_dominating_set:
