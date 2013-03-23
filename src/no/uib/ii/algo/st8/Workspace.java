@@ -418,9 +418,8 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_minimum_dominating_set:
-			int ds = controller.showDominatingSet();
+			controller.showDominatingSet();
 			controller.redraw();
-			shortToast("Dominating Set Number " + ds);
 			return true;
 
 		case R.id.spring:

@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import no.uib.ii.algo.st8.model.DefaultEdge;
-import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.EdgeFactory;
@@ -22,36 +20,40 @@ import org.jgrapht.graph.SimpleGraph;
  * @author pgd
  * 
  */
-public class ExactDominatingSet {
+public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
+	private final SimpleGraph<V, E> graph;
 
-	public static Collection<DefaultVertex> exactDominatingSet(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		SimpleGraph<VertexDominated, EdgeDominated> g = new SimpleGraph<VertexDominated, EdgeDominated>(
-				new EdgeFactory<VertexDominated, EdgeDominated>() {
-					public EdgeDominated createEdge(VertexDominated arg0,
-							VertexDominated arg1) {
+	public ExactDominatingSet(SimpleGraph<V, E> graph) {
+		this.graph = graph;
+	}
+
+	public Collection<V> execute() {
+		SimpleGraph<VertexDominated<V>, EdgeDominated> g = new SimpleGraph<VertexDominated<V>, EdgeDominated>(
+				new EdgeFactory<VertexDominated<V>, EdgeDominated>() {
+					public EdgeDominated createEdge(VertexDominated<V> arg0,
+							VertexDominated<V> arg1) {
 						return new EdgeDominated();
 					}
 				});
 
-		HashMap<DefaultVertex, VertexDominated> map = new HashMap<DefaultVertex, ExactDominatingSet.VertexDominated>();
+		HashMap<V, VertexDominated<V>> map = new HashMap<V, VertexDominated<V>>();
 
-		for (DefaultVertex v : graph.vertexSet()) {
-			VertexDominated vd = new VertexDominated(v);
+		for (V v : graph.vertexSet()) {
+			VertexDominated<V> vd = new VertexDominated<V>(v);
 			map.put(v, vd);
 			g.addVertex(vd);
 		}
 
-		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {
-			g.addEdge(map.get(e.getSource()), map.get(e.getTarget()),
-					new EdgeDominated());
+		for (E e : graph.edgeSet()) {
+			g.addEdge(map.get(graph.getEdgeSource(e)),
+					map.get(graph.getEdgeTarget(e)), new EdgeDominated());
 		}
 
-		PowersetIterator<VertexDominated> pi = new PowersetIterator<VertexDominated>(
+		PowersetIterator<VertexDominated<V>> pi = new PowersetIterator<VertexDominated<V>>(
 				g.vertexSet());
-		Collection<VertexDominated> domset = null;
+		Collection<VertexDominated<V>> domset = null;
 		while (pi.hasNext()) {
-			Collection<VertexDominated> current = pi.next();
+			Collection<VertexDominated<V>> current = pi.next();
 
 			// if domset is a smaller dom. set, we continue searching
 			if (domset != null && current.size() >= domset.size()) {
@@ -61,34 +63,34 @@ public class ExactDominatingSet {
 			// test if current is a d.s.
 			if (isDominatingSet(g, current)) {
 				domset = current;
+				progress(current.size(), graph.vertexSet().size());
 			}
 		}
 
-		Collection<DefaultVertex> res = new HashSet<DefaultVertex>(
-				domset.size());
-		for (VertexDominated vd : domset) {
+		Collection<V> res = new HashSet<V>(domset.size());
+		for (VertexDominated<V> vd : domset) {
 			res.add(vd.vertex);
 		}
 
 		return res;
 	}
 
-	private static boolean isDominatingSet(
-			SimpleGraph<VertexDominated, EdgeDominated> graph,
-			Collection<VertexDominated> set) {
-		for (VertexDominated v : graph.vertexSet()) {
+	private boolean isDominatingSet(
+			SimpleGraph<VertexDominated<V>, EdgeDominated> graph,
+			Collection<VertexDominated<V>> set) {
+		for (VertexDominated<V> v : graph.vertexSet()) {
 			v.dominated = false;
 		}
 
-		for (VertexDominated dominator : set) {
+		for (VertexDominated<V> dominator : set) {
 			dominator.dominated = true;
-			for (VertexDominated other : Neighbors.openNeighborhood(graph,
+			for (VertexDominated<V> other : Neighbors.openNeighborhood(graph,
 					dominator)) {
 				other.dominated = true;
 			}
 		}
 
-		for (VertexDominated v : graph.vertexSet()) {
+		for (VertexDominated<V> v : graph.vertexSet()) {
 			if (!v.dominated)
 				return false;
 		}
@@ -96,11 +98,11 @@ public class ExactDominatingSet {
 		return true;
 	}
 
-	static class VertexDominated {
+	static class VertexDominated<V> {
 		boolean dominated = false;
-		DefaultVertex vertex = null;
+		V vertex = null;
 
-		public VertexDominated(DefaultVertex vertex) {
+		public VertexDominated(V vertex) {
 			this.vertex = vertex;
 		}
 	}

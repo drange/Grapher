@@ -1032,16 +1032,21 @@ public class GraphViewController {
 		algoWrapper.execute();
 	}
 
-	public int showDominatingSet() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-		Collection<DefaultVertex> domset = ExactDominatingSet
-				.exactDominatingSet(graph);
-		clearAll();
-		highlightedVertices.addAll(domset);
-		redraw();
-		return domset.size();
+	public void showDominatingSet() {
+		ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>> eds = new ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, eds, "Dominating set") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				clearAll();
+				highlightedVertices.addAll(result);
+				redraw();
+				return "Dominating set of size " + result.size();
+			}
+		};
+		algo.execute();
 	}
 
 	public boolean showCenterVertex() {
