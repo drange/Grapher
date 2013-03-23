@@ -12,12 +12,19 @@ public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 		super(graph);
 	}
 
+	/**
+	 * Executes BandwidthInspector
+	 * 
+	 * @return Bandwidth or -1 if it cannot possibly compute it
+	 */
 	@Override
 	public Integer execute() {
 		PermutationIterator<V> perm = new PermutationIterator<V>(
 				graph.vertexSet());
 
-		int nfac = fac(graph.vertexSet().size());
+		int nfac = PermutationIterator.factorial(graph.vertexSet().size());
+		if (nfac < 0)
+			return -1;
 		int counter = 0;
 
 		int bandwidth = graph.vertexSet().size();
@@ -42,12 +49,6 @@ public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 			bandwidth = Math.min(current, bandwidth);
 		}
 		return bandwidth;
-	}
-
-	private int fac(int x) {
-		if (x <= 0)
-			return 1;
-		return x * fac(x - 1);
 	}
 
 }

@@ -1093,6 +1093,9 @@ public class GraphViewController {
 			protected String resultText(Integer result) {
 				clearAll();
 				redraw();
+				if (result < 0) {
+					return "Unable to perform bandwidth computation.";
+				}
 				return "Bandwidth is " + result;
 			}
 		};

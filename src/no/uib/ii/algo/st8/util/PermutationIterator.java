@@ -98,6 +98,25 @@ public class PermutationIterator<T> implements Iterator<Collection<T>> {
 		return generatePermutation();
 	}
 
+	/**
+	 * Returns n! if 0 <= n <= 12, returns -1 if n > 12, throws exception on
+	 * negative numbers.
+	 * 
+	 * @param n
+	 *            integer
+	 * @return n! or -1 if n too large
+	 */
+	public static int factorial(int n) {
+		if (n >= 13)
+			return -1;
+		if (n < 0)
+			throw new IllegalArgumentException(
+					"factorial(n) only defined for positive numbers, not " + n);
+		if (n <= 1)
+			return 1;
+		return factorial(n - 1) * n;
+	}
+
 	public void remove() {
 		throw new IllegalArgumentException();
 	}
