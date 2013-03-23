@@ -50,6 +50,10 @@ public class PerfectCodeInspector<V, E> extends Algorithm<V, E, Collection<V>> {
 		NChooseKIterator<V> iterator = new NChooseKIterator<V>(
 				graph.vertexSet(), k);
 		while (iterator.hasNext()) {
+
+			if (cancelFlag)
+				return null;
+
 			ArrayList<V> C = new ArrayList<V>(iterator.next());
 			int[] degrees = new int[counter];
 
@@ -105,6 +109,8 @@ public class PerfectCodeInspector<V, E> extends Algorithm<V, E, Collection<V>> {
 	public Collection<V> execute() {
 		int numOfVertices = graph.vertexSet().size();
 		for (int i = 1; i <= numOfVertices; i++) {
+			if (cancelFlag)
+				return null;
 			Collection<V> C = getPerfectCode(i);
 			if (C != null)
 				return C;
