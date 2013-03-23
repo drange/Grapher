@@ -41,6 +41,9 @@ public class HamiltonianInspector<V, E> extends
 
 		PowersetIterator<V> pi = new PowersetIterator<V>(graph.vertexSet());
 		int counter = 0;
+
+		progress(0, PowersetIterator.twoPower(graphSize()));
+
 		while (pi.hasNext()) {
 			Collection<V> set = pi.next();
 			collectionToId.put(set, counter);
@@ -48,6 +51,9 @@ public class HamiltonianInspector<V, E> extends
 
 			counter++;
 		}
+		if (cancelFlag)
+			return null;
+		progress(1, counter);
 
 		counter = 0;
 		for (V v : graph.vertexSet()) {

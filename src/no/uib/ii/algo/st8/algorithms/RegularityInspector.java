@@ -69,7 +69,7 @@ public class RegularityInspector<V, E> extends Algorithm<V, E, Collection<V>> {
 			if (cancelFlag)
 				return null;
 			SimpleGraph<V, E> h = i.next();
-			progress(h.vertexSet().size(), graph.vertexSet().size());
+			progress(graphSize() - h.vertexSet().size(), graphSize());
 			if (isRegular(h)) {
 				Set<V> vertices = new HashSet<V>();
 				vertices.addAll(graph.vertexSet());

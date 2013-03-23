@@ -93,7 +93,6 @@ public class Workspace extends Activity implements OnClickListener,
 					SensorManager.SENSOR_DELAY_GAME);
 			System.out.println("PAAL REGISTERED SENSOR");
 		}
-		controller.redraw();
 		GraphViewController.EDGE_DRAW_MODE = false;
 
 		String title = "Grapher";
@@ -288,11 +287,10 @@ public class Workspace extends Activity implements OnClickListener,
 	 * item by it's id
 	 * */
 	public boolean onOptionsItemSelected(MenuItem item) {
-
-		System.out.println("MenuItem      \t" + item.getTitle());
-		System.out.println(" > Condensed  \t" + item.getTitleCondensed());
-		System.out.println(" > numeric id \t" + item.getItemId());
-		System.out.println();
+		// System.out.println("MenuItem      \t" + item.getTitle());
+		// System.out.println(" > Condensed  \t" + item.getTitleCondensed());
+		// System.out.println(" > numeric id \t" + item.getItemId());
+		// System.out.println();
 
 		switch (item.getItemId()) {
 
@@ -308,12 +306,10 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.new_graph:
 			controller.newGraph();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_maximum_independent_set:
 			int mis = controller.showMaximumIndependentSet();
-			controller.redraw();
 			shortToast("Independent Set Number " + mis);
 			return true;
 
@@ -345,7 +341,6 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.compute_claw_deletion:
 			int deletionSize = controller.showClawDeletion();
-			controller.redraw();
 			if (deletionSize == 0)
 				shortToast("Graph is claw-free");
 			else
@@ -358,7 +353,6 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.compute_claws:
 			boolean hasclaw = controller.showAllClaws();
-			controller.redraw();
 			if (hasclaw)
 				shortToast("Found claw");
 			else
@@ -366,70 +360,49 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_cycle_4:
-			int c4s = controller.showAllCycle4();
-			controller.redraw();
-			if (c4s == 0)
-				shortToast("No C_4s");
-			else
-				shortToast("Number of C4s " + c4s);
+			controller.showAllCycle4();
 			return true;
 
 		case R.id.compute_regularity_deletion_set:
 			controller.showRegularityDeletionSet();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_odd_cycle_transversal:
 			controller.showOddCycleTransversal();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_feedback_vertex_set:
 			controller.showFeedbackVertexSet();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_connected_feedback_vertex_set:
 			controller.showConnectedFeedbackVertexSet();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_vertex_cover:
 			int vc = controller.showVertexCover();
-			controller.redraw();
 			shortToast("Vertex Cover Number " + vc);
 			return true;
 
 		case R.id.compute_connected_vertex_cover:
 			controller.showConnectedVertexCover();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_minimum_dominating_set:
 			controller.showDominatingSet();
-			controller.redraw();
 			return true;
 
 		case R.id.spring:
 			controller.longShake(300);
-			controller.redraw();
 			shortToast("Shaken, not stirred");
 			return true;
 
 		case R.id.hamiltonian_path:
 			controller.showHamiltonianPath();
-			controller.redraw();
 			return true;
 
 		case R.id.hamiltonian_cycle:
-			boolean hamiltonianCycle = controller.showHamiltonianCycle();
-
-			if (hamiltonianCycle)
-				shortToast("Graph is hamiltonian (cycle highlighted)");
-			else
-				shortToast("Graph is not hamiltonian");
-
-			controller.redraw();
+			controller.showHamiltonianCycle();
 			return true;
 
 		case R.id.flow:
@@ -440,7 +413,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("Not connected");
 			else
 				shortToast("Max flow " + flow);
-			controller.redraw();
 			return true;
 
 		case R.id.path:
@@ -451,18 +423,15 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("No path!");
 			else
 				shortToast("Path length " + res);
-			controller.redraw();
 			return true;
 
 		case R.id.power:
 			controller.constructPower();
 			shortToast("Power graph has been constructed");
-			controller.redraw();
 			return true;
 
 		case R.id.compute_mst:
 			controller.showSpanningTree();
-			controller.redraw();
 			return true;
 
 		case R.id.compute_balanced_separator:
@@ -476,7 +445,6 @@ public class Workspace extends Activity implements OnClickListener,
 			else
 				shortToast("Diameter " + diam);
 
-			controller.redraw();
 			return true;
 
 		case R.id.compute_girth:
@@ -486,7 +454,6 @@ public class Workspace extends Activity implements OnClickListener,
 			else
 				shortToast("Girth " + girth);
 
-			controller.redraw();
 			return true;
 
 		case R.id.bipartition:
@@ -495,8 +462,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("Is bipartite");
 			else
 				shortToast("Is not bipartite");
-
-			controller.redraw();
 			return true;
 
 		case R.id.compute_all_cuts:
@@ -508,7 +473,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("1 cut vertex");
 			else
 				shortToast(cuts + " cut vertices");
-			controller.redraw();
 			return true;
 
 		case R.id.compute_all_bridges:
@@ -519,8 +483,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("1 bridge");
 			else
 				shortToast(bridges + " bridges");
-
-			controller.redraw();
 			return true;
 
 		case R.id.test_eulerian:
@@ -529,20 +491,16 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("Graph is eulerian");
 			else
 				shortToast("Graph is not eulerian, odd degree vertices highlighted.");
-
-			controller.redraw();
 			return true;
 
 		case R.id.show_center:
 			boolean conn = controller.showCenterVertex();
 			if (!conn)
 				shortToast("No center vertex in disconnected graph");
-			controller.redraw();
 			return true;
 
 		case R.id.centralize:
 			controller.centralize();
-			controller.redraw();
 			return true;
 
 		case R.id.add_universal_vertex:
@@ -553,8 +511,6 @@ public class Workspace extends Activity implements OnClickListener,
 				shortToast("Added vertex adjacent to 1 vertex");
 			else
 				shortToast("Added vertex adjacent to " + degree + " vertices");
-
-			controller.redraw();
 			return true;
 
 		case R.id.compute_bandwidth:
@@ -587,37 +543,30 @@ public class Workspace extends Activity implements OnClickListener,
 
 		case R.id.select_all:
 			controller.selectAll();
-			controller.redraw();
 			return true;
 
 		case R.id.deselect_all:
 			controller.deselectAll();
-			controller.redraw();
 			return true;
 
 		case R.id.select_all_highlighted_vertices:
 			controller.selectAllHighlightedVertices();
-			controller.redraw();
 			return true;
 
 		case R.id.invert_selected:
 			controller.invertSelectedVertices();
-			controller.redraw();
 			return true;
 
 		case R.id.select_reachable:
 			controller.selectAllReachableVertices();
-			controller.redraw();
 			return true;
 
 		case R.id.complete_selected:
 			controller.completeSelectedVertices();
-			controller.redraw();
 			return true;
 
 		case R.id.complement_selected:
 			controller.complementSelected();
-			controller.redraw();
 			return true;
 
 		case R.id.delete_selected:
@@ -627,7 +576,6 @@ public class Workspace extends Activity implements OnClickListener,
 			} else {
 				shortToast("Deleted " + deleted + " vertices");
 			}
-			controller.redraw();
 			return true;
 
 		case R.id.induce_subgraph:
@@ -637,7 +585,6 @@ public class Workspace extends Activity implements OnClickListener,
 			} else {
 				shortToast("Removed " + removed + " vertices");
 			}
-			controller.redraw();
 			return true;
 
 		case R.id.toggle_edge_edit:

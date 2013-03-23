@@ -489,19 +489,31 @@ public class GraphViewController {
 		algoWrapper.execute();
 	}
 
-	public boolean showHamiltonianCycle() {
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> hamCyc = HamiltonianCycleInspector
-				.getHamiltonianCycle(graph);
+	public void showHamiltonianCycle() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> hamcyc;
+		AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> alg;
 
-		clearAll();
+		hamcyc = new HamiltonianCycleInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		alg = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(
+				activity, hamcyc) {
 
-		if (hamCyc == null) {
-			return false;
-		}
-
-		highlightPath(hamCyc);
-		redraw();
-		return true;
+			@Override
+			protected String resultText(
+					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+				clearAll();
+				if (result == null) {
+					redraw();
+					return "Not hamiltonian.";
+				} else {
+					highlightPath(result);
+					redraw();
+					return "Hamiltonian path";
+				}
+			}
+		};
+		alg.setTitle("Computing hamiltonian cycle ...");
+		alg.execute();
 	}
 
 	/**
@@ -551,6 +563,8 @@ public class GraphViewController {
 
 		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph).pathExists(s, t)) {
+			clearAll();
+			redraw();
 			return 0;
 		}
 
@@ -566,7 +580,7 @@ public class GraphViewController {
 		for (DefaultEdge<DefaultVertex> e : edges) {
 			markedEdges.add(e);
 		}
-
+		redraw();
 		return flow.first;
 	}
 
@@ -746,6 +760,7 @@ public class GraphViewController {
 		Set<DefaultEdge<DefaultVertex>> spanning = mst.getEdgeSet();
 		clearAll();
 		markedEdges.addAll(spanning);
+		redraw();
 	}
 
 	/**
@@ -764,6 +779,7 @@ public class GraphViewController {
 		if (v == null)
 			return false;
 		highlightedVertices.add(v);
+		redraw();
 		return true;
 	}
 
@@ -782,6 +798,7 @@ public class GraphViewController {
 		Set<DefaultVertex> cuts = CutAndBridgeInspector
 				.findAllCutVertices(graph);
 		highlightedVertices.addAll(cuts);
+		redraw();
 		return cuts.size();
 	}
 
@@ -798,9 +815,12 @@ public class GraphViewController {
 
 		clearAll();
 		DefaultEdge<DefaultVertex> e = CutAndBridgeInspector.findBridge(graph);
-		if (e == null)
+		if (e == null) {
+			redraw();
 			return false;
+		}
 		markedEdges.add(e);
+
 		return true;
 	}
 
@@ -850,6 +870,7 @@ public class GraphViewController {
 				graphWithMemory.addEdge(universal, v);
 		}
 		graphInfo();
+		redraw();
 		return deg;
 	}
 
@@ -916,6 +937,7 @@ public class GraphViewController {
 				}
 			}
 		};
+		alg.setTitle("Computing regularity deletion set ...");
 		alg.execute();
 	}
 
@@ -937,6 +959,7 @@ public class GraphViewController {
 				}
 			}
 		};
+		alg.setTitle("Computing odd cycle transversal ...");
 		alg.execute();
 	}
 
@@ -958,6 +981,7 @@ public class GraphViewController {
 				}
 			}
 		};
+		alg.setTitle("Computing feedback vertex set ...");
 		alg.execute();
 	}
 
@@ -979,6 +1003,7 @@ public class GraphViewController {
 				}
 			}
 		};
+		alg.setTitle("Computing connected feedback vertex set ...");
 		alg.execute();
 	}
 
@@ -991,6 +1016,7 @@ public class GraphViewController {
 		time(false);
 		clearAll();
 		highlightedVertices.addAll(cover);
+		redraw();
 		return cover.size();
 	}
 
@@ -1002,10 +1028,10 @@ public class GraphViewController {
 	 * @return order of cvc, or -1 if none exists
 	 */
 	public void showConnectedVertexCover() {
-		ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
+		ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = new ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> aw = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
-				activity, algo) {
+		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> alg = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
+				activity, cvc) {
 			@Override
 			protected String resultText(
 					SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
@@ -1016,7 +1042,8 @@ public class GraphViewController {
 						+ result.vertexSet().size();
 			}
 		};
-		aw.execute();
+		alg.setTitle("Computing connected vertex cover ...");
+		alg.execute();
 	}
 
 	public int showMaximumIndependentSet() {
@@ -1029,6 +1056,8 @@ public class GraphViewController {
 		clearAll();
 		highlightedVertices.addAll(graph.vertexSet());
 		highlightedVertices.removeAll(cover);
+
+		redraw();
 
 		return highlightedVertices.size();
 	}
@@ -1047,7 +1076,7 @@ public class GraphViewController {
 				return "Clique Number is " + result.size();
 			}
 		};
-		algoWrapper.setTitle("Computing maximum clique...");
+		algoWrapper.setTitle("Computing maximum clique ...");
 		algoWrapper.execute();
 	}
 
@@ -1065,6 +1094,7 @@ public class GraphViewController {
 				return "Dominating set of size " + result.size();
 			}
 		};
+		algo.setTitle("Computing dominating set ...");
 		algo.execute();
 	}
 
@@ -1094,11 +1124,12 @@ public class GraphViewController {
 				clearAll();
 				redraw();
 				if (result < 0) {
-					return "Unable to perform bandwidth computation.";
+					return "Unable to perform bandwidth computation.  Try with n < 13.";
 				}
 				return "Bandwidth is " + result;
 			}
 		};
+		algo.setTitle("Computing bandwidth ...");
 		algo.execute();
 	}
 

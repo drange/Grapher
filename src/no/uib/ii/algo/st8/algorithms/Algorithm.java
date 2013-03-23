@@ -13,6 +13,14 @@ public abstract class Algorithm<V, E, Return> {
 		System.gc(); // TODO REMOVE!!!
 	}
 
+	public int graphSize() {
+		return graph.vertexSet().size();
+	}
+
+	public int graphEdgeSize() {
+		return graph.edgeSet().size();
+	}
+
 	public void cancel() {
 		System.out.println("We have been cancelled.");
 		cancelFlag = true;

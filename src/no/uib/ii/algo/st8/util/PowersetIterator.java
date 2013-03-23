@@ -76,4 +76,15 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 					"Cannot remove a set using this iterator");
 		}
 	}
+
+	public static int twoPower(int n) {
+		if (n > 31)
+			return -1;
+		if (n < 0)
+			throw new IllegalArgumentException(
+					"Undefined on negative numbers, " + n);
+		if (n == 0)
+			return 1;
+		return 2 * twoPower(n - 1);
+	}
 }

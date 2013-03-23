@@ -14,10 +14,17 @@ import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.GraphPathImpl;
 import org.jgrapht.graph.SimpleGraph;
 
-public class HamiltonianCycleInspector {
+import android.util.SparseArray;
 
-	public static <V, E> GraphPath<V, E> getHamiltonianCycle(
-			SimpleGraph<V, E> graph) {
+public class HamiltonianCycleInspector<V, E> extends
+		Algorithm<V, E, GraphPath<V, E>> {
+
+	public HamiltonianCycleInspector(SimpleGraph<V, E> graph) {
+		super(graph);
+	}
+
+	@Override
+	public GraphPath<V, E> execute() {
 
 		if (graph.vertexSet().size() < 3)
 			return null;
@@ -29,12 +36,12 @@ public class HamiltonianCycleInspector {
 		int n = graph.vertexSet().size();
 		int npow = (int) Math.pow(2, n);
 
-		Map<Integer, V> idToVertex = new HashMap<Integer, V>(n);
+		SparseArray<V> idToVertex = new SparseArray<V>(n);
 		Map<V, Integer> vertexToId = new HashMap<V, Integer>(n);
 
 		Map<Collection<V>, Integer> collectionToId = new HashMap<Collection<V>, Integer>(
 				npow);
-		Map<Integer, Collection<V>> idToCollection = new HashMap<Integer, Collection<V>>(
+		SparseArray<Collection<V>> idToCollection = new SparseArray<Collection<V>>(
 				npow);
 
 		PowersetIterator<V> pi = new PowersetIterator<V>(graph.vertexSet());
@@ -66,6 +73,12 @@ public class HamiltonianCycleInspector {
 			counter++;
 		}
 
+		System.out.println("CANCEL?!?");
+
+		if (cancelFlag)
+			return null;
+		progress(0, graphSize());
+
 		/*
 		 * Standard Hamiltonian path algorithm in 2^n time by dynamic
 		 * programming. The table dp[v][S] is true if v is in S and there is a
@@ -84,6 +97,10 @@ public class HamiltonianCycleInspector {
 		for (int s = 0; s < npow; s++) {
 			// currentSet is the set corresponding to 's'
 			Collection<V> currentSet = idToCollection.get(s);
+
+			if (cancelFlag)
+				return null;
+			progress(s, npow);
 
 			for (int v = 0; v < n; v++) {
 				// considering dp[currentVertex][currentSet] =? true
