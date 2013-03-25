@@ -60,17 +60,17 @@ import android.view.View;
 
 public class GraphViewController {
 
-	public static int DEFAULT_VERTEX_COLOR = Color.rgb(100, 100, 100);
+	public static final int DEFAULT_VERTEX_COLOR = Color.rgb(100, 100, 100);
 
-	public static int MARKED_VERTEX_COLOR = Color.rgb(0, 150, 30);
+	public static final int MARKED_VERTEX_COLOR = Color.rgb(0, 150, 30);
 
-	public static int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
+	public static final int USERSELECTED_VERTEX_COLOR = Color.rgb(0, 100, 50);
 
-	public static int TOUCHED_VERTEX_COLOR = Color.rgb(255, 75, 0);
+	public static final int TOUCHED_VERTEX_COLOR = Color.rgb(255, 75, 0);
 
-	public static int MARKED_EDGE_COLOR = Color.rgb(180, 255, 200);
+	public static final int MARKED_EDGE_COLOR = Color.rgb(180, 255, 200);
 
-	public static int DEFAULT_EDGE_COLOR = Color.GRAY;
+	public static final int DEFAULT_EDGE_COLOR = Color.GRAY;
 
 	/** true if the labels should be drawn or not */
 	public static boolean DO_SHOW_LABELS = true;
