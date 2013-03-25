@@ -11,6 +11,17 @@ import no.uib.ii.algo.st8.util.PowersetIterator;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
+/**
+ * Returns on execute() null if disconnected, else a connected feedback vertex
+ * set.
+ * 
+ * @author drange
+ * 
+ * @param <V>
+ *            vertex set
+ * @param <E>
+ *            edge set
+ */
 public class ConnectedFeedbackVertexSet<V, E> extends
 		Algorithm<V, E, Collection<V>> {
 
@@ -19,6 +30,9 @@ public class ConnectedFeedbackVertexSet<V, E> extends
 	}
 
 	public Collection<V> execute() {
+		if (!new ConnectivityInspector<V, E>(graph).isGraphConnected())
+			return null;
+
 		if (isAcyclic(graph))
 			return new HashSet<V>();
 

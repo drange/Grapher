@@ -8,6 +8,16 @@ import no.uib.ii.algo.st8.util.InducedSubgraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
+/**
+ * Returns on execute() null if disconnected, else a connected vertex cover.
+ * 
+ * @author drange
+ * 
+ * @param <V>
+ *            vertex set
+ * @param <E>
+ *            edge set
+ */
 public class ConnectedVertexCover<V, E> extends
 		Algorithm<V, E, SimpleGraph<V, E>> {
 

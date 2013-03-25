@@ -986,25 +986,29 @@ public class GraphViewController {
 	}
 
 	public void showConnectedFeedbackVertexSet() {
-		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new ConnectedFeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> cfvs = new ConnectedFeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo, "Connected feedback vertex set") {
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, cfvs, "Connected feedback vertex set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
-				if (result.size() == 0) {
-					return "Graph is acyclic";
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Graph was disconnected, no connected feedback vertex set exists.";
+				} else if (result.size() == 0) {
+					ret = "Graph is acyclic.";
 				} else {
-					clearAll();
 					highlightedVertices.addAll(result);
-					redraw();
-					return "Connected FVS of size " + result.size();
+					ret = "Connected FVS of size " + result.size() + ".";
 				}
+				redraw();
+				return ret;
 			}
 		};
-		alg.setTitle("Computing connected feedback vertex set ...");
-		alg.execute();
+		algo.setTitle("Computing connected feedback vertex set ...");
+		algo.execute();
 	}
 
 	public int showVertexCover() {
@@ -1030,20 +1034,26 @@ public class GraphViewController {
 	public void showConnectedVertexCover() {
 		ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> cvc = new ConnectedVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> alg = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
+		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> algo = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
 				activity, cvc) {
 			@Override
 			protected String resultText(
 					SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
 				clearAll();
-				highlightGraph(result);
+				String ret = "";
+				if (result == null) {
+					ret = "Graph was disconnected, no connected vertex cover exists.";
+				} else {
+					ret = "Connected vertex cover of size "
+							+ result.vertexSet().size();
+					highlightGraph(result);
+				}
 				redraw();
-				return "Connected vertex cover of size "
-						+ result.vertexSet().size();
+				return ret;
 			}
 		};
-		alg.setTitle("Computing connected vertex cover ...");
-		alg.execute();
+		algo.setTitle("Computing connected vertex cover ...");
+		algo.execute();
 	}
 
 	public int showMaximumIndependentSet() {
