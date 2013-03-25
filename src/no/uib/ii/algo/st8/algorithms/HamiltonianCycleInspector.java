@@ -23,6 +23,10 @@ public class HamiltonianCycleInspector<V, E> extends
 		super(graph);
 	}
 
+	private boolean isPotentiallyYesInstance() {
+		return CutAndBridgeInspector.findCutVertex(graph) == null;
+	}
+
 	@Override
 	public GraphPath<V, E> execute() {
 
@@ -30,7 +34,7 @@ public class HamiltonianCycleInspector<V, E> extends
 			return null;
 
 		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
-		if (!con)
+		if (!con || !isPotentiallyYesInstance())
 			return null;
 
 		int n = graph.vertexSet().size();

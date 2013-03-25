@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.util.InducedSubgraph;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.GraphPath;
@@ -25,12 +26,26 @@ public class HamiltonianPathInspector<V, E> extends
 
 	private boolean isPotentiallyYesInstance() {
 
+		if (!new ConnectivityInspector<V, E>(graph).isGraphConnected())
+			return false;
+
+		Set<V> cuts = CutAndBridgeInspector.findAllCutVertices(graph);
+		Set<V> vertices = new HashSet<V>();
+		vertices.addAll(graph.vertexSet());
+
+		for (V v : cuts) {
+			vertices.remove(v);
+			SimpleGraph<V, E> g = InducedSubgraph.inducedSubgraphOf(graph,
+					vertices);
+			if ((new ConnectivityInspector<V, E>(g)).connectedSets().size() > 2)
+				return false;
+			vertices.add(v);
+		}
 		return true;
 	}
 
 	public GraphPath<V, E> execute() {
-		boolean con = new ConnectivityInspector<V, E>(graph).isGraphConnected();
-		if (!con)
+		if (!isPotentiallyYesInstance())
 			return null;
 
 		int n = graphSize();
