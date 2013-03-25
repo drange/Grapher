@@ -16,11 +16,16 @@ import org.jgrapht.graph.SimpleGraph;
 
 import android.util.SparseArray;
 
-public class HamiltonianInspector<V, E> extends
+public class HamiltonianPathInspector<V, E> extends
 		Algorithm<V, E, GraphPath<V, E>> {
 
-	public HamiltonianInspector(SimpleGraph<V, E> graph) {
+	public HamiltonianPathInspector(SimpleGraph<V, E> graph) {
 		super(graph);
+	}
+
+	private boolean isPotentiallyYesInstance() {
+
+		return true;
 	}
 
 	public GraphPath<V, E> execute() {
@@ -28,7 +33,7 @@ public class HamiltonianInspector<V, E> extends
 		if (!con)
 			return null;
 
-		int n = graph.vertexSet().size();
+		int n = graphSize();
 		int npow = (int) Math.pow(2, n);
 
 		SparseArray<V> idToVertex = new SparseArray<V>(n);

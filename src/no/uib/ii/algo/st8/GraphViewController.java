@@ -27,7 +27,7 @@ import no.uib.ii.algo.st8.algorithms.FlowInspector;
 import no.uib.ii.algo.st8.algorithms.GirthInspector;
 import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
-import no.uib.ii.algo.st8.algorithms.HamiltonianInspector;
+import no.uib.ii.algo.st8.algorithms.HamiltonianPathInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
@@ -467,7 +467,7 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> hamPathAlgo;
 		AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> algoWrapper;
 
-		hamPathAlgo = new HamiltonianInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
+		hamPathAlgo = new HamiltonianPathInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
 		algoWrapper = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(
 				activity, hamPathAlgo) {
