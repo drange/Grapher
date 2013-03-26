@@ -204,16 +204,21 @@ public class GraphViewController {
 		return bestVertex;
 	}
 
-	private volatile long startTime = 0;
+	private static volatile long startTime = 0;
+	private static volatile boolean isStarted = false;
 
-	public void time(boolean start) {
+	public static void time(boolean start) {
 		long now = System.currentTimeMillis();
 		if (start) {
 			startTime = now;
+			isStarted = true;
 		} else {
+			if (!isStarted)
+				return;
 			long duration = now - startTime;
 			double sec = duration / 1000d;
-			System.out.printf("> %.3f\n", sec);
+			System.out.printf("> %.3f seconds\n", sec);
+			isStarted = false;
 		}
 	}
 
@@ -267,24 +272,17 @@ public class GraphViewController {
 	}
 
 	public void selectAll() {
-		if (isEmptyGraph())
-			return;
 		clearAll();
 		userSelectedVertices.addAll(graph.vertexSet());
 		redraw();
 	}
 
 	public void deselectAll() {
-		if (isEmptyGraph())
-			return;
 		userSelectedVertices.clear();
 		redraw();
 	}
 
 	public void selectAllHighlightedVertices() {
-		if (isEmptyGraph())
-			return;
-
 		userSelectedVertices.addAll(highlightedVertices);
 		highlightedVertices.clear();
 		redraw();
@@ -295,9 +293,6 @@ public class GraphViewController {
 	 * 
 	 */
 	public void invertSelectedVertices() {
-		if (isEmptyGraph())
-			return;
-
 		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph
 				.vertexSet().size());
 		for (DefaultVertex v : graph.vertexSet()) {
@@ -342,7 +337,6 @@ public class GraphViewController {
 			for (DefaultVertex u : userSelectedVertices) {
 				if (u != v && !graph.containsEdge(u, v)) {
 					graphWithMemory.addEdge(u, v);
-					redraw();
 				}
 			}
 		}
@@ -354,8 +348,6 @@ public class GraphViewController {
 	 * 
 	 */
 	public void complementSelected() {
-		if (isEmptyGraph())
-			return;
 		if (userSelectedVertices == null || userSelectedVertices.size() == 0)
 			return;
 
@@ -379,8 +371,6 @@ public class GraphViewController {
 	 * @return Returns the number of vertices deleted.
 	 */
 	public int deleteSelectedVertices() {
-		if (isEmptyGraph())
-			return 0;
 		int deleted = 0;
 
 		for (DefaultVertex v : userSelectedVertices) {
@@ -388,10 +378,8 @@ public class GraphViewController {
 				deleted++;
 			}
 		}
-		graphInfo();
 		clearAll();
 		redraw();
-
 		return deleted;
 	}
 
@@ -508,7 +496,7 @@ public class GraphViewController {
 				} else {
 					highlightPath(result);
 					redraw();
-					return "Hamiltonian path";
+					return "Graph is hamiltonian";
 				}
 			}
 		};
@@ -629,13 +617,6 @@ public class GraphViewController {
 		}
 	}
 
-	public boolean isEmptyGraph() {
-		if (graph == null) {
-			throw new NullPointerException("Graph was null, from isEmptyGraph");
-		}
-		return graph.vertexSet().size() == 0;
-	}
-
 	/**
 	 * Tests if graph is eulerian. If not, highlights all vertices of odd
 	 * degree.
@@ -643,9 +624,6 @@ public class GraphViewController {
 	 * @return true if eulerian.
 	 */
 	public boolean isEulerian() {
-		if (isEmptyGraph())
-			return true;
-
 		Set<DefaultVertex> odds = EulerianInspector.getOddDegreeVertices(graph);
 		clearAll();
 		highlightedVertices.addAll(odds);
@@ -690,9 +668,6 @@ public class GraphViewController {
 	 * @return diameter of graph, or -1 if infinite
 	 */
 	public int diameter() {
-		if (isEmptyGraph()) {
-			return -1;
-		}
 		clearAll();
 
 		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector
@@ -716,9 +691,6 @@ public class GraphViewController {
 	 * @return diameter of graph, or -1 if infinite
 	 */
 	public boolean showBipartition() {
-		if (isEmptyGraph()) {
-			return true;
-		}
 		clearAll();
 
 		Set<DefaultVertex> part = BipartiteInspector.getBipartition(graph);
@@ -739,22 +711,12 @@ public class GraphViewController {
 	 * @return girth of graph or -1 if acyclic.
 	 */
 	public int girth() {
-		if (isEmptyGraph()) {
-			return -1;
-		}
 		clearAll();
 		int girth = GirthInspector.girth(graph);
-
-		redraw();
-
 		return girth;
 	}
 
 	public void showSpanningTree() {
-		if (isEmptyGraph()) {
-			return;
-		}
-
 		KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>> mst = new KruskalMinimumSpanningTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
 		Set<DefaultEdge<DefaultVertex>> spanning = mst.getEdgeSet();
@@ -770,10 +732,6 @@ public class GraphViewController {
 	 * @return true iff there is a cut vertex
 	 */
 	public boolean showCutVertex() {
-		if (isEmptyGraph()) {
-			return false;
-		}
-
 		clearAll();
 		DefaultVertex v = CutAndBridgeInspector.findCutVertex(graph);
 		if (v == null)
@@ -790,10 +748,6 @@ public class GraphViewController {
 	 * @return number of cut vertices
 	 */
 	public int showAllCutVertices() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-
 		clearAll();
 		Set<DefaultVertex> cuts = CutAndBridgeInspector
 				.findAllCutVertices(graph);
@@ -809,10 +763,6 @@ public class GraphViewController {
 	 * @return true iff there is a bridge
 	 */
 	public boolean showBridge() {
-		if (isEmptyGraph()) {
-			return false;
-		}
-
 		clearAll();
 		DefaultEdge<DefaultVertex> e = CutAndBridgeInspector.findBridge(graph);
 		if (e == null) {
@@ -831,10 +781,6 @@ public class GraphViewController {
 	 * @return number of bridges
 	 */
 	public int showAllBridges() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-
 		clearAll();
 		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector
 				.findAllBridges(graph);
@@ -869,8 +815,9 @@ public class GraphViewController {
 			if (v != universal)
 				graphWithMemory.addEdge(universal, v);
 		}
-		graphInfo();
+
 		redraw();
+
 		return deg;
 	}
 
@@ -889,9 +836,6 @@ public class GraphViewController {
 	 */
 	private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v,
 			DefaultVertex u) {
-		if (isEmptyGraph())
-			return null;
-
 		DefaultEdge<DefaultVertex> edge = null;
 
 		if (graph.containsEdge(v, u)) {
@@ -900,7 +844,6 @@ public class GraphViewController {
 			edge = graphWithMemory.addEdge(v, u);
 		}
 
-		graphInfo();
 		redraw();
 		return edge;
 	}
@@ -1012,9 +955,6 @@ public class GraphViewController {
 	}
 
 	public int showVertexCover() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
 		time(true);
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 		time(false);
@@ -1057,10 +997,6 @@ public class GraphViewController {
 	}
 
 	public int showMaximumIndependentSet() {
-		if (isEmptyGraph()) {
-			return 0;
-		}
-
 		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
 
 		clearAll();
@@ -1109,9 +1045,6 @@ public class GraphViewController {
 	}
 
 	public boolean showCenterVertex() {
-		if (isEmptyGraph()) {
-			return false;
-		}
 		clearAll();
 		redraw();
 		DefaultVertex center = CenterInspector.getCenter(graph);
@@ -1144,9 +1077,6 @@ public class GraphViewController {
 	}
 
 	public void centralize() {
-		if (isEmptyGraph()) {
-			return;
-		}
 		DefaultVertex center = CenterInspector.getCenter(graph);
 		if (center == null)
 			return;
@@ -1186,7 +1116,6 @@ public class GraphViewController {
 				.findAllC4(graph);
 		clearAll();
 		for (List<DefaultVertex> cycle : cycles) {
-			System.out.println("\t" + cycle);
 			for (int i = 0; i < cycle.size(); i++) {
 				DefaultVertex v = cycle.get(i % cycle.size());
 				DefaultVertex u = cycle.get((i + 1) % cycle.size());
@@ -1206,8 +1135,9 @@ public class GraphViewController {
 	}
 
 	public String graphInfo() {
-		isEmptyGraph(); // hack to test if null
-		info = GraphInformation.graphInfo(graph);
+		if (graphWithMemory.graphChangedSinceLastCheck()) {
+			info = GraphInformation.graphInfo(graph);
+		}
 		return info;
 	}
 
@@ -1216,8 +1146,6 @@ public class GraphViewController {
 		if (graph == null) {
 			return;
 		}
-
-		graphInfo();
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			v.setLabel(""); // todo fix
@@ -1243,7 +1171,7 @@ public class GraphViewController {
 			}
 		}
 
-		view.redraw(info, graph);
+		view.redraw(graphInfo(), graph);
 	}
 
 	/**
@@ -1293,23 +1221,22 @@ public class GraphViewController {
 			float dist = (float) Math.round(Math.sqrt((velocityX * velocityX)
 					+ (velocityY * velocityY)));
 
-			System.out.println("dist=" + dist + " \tdx=" + velocityX + " \tdy="
-					+ velocityY);
+			// System.out.println("dist=" + dist + " \tdx=" + velocityX +
+			// " \tdy="
+			// + velocityY);
 
 			if (dist < 4000)
 				return true;
 
-			System.out.print("fling: ");
+			// System.out.print("fling: ");
 
 			if (hit != null) {
-				System.out.println(hit.getId());
+				// System.out.println(hit.getId());
 				clearAll();
 				graphWithMemory.removeVertex(hit);
 				touchedVertex = null;
 				redraw();
 				return true;
-			} else {
-				System.out.println("miss");
 			}
 
 			return true;
@@ -1331,9 +1258,6 @@ public class GraphViewController {
 					redraw();
 					return true;
 				}
-
-				graphInfo();
-
 			} else {
 
 				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
@@ -1344,8 +1268,6 @@ public class GraphViewController {
 				if (hit == null) {
 					DefaultVertex newvertex = new DefaultVertex(gCoordinate);
 					graphWithMemory.addVertex(newvertex);
-
-					graphInfo();
 				} else {
 					if (userSelectedVertices.contains(hit)) {
 						userSelectedVertices.remove(hit);
@@ -1412,7 +1334,7 @@ public class GraphViewController {
 							USER_MISS_RADIUS);
 
 					if (hit != null) {
-						System.out.println("HIT " + hit.getId());
+						// System.out.println("HIT " + hit.getId());
 						if (touchedVertex != null && touchedVertex != hit) {
 							DefaultEdge<DefaultVertex> edge = toggleEdge(hit,
 									touchedVertex);
@@ -1433,10 +1355,7 @@ public class GraphViewController {
 						Coordinate sCoordinate = new Coordinate(e2.getX(),
 								e2.getY());
 
-						System.out
-								.println("X:" + e2.getX() + "\tY" + e2.getY());
-
-						if (e2.getX() < 100 && e2.getY() < 100) {
+						if (view.isOnTrashCan(sCoordinate)) {
 							trashCan(2);
 							deleteVertex = touchedVertex;
 						} else {

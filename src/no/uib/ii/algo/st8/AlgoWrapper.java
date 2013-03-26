@@ -44,8 +44,10 @@ public abstract class AlgoWrapper<Result> extends
 				activity.shortToast("Computation cancelled");
 				cancel(true);
 				algorithm.cancel();
+				GraphViewController.time(false);
 			}
 		});
+
 		pDialog.show();
 	}
 
@@ -65,6 +67,7 @@ public abstract class AlgoWrapper<Result> extends
 	protected void onCancelled() {
 		System.gc(); // TODO REMOVE!!!
 		pDialog.cancel();
+		GraphViewController.time(false);
 	}
 
 	/**
@@ -92,6 +95,8 @@ public abstract class AlgoWrapper<Result> extends
 		resDialog.setTitle("Result");
 		resDialog.setPositiveButton("OK", null);
 		resDialog.create().show();
+
+		GraphViewController.time(false);
 	}
 
 	@Override
@@ -160,6 +165,7 @@ public abstract class AlgoWrapper<Result> extends
 	@Override
 	protected Result doInBackground(Void... params) {
 		System.gc(); // TODO REMOVE!!!
+		GraphViewController.time(true);
 		return algorithm.execute();
 	}
 

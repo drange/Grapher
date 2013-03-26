@@ -38,6 +38,10 @@ public class GraphView extends View {
 
 	private final Paint trashPaint = new Paint();
 
+	private boolean trashCoordinatesSet = false;
+	private int trashX = -1;
+	private int trashY = -1;
+
 	public GraphView(Context context) {
 		super(context);
 
@@ -59,28 +63,27 @@ public class GraphView extends View {
 		invalidate();
 	}
 
+	public boolean isOnTrashCan(Coordinate c) {
+		int x = (int) c.getX();
+		int y = (int) c.getY();
+
+		return (x >= trashX && x <= trashX + trashBitmap.getWidth()
+				&& y >= trashY && y <= trashY + trashBitmap.getHeight());
+	}
+
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if (graph == null)
 			return;
 
-		/*
-		 * int w = canvas.getWidth(); int h = canvas.getHeight();
-		 * 
-		 * System.out.println("width=" + w); System.out.println("height=" + h);
-		 * 
-		 * float left = 10, top = h - 140, right = w - 10, bottom = h - 80;
-		 * 
-		 * Paint ppp = new Paint(); ppp.setColor(Color.GRAY);
-		 * canvas.drawRect(left, top, right, bottom, ppp);
-		 * ppp.setColor(Color.DKGRAY);
-		 * 
-		 * canvas.drawCircle(left + 70, top + 30, 20, ppp);
-		 * 
-		 * ppp.setStrokeWidth(3); canvas.drawLine(left + 320, top + 20, left +
-		 * 370, top + 50, ppp);
-		 */
+		if (!trashCoordinatesSet) {
+			if (getWidth() > 0 && getHeight() > 0) {
+				trashX = (getWidth() - trashBitmap.getWidth()) / 2;
+				trashY = getHeight() - trashBitmap.getHeight() - 10;
+				trashCoordinatesSet = true;
+			}
+		}
 
 		Matrix m = canvas.getMatrix();
 		prev.set(m);
@@ -98,11 +101,6 @@ public class GraphView extends View {
 
 			Coordinate c1 = v1.getCoordinate();
 			Coordinate c2 = v2.getCoordinate();
-
-			// float x1 = Math.round(c1.getX() / 10) * 10;
-			// float y1 = Math.round(c1.getY() / 10) * 10;
-			// float x2 = Math.round(c2.getX() / 10) * 10;
-			// float y2 = Math.round(c2.getY() / 10) * 10;
 
 			float x1 = c1.getX(), y1 = c1.getY(), x2 = c2.getX(), y2 = c2
 					.getY();
@@ -142,8 +140,6 @@ public class GraphView extends View {
 
 		for (DefaultVertex v : graph.vertexSet()) {
 			Coordinate c = v.getCoordinate();
-			// float x = Math.round(c.getX() / 10) * 10;
-			// float y = Math.round(c.getY() / 10) * 10;
 
 			float x = c.getX(), y = c.getY();
 
@@ -199,9 +195,9 @@ public class GraphView extends View {
 		canvas.setMatrix(prev);
 
 		if (GraphViewController.TRASH_CAN == 1) {
-			canvas.drawBitmap(trashBitmap, 10, 10, trashPaint);
+			canvas.drawBitmap(trashBitmap, trashX, trashY, trashPaint);
 		} else if (GraphViewController.TRASH_CAN == 2) {
-			canvas.drawBitmap(trashRedBitmap, 10, 10, trashPaint);
+			canvas.drawBitmap(trashRedBitmap, trashX, trashY, trashPaint);
 		}
 
 		writeInfo(canvas);

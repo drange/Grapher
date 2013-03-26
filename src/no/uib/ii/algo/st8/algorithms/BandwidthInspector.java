@@ -27,10 +27,15 @@ public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 			return -1;
 		int counter = 0;
 
+		progress(counter, nfac);
+
 		int bandwidth = graph.vertexSet().size();
 		while (perm.hasNext()) {
 			List<V> ordering = perm.next();
-			progress(counter++, nfac);
+
+			counter++;
+			progress(counter, nfac);
+
 			if (cancelFlag)
 				return -2;
 			int current = 0;
@@ -50,5 +55,4 @@ public class BandwidthInspector<V, E> extends Algorithm<V, E, Integer> {
 		}
 		return bandwidth;
 	}
-
 }

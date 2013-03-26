@@ -13,8 +13,16 @@ public class Undo {
 	private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
 	private final Stack<History> history = new Stack<History>();
 
+	private volatile boolean hasChanged = true;
+
 	public Undo(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
 		this.graph = graph;
+	}
+
+	public boolean graphChangedSinceLastCheck() {
+		boolean x = hasChanged;
+		hasChanged = false;
+		return x;
 	}
 
 	/**
@@ -50,7 +58,7 @@ public class Undo {
 						+ " - " + h.otherVertex.getId());
 			}
 		}
-
+		hasChanged = true;
 		return true;
 	}
 
@@ -76,10 +84,12 @@ public class Undo {
 	}
 
 	private void addHistory(DefaultVertex v, DefaultVertex u, boolean add) {
+		hasChanged = true;
 		history.push(new History(v, u, add));
 	}
 
 	private void addHistory(DefaultVertex v, boolean add) {
+		hasChanged = true;
 		history.push(new History(v, add));
 	}
 

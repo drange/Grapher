@@ -8,6 +8,11 @@ public abstract class Algorithm<V, E, Return> {
 	protected ProgressListener progressListener;
 	protected final SimpleGraph<V, E> graph;
 
+	// these fields are to make sure we do not update progress bar more than ten
+	// times per second
+	private long nanoDelay = 200000000L;
+	private long nanoPrev = System.nanoTime() - nanoDelay;
+
 	public Algorithm(SimpleGraph<V, E> graph) {
 		this.graph = graph;
 		System.gc(); // TODO REMOVE!!!
@@ -34,7 +39,11 @@ public abstract class Algorithm<V, E, Return> {
 	/** Notifies the progress listener of the progress */
 	protected void progress(float percent) {
 		if (progressListener != null) {
-			progressListener.progress(percent);
+			long now = System.nanoTime();
+			if (now - nanoPrev > nanoDelay) {
+				progressListener.progress(percent);
+				nanoPrev = now;
+			}
 		}
 	}
 
@@ -44,7 +53,11 @@ public abstract class Algorithm<V, E, Return> {
 	 */
 	protected void progress(int k, int n) {
 		if (progressListener != null) {
-			progressListener.progress(k, n);
+			long now = System.nanoTime();
+			if (now - nanoPrev > nanoDelay) {
+				progressListener.progress(k, n);
+				nanoPrev = now;
+			}
 		}
 	}
 
