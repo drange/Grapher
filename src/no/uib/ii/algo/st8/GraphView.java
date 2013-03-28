@@ -36,6 +36,9 @@ public class GraphView extends View {
 	private final Bitmap trashRedBitmap = BitmapFactory.decodeResource(
 			getResources(), R.drawable.trash_red64x64);
 
+	private final Bitmap trashBgRedBitmap = BitmapFactory.decodeResource(
+			getResources(), R.drawable.red_bg);
+
 	private final Paint trashPaint = new Paint();
 
 	private boolean trashCoordinatesSet = false;
@@ -197,6 +200,8 @@ public class GraphView extends View {
 		if (GraphViewController.TRASH_CAN == 1) {
 			canvas.drawBitmap(trashBitmap, trashX, trashY, trashPaint);
 		} else if (GraphViewController.TRASH_CAN == 2) {
+			canvas.drawBitmap(trashBgRedBitmap, trashX - 46, trashY - 46,
+					trashPaint);
 			canvas.drawBitmap(trashRedBitmap, trashX, trashY, trashPaint);
 		}
 

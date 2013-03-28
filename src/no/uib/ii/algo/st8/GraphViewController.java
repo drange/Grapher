@@ -144,9 +144,13 @@ public class GraphViewController {
 					if (TRASH_CAN == 2) {
 						if (deleteVertex != null) {
 							graphWithMemory.removeVertex(deleteVertex);
+							Coordinate c = gl.clearCoordinate();
+							if (c != null)
+								deleteVertex.setCoordinate(c);
 							deleteVertex = null;
 						}
 					}
+					gl.clearCoordinate();
 					trashCan(0);
 				}
 				return gd.onTouchEvent(event);
@@ -1193,6 +1197,9 @@ public class GraphViewController {
 	private class PrivateGestureListener extends SimpleOnGestureListener {
 		/** This vertex was touch, e.g. for scrolling and moving purposes */
 		private DefaultVertex touchedVertex = null;
+
+		/** This is set to the coordinate of the vertex we started move */
+		private Coordinate startCoordinate = null;
 		private int previousPointerCount = 0;
 		private Coordinate[] previousPointerCoords = null;
 
@@ -1210,6 +1217,12 @@ public class GraphViewController {
 			return super.onDown(e);
 		}
 
+		public Coordinate clearCoordinate() {
+			Coordinate ret = startCoordinate;
+			startCoordinate = null;
+			return ret;
+		}
+
 		@Override
 		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
 				float velocityY) {
@@ -1221,17 +1234,10 @@ public class GraphViewController {
 			float dist = (float) Math.round(Math.sqrt((velocityX * velocityX)
 					+ (velocityY * velocityY)));
 
-			// System.out.println("dist=" + dist + " \tdx=" + velocityX +
-			// " \tdy="
-			// + velocityY);
-
 			if (dist < 4000)
 				return true;
 
-			// System.out.print("fling: ");
-
 			if (hit != null) {
-				// System.out.println(hit.getId());
 				clearAll();
 				graphWithMemory.removeVertex(hit);
 				touchedVertex = null;
@@ -1350,6 +1356,10 @@ public class GraphViewController {
 				} else {
 					previousPointerCoords = null;
 					if (touchedVertex != null) {
+						if (startCoordinate == null) {
+							startCoordinate = touchedVertex.getCoordinate();
+						}
+
 						trashCan(1);
 
 						Coordinate sCoordinate = new Coordinate(e2.getX(),
