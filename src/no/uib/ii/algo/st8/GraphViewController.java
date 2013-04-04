@@ -35,6 +35,7 @@ import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SimplicialInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
+import no.uib.ii.algo.st8.algorithms.SteinerTree;
 import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
@@ -453,6 +454,32 @@ public class GraphViewController {
 		clearAll();
 		redraw();
 		return SimplicialInspector.isChordal(graph);
+	}
+
+	public void showSteinerTree() {
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultEdge<DefaultVertex>>> steinerAlgo;
+		AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>> algoWrapper;
+
+		steinerAlgo = new SteinerTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph, null);
+		algoWrapper = new AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>>(
+				activity, steinerAlgo) {
+
+			@Override
+			protected String resultText(
+					Collection<DefaultEdge<DefaultVertex>> result) {
+				clearAll();
+				if (result == null) {
+					return "No steiner tree";
+				} else {
+					markedEdges.addAll(result);
+					redraw();
+					return "Steiner tree highlighted";
+				}
+			}
+		};
+		algoWrapper.setTitle("Computing steiner tree ...");
+		algoWrapper.execute();
 	}
 
 	public void showHamiltonianPath() {

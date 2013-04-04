@@ -397,6 +397,10 @@ public class Workspace extends Activity implements OnClickListener,
 			shortToast("Shaken, not stirred");
 			return true;
 
+			// TODO case R.id.steiner_tree:
+			// controller.showSteinerTree();
+			// return true;
+
 		case R.id.hamiltonian_path:
 			controller.showHamiltonianPath();
 			return true;
