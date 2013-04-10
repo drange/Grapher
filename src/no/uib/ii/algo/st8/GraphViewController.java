@@ -985,14 +985,29 @@ public class GraphViewController {
 		algo.execute();
 	}
 
-	public int showVertexCover() {
-		time(true);
-		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
-		time(false);
-		clearAll();
-		highlightedVertices.addAll(cover);
-		redraw();
-		return cover.size();
+	public void showVertexCover() {
+		ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo) {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Could not compute vertex cover.";
+				} else {
+					ret = "Vertex cover of size " + result.size();
+					highlightedVertices.addAll(result);
+				}
+				redraw();
+				return ret;
+
+			}
+		};
+		wrapper.setTitle("Computing vertex cover ...");
+		wrapper.execute();
 	}
 
 	/**
@@ -1027,16 +1042,32 @@ public class GraphViewController {
 		algo.execute();
 	}
 
-	public int showMaximumIndependentSet() {
-		Set<DefaultVertex> cover = ExactVertexCover.findExactVertexCover(graph);
+	public void showMaximumIndependentSet() {
+		ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, algo) {
 
-		clearAll();
-		highlightedVertices.addAll(graph.vertexSet());
-		highlightedVertices.removeAll(cover);
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Could not compute maximum independent set.";
+				} else {
+					ret = "Maximum independent set of size "
+							+ (graph.vertexSet().size() - result.size());
+					clearAll();
+					highlightedVertices.addAll(graph.vertexSet());
+					highlightedVertices.removeAll(result);
+				}
+				redraw();
+				return ret;
 
-		redraw();
-
-		return highlightedVertices.size();
+			}
+		};
+		wrapper.setTitle("Computing independent set ...");
+		wrapper.execute();
 	}
 
 	public void showMaximumClique() {

@@ -3,10 +3,13 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
+import no.uib.ii.algo.st8.util.InducedSubgraph;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.EdgeFactory;
+import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -27,6 +30,18 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 	}
 
 	public Collection<V> execute() {
+		Collection<V> solution = new HashSet<V>();
+		ConnectivityInspector<V, E> ci = new ConnectivityInspector<V, E>(graph);
+		for (Set<V> vertices : ci.connectedSets()) {
+			solution.addAll(execute(InducedSubgraph.inducedSubgraphOf(graph,
+					vertices)));
+			if (cancelFlag)
+				return null;
+		}
+		return solution;
+	}
+
+	public Collection<V> execute(SimpleGraph<V, E> cc) {
 		SimpleGraph<VertexDominated<V>, EdgeDominated> g = new SimpleGraph<VertexDominated<V>, EdgeDominated>(
 				new EdgeFactory<VertexDominated<V>, EdgeDominated>() {
 					public EdgeDominated createEdge(VertexDominated<V> arg0,
@@ -37,20 +52,23 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 
 		HashMap<V, VertexDominated<V>> map = new HashMap<V, VertexDominated<V>>();
 
-		for (V v : graph.vertexSet()) {
+		for (V v : cc.vertexSet()) {
 			VertexDominated<V> vd = new VertexDominated<V>(v);
 			map.put(v, vd);
 			g.addVertex(vd);
 		}
 
-		for (E e : graph.edgeSet()) {
-			g.addEdge(map.get(graph.getEdgeSource(e)),
-					map.get(graph.getEdgeTarget(e)), new EdgeDominated());
+		for (E e : cc.edgeSet()) {
+			g.addEdge(map.get(cc.getEdgeSource(e)),
+					map.get(cc.getEdgeTarget(e)), new EdgeDominated());
 		}
 
 		PowersetIterator<VertexDominated<V>> pi = new PowersetIterator<VertexDominated<V>>(
 				g.vertexSet());
 		Collection<VertexDominated<V>> domset = null;
+
+		progress(0, cc.vertexSet().size()); // TODO doesn't work on >1 #cc
+
 		while (pi.hasNext()) {
 			Collection<VertexDominated<V>> current = pi.next();
 
@@ -59,9 +77,10 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 				continue;
 			}
 
-			progress(current.size(), graph.vertexSet().size());
 			if (cancelFlag)
 				return null;
+
+			progress(current.size(), cc.vertexSet().size());
 
 			// test if current is a d.s.
 			if (isDominatingSet(g, current)) {

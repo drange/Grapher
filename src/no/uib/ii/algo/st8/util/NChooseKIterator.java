@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.util;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -90,4 +91,23 @@ public class NChooseKIterator<T> implements Iterator<Collection<T>> {
 
 	public void remove() {
 	}
+
+	public static int nChooseK(int n, int k) {
+		if (k > n)
+			throw new IllegalArgumentException("N Choose K must have k <= n: "
+					+ k + " " + n);
+		int numerator = PermutationIterator.factorial(n);
+		int denomerator = PermutationIterator.factorial(n - k);
+		return numerator / denomerator;
+	}
+
+	public static BigInteger nChooseK(BigInteger n, BigInteger k) {
+		if (k.compareTo(n) > 0)
+			throw new IllegalArgumentException("N Choose K must have k <= n: "
+					+ k + " " + n);
+		BigInteger numerator = PermutationIterator.factorial(n);
+		BigInteger denomerator = PermutationIterator.factorial(n.subtract(k));
+		return numerator.divide(denomerator);
+	}
+
 }

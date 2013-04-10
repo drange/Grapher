@@ -309,8 +309,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_maximum_independent_set:
-			int mis = controller.showMaximumIndependentSet();
-			shortToast("Independent Set Number " + mis);
+			controller.showMaximumIndependentSet();
 			return true;
 
 		case R.id.compute_maximum_clique:
@@ -380,8 +379,7 @@ public class Workspace extends Activity implements OnClickListener,
 			return true;
 
 		case R.id.compute_vertex_cover:
-			int vc = controller.showVertexCover();
-			shortToast("Vertex Cover Number " + vc);
+			controller.showVertexCover();
 			return true;
 
 		case R.id.compute_connected_vertex_cover:

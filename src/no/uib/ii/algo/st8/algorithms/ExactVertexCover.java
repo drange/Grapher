@@ -1,15 +1,12 @@
 package no.uib.ii.algo.st8.algorithms;
 
 import java.util.BitSet;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import no.uib.ii.algo.st8.model.DefaultEdge;
-import no.uib.ii.algo.st8.model.DefaultVertex;
-
 import org.jgrapht.EdgeFactory;
-import org.jgrapht.alg.VertexCovers;
 import org.jgrapht.graph.SimpleGraph;
 
 /**
@@ -22,37 +19,68 @@ import org.jgrapht.graph.SimpleGraph;
  * 
  */
 
-public class ExactVertexCover extends VertexCovers {
+public class ExactVertexCover<V, E> extends Algorithm<V, E, Collection<V>> {
 
-	public static Set<DefaultVertex> findExactVertexCover(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-		KVertexCover kvc = new KVertexCover(graph);
+	public ExactVertexCover(SimpleGraph<V, E> graph) {
+		super(graph);
+	}
+
+	@Override
+	public Collection<V> execute() {
+		VertexCoverListener listener = new VertexCoverListener(this,
+				progressListener);
+
+		KVertexCover<V, E> kvc = new KVertexCover<V, E>(graph, listener);
 		return kvc.minVertexCover();
+	}
+}
+
+class VertexCoverListener {
+	private final Algorithm<?, ?, ?> alg;
+	private final ProgressListener listener;
+
+	public VertexCoverListener(Algorithm<?, ?, ?> alg, ProgressListener listener) {
+		this.alg = alg;
+		this.listener = listener;
+	}
+
+	public void progress(int k, int n) {
+		listener.progress(k, n);
+	}
+
+	public boolean isCancelled() {
+		return alg.cancelFlag;
 	}
 
 }
 
-class KVertexCover {
-	private final SimpleGraph<VcVertex, VcEdge> graph;
+class KVertexCover<U, F> {
+	private final SimpleGraph<VcVertex<U>, VcEdge<U>> internalGraph;
 
-	public KVertexCover(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> input) {
-		graph = new SimpleGraph<KVertexCover.VcVertex, KVertexCover.VcEdge>(new EdgeFactory<VcVertex, VcEdge>() {
-			public VcEdge createEdge(VcVertex v, VcVertex u) {
-				return new VcEdge(v, u);
-			}
-		});
+	private final VertexCoverListener listener;
 
-		HashMap<DefaultVertex, VcVertex> map = new HashMap<DefaultVertex, KVertexCover.VcVertex>(input.vertexSet().size());
-		for (DefaultVertex v : input.vertexSet()) {
-			VcVertex nv = new VcVertex(v);
-			graph.addVertex(nv);
+	public KVertexCover(SimpleGraph<U, F> input, VertexCoverListener listener) {
+		internalGraph = new SimpleGraph<VcVertex<U>, VcEdge<U>>(
+				new EdgeFactory<VcVertex<U>, VcEdge<U>>() {
+					public VcEdge<U> createEdge(VcVertex<U> v, VcVertex<U> u) {
+						return new VcEdge<U>(v, u);
+					}
+				});
+		this.listener = listener;
+		listener.progress(0, internalGraph.vertexSet().size());
+		HashMap<U, VcVertex<U>> map = new HashMap<U, VcVertex<U>>(input
+				.vertexSet().size());
+		for (U v : input.vertexSet()) {
+			VcVertex<U> nv = new VcVertex<U>(v);
+			internalGraph.addVertex(nv);
 			map.put(v, nv);
 		}
 
-		for (DefaultEdge<DefaultVertex> e : input.edgeSet()) {
-			VcVertex v1 = map.get(e.getSource());
-			VcVertex v2 = map.get(e.getTarget());
+		for (F e : input.edgeSet()) {
+			VcVertex<U> v1 = map.get(input.getEdgeSource(e));
+			VcVertex<U> v2 = map.get(input.getEdgeTarget(e));
 
-			graph.addEdge(v1, v2, new VcEdge(v1, v2));
+			internalGraph.addEdge(v1, v2, new VcEdge<U>(v1, v2));
 		}
 	}
 
@@ -60,14 +88,14 @@ class KVertexCover {
 	 * Gives the set of vertices that would not make sense to not keep in a VC.
 	 */
 	private BitSet necessaryVertices() {
-		BitSet bs = new BitSet(graph.vertexSet().size());
-		for (VcEdge e : graph.edgeSet()) {
-			VcVertex a = e.source;
-			VcVertex b = e.target;
+		BitSet bs = new BitSet(internalGraph.vertexSet().size());
+		for (VcEdge<U> e : internalGraph.edgeSet()) {
+			VcVertex<U> a = e.source;
+			VcVertex<U> b = e.target;
 			if (!isCovered(e, bs)) {
-				if (graph.degreeOf(a) == 1) {
+				if (internalGraph.degreeOf(a) == 1) {
 					bs.set(b.label);
-				} else if (graph.degreeOf(b) == 1) {
+				} else if (internalGraph.degreeOf(b) == 1) {
 					bs.set(a.label);
 				}
 			}
@@ -80,17 +108,17 @@ class KVertexCover {
 	 * for VC size k
 	 */
 	private BitSet necessaryVertices(BitSet bs, int k) {
-		for (VcVertex n : graph.vertexSet()) {
-			if (!bs.get(n.label) && graph.degreeOf(n) > k) {
+		for (VcVertex<U> n : internalGraph.vertexSet()) {
+			if (!bs.get(n.label) && internalGraph.degreeOf(n) > k) {
 				bs = add(n, bs);
 			}
 		}
 		return bs;
 	}
 
-	private Set<DefaultVertex> bitSetToNodeSet(BitSet bs) {
-		Set<DefaultVertex> vc = new HashSet<DefaultVertex>();
-		for (VcVertex n : graph.vertexSet()) {
+	private Set<U> bitSetToNodeSet(BitSet bs) {
+		Set<U> vc = new HashSet<U>();
+		for (VcVertex<U> n : internalGraph.vertexSet()) {
 			if (bs.get(n.label)) {
 				vc.add(n.vertex);
 			}
@@ -98,11 +126,11 @@ class KVertexCover {
 		return vc;
 	}
 
-	private boolean isCovered(VcEdge e, BitSet vc) {
+	private boolean isCovered(VcEdge<U> e, BitSet vc) {
 		return vc.get(e.source.label) || vc.get(e.target.label);
 	}
 
-	public Set<DefaultVertex> kVertexCover(int k) {
+	public Set<U> kVertexCover(int k) {
 		BitSet bs = necessaryVertices();
 		BitSet ret = kVertexCover(k, bs);
 		if (ret == null) {
@@ -118,7 +146,10 @@ class KVertexCover {
 			return null;
 		}
 
-		VcEdge e = firstUncovered(vc);
+		if (listener.isCancelled())
+			return null;
+
+		VcEdge<U> e = firstUncovered(vc);
 		if (e == null) {
 			return vc;
 		}
@@ -133,8 +164,8 @@ class KVertexCover {
 
 	}
 
-	private BitSet add(VcVertex n, BitSet set) {
-		BitSet r = new BitSet(graph.vertexSet().size());
+	private BitSet add(VcVertex<U> n, BitSet set) {
+		BitSet r = new BitSet(internalGraph.vertexSet().size());
 		// Let this be an or! A for loop is 3 times slower, and using clone() is
 		// about 20% slower.
 		r.or(set);
@@ -142,8 +173,8 @@ class KVertexCover {
 		return r;
 	}
 
-	private VcEdge firstUncovered(BitSet vc) {
-		for (VcEdge e : graph.edgeSet()) {
+	private VcEdge<U> firstUncovered(BitSet vc) {
+		for (VcEdge<U> e : internalGraph.edgeSet()) {
 			int a = e.source.label;
 			int b = e.target.label;
 			if (!vc.get(a) && !vc.get(b)) {
@@ -153,9 +184,14 @@ class KVertexCover {
 		return null;
 	}
 
-	public Set<DefaultVertex> minVertexCover() {
+	public Set<U> minVertexCover() {
 		BitSet necessary = necessaryVertices();
-		for (int i = 1; i <= graph.vertexSet().size(); i++) {
+		for (int i = 1; i <= internalGraph.vertexSet().size(); i++) {
+			if (listener.isCancelled())
+				return null;
+
+			listener.progress(i, internalGraph.vertexSet().size());
+
 			BitSet kNecessary = necessaryVertices(necessary, i);
 			BitSet kvc = kVertexCover(i - kNecessary.cardinality(), kNecessary);
 
@@ -163,15 +199,16 @@ class KVertexCover {
 				return bitSetToNodeSet(kvc);
 			}
 		}
-		throw new IllegalStateException("Could not compute vertex cover: " + graph.toString());
+		throw new IllegalStateException("Could not compute vertex cover: "
+				+ internalGraph.toString());
 	}
 
-	static class VcVertex {
-		private DefaultVertex vertex;
+	static class VcVertex<W> {
+		private W vertex;
 		private int label;
 		private static int GLOBAL_LABEL = 1;
 
-		public VcVertex(DefaultVertex vertex) {
+		public VcVertex(W vertex) {
 			this.vertex = vertex;
 			label = GLOBAL_LABEL++;
 		}
@@ -200,11 +237,11 @@ class KVertexCover {
 
 	}
 
-	static class VcEdge {
-		final VcVertex source;
-		final VcVertex target;
+	static class VcEdge<X> {
+		final VcVertex<X> source;
+		final VcVertex<X> target;
 
-		public VcEdge(VcVertex v1, VcVertex v2) {
+		public VcEdge(VcVertex<X> v1, VcVertex<X> v2) {
 			this.source = v1;
 			this.target = v2;
 		}
@@ -213,8 +250,10 @@ class KVertexCover {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((source == null) ? 0 : source.hashCode());
-			result = prime * result + ((target == null) ? 0 : target.hashCode());
+			result = prime * result
+					+ ((source == null) ? 0 : source.hashCode());
+			result = prime * result
+					+ ((target == null) ? 0 : target.hashCode());
 			return result;
 		}
 

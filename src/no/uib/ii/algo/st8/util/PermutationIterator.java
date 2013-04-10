@@ -1,5 +1,6 @@
 package no.uib.ii.algo.st8.util;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -115,6 +116,22 @@ public class PermutationIterator<T> implements Iterator<Collection<T>> {
 		if (n <= 1)
 			return 1;
 		return factorial(n - 1) * n;
+	}
+
+	/**
+	 * Returns n!
+	 * 
+	 * @param n
+	 *            biginteger
+	 * @return n!
+	 */
+	public static BigInteger factorial(BigInteger n) {
+		if (n.equals(BigInteger.ONE)) {
+			return BigInteger.ONE;
+		} else {
+			BigInteger pn = n.subtract(BigInteger.ONE);
+			return n.multiply(pn);
+		}
 	}
 
 	public void remove() {
