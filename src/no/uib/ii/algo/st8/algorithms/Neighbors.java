@@ -1,6 +1,11 @@
 package no.uib.ii.algo.st8.algorithms;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.jgrapht.graph.SimpleGraph;
@@ -45,10 +50,68 @@ public class Neighbors {
 		return set;
 	}
 
+	public static <V, E> Collection<V> openNeighborhood(
+			SimpleGraph<V, E> graph, Collection<V> vertices) {
+		Set<V> set = new HashSet<V>(graph.vertexSet().size());
+		for (V vertex : vertices) {
+			for (E edge : graph.edgesOf(vertex)) {
+				V neighbor = opposite(graph, vertex, edge);
+				if (!vertices.contains(neighbor)) {
+					set.add(neighbor);
+				}
+			}
+		}
+		return set;
+	}
+
+	public static <V, E> Collection<V> closedNeighborhood(
+			SimpleGraph<V, E> graph, Collection<V> vertices) {
+		Set<V> set = new HashSet<V>(graph.vertexSet().size());
+		for (V vertex : vertices) {
+			set.add(vertex);
+			for (E edge : graph.edgesOf(vertex)) {
+				V neighbor = opposite(graph, vertex, edge);
+				set.add(neighbor);
+			}
+		}
+		return set;
+	}
+
+	public static <V, E> Collection<V> closedNeighborhood(
+			SimpleGraph<V, E> graph, V vertex) {
+		Set<V> set = new HashSet<V>(graph.vertexSet().size());
+		set.add(vertex);
+		for (E edge : graph.edgesOf(vertex)) {
+			V neighbor = opposite(graph, vertex, edge);
+			set.add(neighbor);
+		}
+		return set;
+	}
+
 	private static <V, E> V opposite(SimpleGraph<V, E> graph, V vertex, E edge) {
 		if (graph.getEdgeSource(edge).equals(vertex)) {
 			return graph.getEdgeTarget(edge);
 		}
 		return graph.getEdgeSource(edge);
 	}
+
+	/**
+	 * 
+	 * Ordered descending degree.
+	 */
+	public static <V, E> List<V> orderedOpenNeighborhood(
+			final SimpleGraph<V, E> graph, V vertex, final boolean descending) {
+		Collection<V> neighborhood = openNeighborhood(graph, vertex);
+		ArrayList<V> list = new ArrayList<V>(neighborhood.size());
+		Collections.sort(list, new Comparator<V>() {
+			public int compare(V arg0, V arg1) {
+				if (descending)
+					return graph.degreeOf(arg0) - graph.degreeOf(arg1);
+				else
+					return graph.degreeOf(arg1) - graph.degreeOf(arg0);
+			};
+		});
+		return list;
+	}
+
 }

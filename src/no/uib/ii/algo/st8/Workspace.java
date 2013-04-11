@@ -390,6 +390,10 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.showDominatingSet();
 			return true;
 
+		case R.id.compute_minimum_red_blue_dominating_set:
+			controller.showRedBlueDominatingSet();
+			return true;
+
 		case R.id.spring:
 			controller.longShake(300);
 			shortToast("Shaken, not stirred");

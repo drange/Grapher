@@ -62,6 +62,10 @@
         android:title="Connected Feedback Vertex Set"/>
 
     <item
+        android:id="@+id/compute_minimum_red_blue_dominating_set"
+        android:title="Minimum R/B Dominating Set"/>
+
+    <item
         android:id="@+id/compute_minimum_dominating_set"
         android:title="Minimum Dominating Set"/>
 

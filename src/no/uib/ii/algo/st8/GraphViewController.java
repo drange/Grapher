@@ -32,6 +32,7 @@ import no.uib.ii.algo.st8.algorithms.MaximalClique;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
+import no.uib.ii.algo.st8.algorithms.RedBlueDominatingSet;
 import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SimplicialInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
@@ -1090,6 +1091,24 @@ public class GraphViewController {
 
 	public void showDominatingSet() {
 		ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>> eds = new ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
+				activity, eds, "Dominating set") {
+
+			@Override
+			protected String resultText(Collection<DefaultVertex> result) {
+				clearAll();
+				highlightedVertices.addAll(result);
+				redraw();
+				return "Dominating set of size " + result.size();
+			}
+		};
+		algo.setTitle("Computing dominating set ...");
+		algo.execute();
+	}
+
+	public void showRedBlueDominatingSet() {
+		RedBlueDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>> eds = new RedBlueDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
 		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
 				activity, eds, "Dominating set") {
