@@ -2,6 +2,7 @@ package no.uib.ii.algo.st8.algorithms;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.util.InducedSubgraph;
@@ -19,6 +20,7 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 
 	@Override
 	public Collection<V> execute() {
+		totalDominated = 0;
 		Collection<V> solution = new HashSet<V>();
 		ConnectivityInspector<V, E> ci = new ConnectivityInspector<V, E>(graph);
 		progress(totalDominated, graph.vertexSet().size());
@@ -50,9 +52,24 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 	}
 
 	private Collection<V> execute(SimpleGraph<V, E> g) {
+		// set of vertices that are in any minimal dominating set (leaves?)
+		HashSet<V> vital = new HashSet<V>();
+		if (g.edgeSet().size() == 0) {
+			return g.vertexSet();
+		} else {
+			for (V lf : g.vertexSet()) {
+				if (g.degreeOf(lf) == 1) {
+					V lfn = Neighbors.getNeighbor(g, lf);
+					if (!vital.contains(lfn)) {
+						vital.add(lfn);
+					}
+				}
+			}
+		}
+
 		for (int i = 0; i <= g.vertexSet().size(); i++) {
 			progress(i + totalDominated, graph.vertexSet().size());
-			HashSet<V> sol = compute(g, i, new HashSet<V>());
+			HashSet<V> sol = compute(g, i, vital);
 
 			System.out
 					.println("Recursive (" + i + ") function returned " + sol);
@@ -94,8 +111,10 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 				return sol1;
 			dominators.remove(v);
 
+			List<V> lst = Neighbors.orderedOpenNeighborhood(g, v, true);
+
 			// TODO sort neighborhood by degree?
-			for (V neighbor : Neighbors.orderedOpenNeighborhood(g, v, true)) {
+			for (V neighbor : lst) {
 				dominators.add(neighbor);
 				HashSet<V> sol2 = compute(g, k - 1, dominators);
 				if (sol2 != null)

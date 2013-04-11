@@ -50,6 +50,13 @@ public class Neighbors {
 		return set;
 	}
 
+	public static <V, E> V getNeighbor(SimpleGraph<V, E> graph, V vertex) {
+		for (E edge : graph.edgesOf(vertex)) {
+			return (opposite(graph, vertex, edge));
+		}
+		return null;
+	}
+
 	public static <V, E> Collection<V> openNeighborhood(
 			SimpleGraph<V, E> graph, Collection<V> vertices) {
 		Set<V> set = new HashSet<V>(graph.vertexSet().size());
@@ -103,6 +110,7 @@ public class Neighbors {
 			final SimpleGraph<V, E> graph, V vertex, final boolean descending) {
 		Collection<V> neighborhood = openNeighborhood(graph, vertex);
 		ArrayList<V> list = new ArrayList<V>(neighborhood.size());
+		list.addAll(neighborhood);
 		Collections.sort(list, new Comparator<V>() {
 			public int compare(V arg0, V arg1) {
 				if (descending)
