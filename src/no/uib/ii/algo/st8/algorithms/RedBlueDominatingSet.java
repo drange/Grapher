@@ -69,7 +69,7 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 
 		for (int i = 0; i <= g.vertexSet().size(); i++) {
 			progress(i + totalDominated, graph.vertexSet().size());
-			HashSet<V> sol = compute(g, i, vital);
+			HashSet<V> sol = redblue(g, i, vital);
 
 			System.out
 					.println("Recursive (" + i + ") function returned " + sol);
@@ -103,6 +103,15 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 			return null;
 		}
 
+		// for (V lf : g.vertexSet()) {
+		// if (g.degreeOf(lf) == 1) {
+		// V lfn = Neighbors.getNeighbor(g, lf);
+		// if (!vital.contains(lfn)) {
+		// vital.add(lfn);
+		// }
+		// }
+		// }
+
 		for (V v : undom) {
 			// put v to solution
 			dominators.add(v);
@@ -120,6 +129,89 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 				if (sol2 != null)
 					return sol2;
 				dominators.remove(neighbor);
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a set
+	 */
+	private HashSet<V> redblue(SimpleGraph<V, E> g, int k, HashSet<V> dominated) {
+		if (k < 0)
+			return null;
+		if (dominated.size() == g.vertexSet().size())
+			return new HashSet<V>(0);
+		if (k == 0 || cancelFlag) {
+			return null;
+		}
+
+		for (V v : g.vertexSet()) {
+			Collection<V> Nv = Neighbors.openNeighborhood(g, v);
+			Collection<V> N2v = Neighbors.openNeighborhood(g, Nv);
+			N2v.removeAll(Nv);
+			HashSet<V> n1 = new HashSet<V>();
+			for (V nv : Nv) {
+				if (N2v.containsAll(Neighbors.openNeighborhood(g, nv))) {
+					n1.add(nv);
+				}
+			}
+
+			HashSet<V> n2 = new HashSet<V>();
+			for (V nv : Nv) {
+				if (n1.containsAll(Neighbors.openNeighborhood(g, nv))) {
+					n2.add(nv);
+				}
+			}
+			Nv.removeAll(n1);
+			Nv.removeAll(n2);
+
+			if (!Nv.isEmpty()) {
+				// v must be dominator
+				dominated.addAll(n1);
+				dominated.addAll(n2);
+				dominated.addAll(Nv);
+				g.removeVertex(v);
+				return redblue(g, k - 1, dominated);
+			}
+		}
+
+		// branching
+		for (V v : g.vertexSet()) {
+			// put v to solution
+			Collection<V> nv = Neighbors.openNeighborhood(g, v);
+
+			HashSet<V> oldDom = new HashSet<V>();
+			oldDom.addAll(dominated);
+			dominated.addAll(nv);
+
+			g.removeVertex(v);
+
+			HashSet<V> sol1 = compute(g, k - 1, dominated);
+			if (sol1 != null)
+				return sol1;
+
+			dominated.clear();
+			dominated.addAll(oldDom);
+
+			g.addVertex(v);
+			for (V u : nv)
+				g.addEdge(v, u);
+
+			for (V neighbor : nv) {
+				Collection<V> nv2 = Neighbors.openNeighborhood(g, neighbor);
+				g.removeVertex(neighbor);
+				dominated.addAll(nv2);
+				HashSet<V> sol2 = compute(g, k - 1, dominated);
+				if (sol2 != null)
+					return sol2;
+
+				g.addVertex(neighbor);
+				for (V nnn : nv2)
+					g.addEdge(neighbor, nnn);
+				dominated.clear();
+				dominated.addAll(oldDom);
+
 			}
 		}
 		return null;
