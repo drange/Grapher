@@ -80,6 +80,10 @@
     <item
         android:id="@+id/compute_chordality"
         android:title="Is chordal?"/>
+        
+    <item
+        android:id="@+id/chordalization"
+        android:title="Fill In"/>
 
     <item
         android:id="@+id/compute_claws"

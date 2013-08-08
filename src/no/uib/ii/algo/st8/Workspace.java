@@ -307,6 +307,10 @@ public class Workspace extends Activity implements OnClickListener,
 		case R.id.new_graph:
 			controller.newGraph();
 			return true;
+			
+		case R.id.chordalization:
+			controller.showChordalization();
+			return true;
 
 		case R.id.compute_maximum_independent_set:
 			controller.showMaximumIndependentSet();

@@ -12,6 +12,7 @@ import no.uib.ii.algo.st8.algorithms.BalancedSeparatorInspector;
 import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
+import no.uib.ii.algo.st8.algorithms.Chordalization;
 import no.uib.ii.algo.st8.algorithms.ClawInspector;
 import no.uib.ii.algo.st8.algorithms.ClawInspector.ClawCollection;
 import no.uib.ii.algo.st8.algorithms.ConnectedFeedbackVertexSet;
@@ -455,6 +456,35 @@ public class GraphViewController {
 		clearAll();
 		redraw();
 		return SimplicialInspector.isChordal(graph);
+	}
+	
+	public void showChordalization() {
+		Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		AlgoWrapper<Set<DefaultEdge<DefaultVertex>>> wrapper = new AlgoWrapper<Set<DefaultEdge<DefaultVertex>>>(
+				activity, algo) {
+
+					@Override
+					protected String resultText(
+							Set<DefaultEdge<DefaultVertex>> result) {
+						clearAll();
+						String ret = "";
+						if(result == null) {
+							ret = "Could not compute minimum fill in";
+						}
+						else{
+							ret = "Minimum fill in of size " + result.size();
+							clearAll();
+							for(DefaultEdge<DefaultVertex> e:result){
+								markedEdges.add(e);
+							}
+						}
+						redraw();
+						return ret;
+					}
+			
+		};
+		wrapper.setTitle("Computing minimum fill in ...");
+		wrapper.execute();
 	}
 
 	public void showSteinerTree() {
