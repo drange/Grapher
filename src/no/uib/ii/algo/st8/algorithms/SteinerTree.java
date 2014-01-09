@@ -4,173 +4,215 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import no.uib.ii.algo.st8.util.PowersetIterator;
+
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 /**
- * @author Markus Sortland Dregi
- * 
+ * @author Johan Alexander Nordstrand Rusvik
  */
 public class SteinerTree<V, E> extends Algorithm<V, E, Collection<E>> {
+	
+	// The subset of vertices which is the goal to connect with as few edges as possible
+	private Set<V> terminals;
 
-	private final int[] terminals;
-	private final boolean[] isTerminal;
-	private final int[] terminalId;
+	// The 3D dynamic programming table
+	private int[][][] dp;
+	
+	// This integer generates a unique key for the dp table above which
+	// is mapped to a set of edges connecting the current disjunkt set
+	// including the current vertex on the edge budget, if such a connection exists.
+	private int dpKey;
+	
+	// Mapping a set of edges corresponding to an index in the dp table,
+	// to an unique integer
+	private Map<Integer, Set<E>> intToSubST;
+	
+	// A list containing the disjunkt sets, from smallest to largest
+	private List<Set<V>> disjunktSets;
 
-	private final int N;
-	private final int T;
+	// A list containing the vertices
+	private List<V> vertices;
 
-	private final boolean[][] touched;
-	private final boolean[][] gettingComputed;
-	private final int[][] solutionWeight;
+	// Mapping each disjunkt set to an unique integer and vice versa
+	private Map<Integer, Set<V>> intFindDisjunktSet;
+	private Map<Set<V>, Integer> disjunktSetFindInt;
 
-	private final HashMap<Integer, V> mapIdToVertex;
-	private final HashMap<V, Integer> mapVertexToId;
+	// Mapping each vertice to an unique integer and vice versa
+	private Map<Integer, V> intFindVertex;
+	private Map<V, Integer> vertexFindInt;
+
+	public SteinerTree(SimpleGraph<V, E> graph, Set<V> terminals) {
+		super(graph);
+		this.terminals = terminals;
+	}
 
 	@Override
 	public Collection<E> execute() {
-		SteinerTree<V, E> steinerTree = new SteinerTree<V, E>(graph, terminals);
-		return steinerTree.getSteinerTree();
+		if(terminals.size() == 1)
+			return new HashSet<E>();
+		init();
+		fillTable();
+		for (int k = 0; k <= graphEdgeSize(); k++) {
+			for (int i = 0; i < vertices.size(); i++) {
+				int edgeSetKey = dp[dp.length - 1][i][k];
+				if (edgeSetKey == 0)
+					continue;
+				Set<E> steinerTree = intToSubST.get(edgeSetKey);
+				System.out.println("Steiner Tree size: " + steinerTree.size());
+				return steinerTree;
+			}
+		}
+		return null;
 	}
 
-	public SteinerTree(SimpleGraph<V, E> graph, int[] terminals) {
-		super(graph);
-		mapIdToVertex = new HashMap<Integer, V>();
-		mapVertexToId = new HashMap<V, Integer>();
-		int counter = 0;
-		for (V v : graph.vertexSet()) {
-			mapIdToVertex.put(counter, v);
-			mapVertexToId.put(v, counter);
-			counter++;
-		}
+	private void fillTable() {
 
-		this.terminals = terminals;
-		this.N = getMaxId() + 1;
-		this.T = terminals.length;
-		// assert this.T <= 30;
-
-		this.touched = new boolean[1 << this.T][this.N];
-		this.gettingComputed = new boolean[1 << this.T][this.N];
-		this.solutionWeight = new int[1 << this.T][this.N];
-
-		this.isTerminal = new boolean[this.N];
-		this.terminalId = new int[this.N];
-		for (int id = 0; id < terminals.length; ++id) {
-			this.isTerminal[terminals[id]] = true;
-			this.terminalId[terminals[id]] = id;
-		}
-	}
-
-	private int compute(int s, int v) {
-		V sVertex = mapIdToVertex.get(s);
-		V vVertex = mapIdToVertex.get(v);
-
-		if (this.isTerminal[v] && (s & (1 << this.terminalId[v])) != 0) {
-			s ^= (1 << this.terminalId[v]);
-		}
-
-		if (s == 0) {
-			return 0;
-		}
-
-		if (!this.touched[s][v]) {
-			this.touched[s][v] = true;
-			this.gettingComputed[s][v] = true;
-
-			this.solutionWeight[s][v] = Integer.MAX_VALUE;
-			List<Integer> subsets = generateSubsets(s);
-			for (int subset : subsets) {
-				if (subset != s && s != 0) {
-					this.solutionWeight[s][v] = Math.min(
-							this.solutionWeight[s][v], compute(subset, v)
-									+ compute(s ^ subset, v));
+		// calculating k=1, consider only cases where the disjunkt sets have size 1 or 2
+		for (int i = 0; i < disjunktSets.size(); i++) {
+			if(disjunktSets.get(i).size() == 1) {
+				for(V vertex : disjunktSets.get(i)) { // there is only one vertex --> O(1)
+					for(int j = 0; j < vertices.size(); j++) {
+						for(E edge : graph.edgesOf(vertex)) {
+							if(opposite(graph, vertex, edge).equals(vertices.get(j))) {
+								Set<E> edgeSet = new HashSet<E>();
+								edgeSet.add(edge);
+								storeEdgeSet(edgeSet, i, j, 1);
+							}
+						}
+					}
 				}
 			}
-
-			for (V vNghbr : Neighbors.openNeighborhood(graph, vVertex)) {
-				int nghbr = mapVertexToId.get(vNghbr);
-				this.solutionWeight[s][v] = Math.min(this.solutionWeight[s][v],
-						compute(s, nghbr) + 1);
-				// replace 1 with cost(v, nghbr) if weighted
-			}
-
-			this.gettingComputed[s][v] = false;
-		}
-
-		return this.gettingComputed[s][v] ? 1 << 30 : this.solutionWeight[s][v];
-	}
-
-	private HashSet<E> constructSolution(int s, int v) {
-		V sVertex = mapIdToVertex.get(s);
-		V vVertex = mapIdToVertex.get(v);
-
-		for (V vNghbr : Neighbors.openNeighborhood(graph, vVertex)) {
-			int nghbr = mapVertexToId.get(vNghbr);
-			// replace 1 with cost for weighted graph
-			if (this.solutionWeight[s][nghbr] == this.solutionWeight[s][v] + 1) {
-				HashSet<E> solution = constructSolution(s, nghbr);
-				solution.add(graph.getEdge(vVertex, vNghbr));
-				return solution;
-			}
-		}
-
-		List<Integer> subsets = generateSubsets(s);
-		for (int subset : subsets) {
-			if (subset != 0
-					&& subset != s
-					&& this.solutionWeight[s][v] == this.solutionWeight[subset][v]
-							+ this.solutionWeight[s ^ subset][v]) {
-				HashSet<E> solution = constructSolution(subset, v);
-				solution.addAll(constructSolution(s ^ subset, v));
-				return solution;
+			else if(disjunktSets.get(i).size() == 2) {
+				Iterator<V> vertexIterator = disjunktSets.get(i).iterator();
+				V v1 = vertexIterator.next();
+				V v2 = vertexIterator.next();
+				for(int j = 0; j < vertices.size(); j++) {
+					V currVertex = vertices.get(j);
+					if(currVertex.equals(v1)) {
+						for(E edge : graph.edgesOf(currVertex)) {
+							if(opposite(graph, currVertex, edge).equals(v2)) {
+								Set<E> edgeSet = new HashSet<E>();
+								edgeSet.add(edge);
+								storeEdgeSet(edgeSet, i, j, 1);
+							}
+						}
+					}
+					else if(currVertex.equals(v2)) {
+						for(E edge : graph.edgesOf(currVertex)) {
+							if(opposite(graph, currVertex, edge).equals(v1)) {
+								Set<E> edgeSet = new HashSet<E>();
+								edgeSet.add(edge);
+								storeEdgeSet(edgeSet, i, j, 1);
+							}
+						}
+					}
+				}
 			}
 		}
 
-		throw new IllegalStateException(
-				"Something wrong happened when constructing the steiner tree.");
-	}
+		for (int k = 2; k <= graphEdgeSize(); k++) {
+			for (int i = 0; i < disjunktSets.size(); i++) {
+				for (int j = 0; j < vertices.size(); j++) {
+					boolean trySecond = true;
+					// 1st
+					for (E edge : graph.edgesOf(vertices.get(j))) {
+						int edgeSetKey = dp[i][vertexFindInt.get(opposite(graph, vertices.get(j), edge))][k - 1];
+						if (edgeSetKey == 0)
+							continue;
+						Set<E> prevIndex = intToSubST.get(edgeSetKey);
+						Set<E> newIndex = new HashSet<E>();
+						newIndex.addAll(prevIndex);
+						newIndex.add(edge);
+						storeEdgeSet(newIndex, i, j, k);
+						trySecond = false;
+						break;
+					}
 
-	private List<Integer> generateSubsets(int set) {
-		ArrayList<Integer> subsets = new ArrayList<Integer>();
-
-		subsets.add(0);
-		for (int i = 0; (1 << i) <= set; ++i) {
-			int oldSize = subsets.size();
-			for (int k = 0; k < oldSize; ++k) {
-				subsets.add((subsets.get(k) ^ (1 << i)));
+					if (!trySecond) {
+						continue;
+					}
+					// 2nd
+					boolean breakOut = false;
+					TwoPartitionsIterator<V> partitionsIterator = new TwoPartitionsIterator<V>(disjunktSets.get(i));
+					while (partitionsIterator.hasNext()) {
+						Set<V> t1 = collectionToSet(partitionsIterator.next());
+						Set<V> t2 = collectionToSet(partitionsIterator.currentSecondPart());
+						for (int l = k; l >= 0; l--) {
+							int t1Key = dp[disjunktSetFindInt.get(t1)][j][l];
+							if (t1Key == 0)
+								continue;
+							int t2Key = dp[disjunktSetFindInt.get(t2)][j][k - l];
+							if (t2Key == 0)
+								continue;
+							Set<E> newIndex = new HashSet<E>();
+							newIndex.addAll(intToSubST.get(t1Key));
+							newIndex.addAll(intToSubST.get(t2Key));
+							
+							storeEdgeSet(newIndex, i, j, k);
+							breakOut = true;
+							break;
+						}
+						if (breakOut)
+							break;
+					}
+				}
 			}
 		}
-
-		return subsets;
+	}
+	
+	private <V, E> V opposite(SimpleGraph<V, E> graph, V vertex, E edge) {
+		if (graph.getEdgeSource(edge).equals(vertex)) {
+			return graph.getEdgeTarget(edge);
+		}
+		return graph.getEdgeSource(edge);
+	}
+	
+	private void storeEdgeSet(Set<E> edgeSet, int disjunktSetIndex, int vertexIndex, int edgeBudget) {
+		dp[disjunktSetIndex][vertexIndex][edgeBudget] = dpKey;
+		intToSubST.put(dpKey++, edgeSet);
+	}
+	
+	private <T> Set<T> collectionToSet(Collection<T> collection) {
+		Set<T> newSet = new HashSet<T>();
+		newSet.addAll(collection);
+		return newSet;
 	}
 
-	private int getMaxId() {
-		int n = 0;
-		for (V vId : graph.vertexSet()) {
-			int id = mapVertexToId.get(vId);
-			if (id > n) {
-				n = id;
-			}
+	private void init() {
+		int numDisSets = PowersetIterator.twoPower(terminals.size());
+		
+		dp = new int[numDisSets][graphSize()][graphEdgeSize() + 1];
+		dpKey = 1;
+		
+		intToSubST = new HashMap<Integer, Set<E>>();
+
+		disjunktSets = new ArrayList<Set<V>>(numDisSets);
+		intFindDisjunktSet = new HashMap<Integer, Set<V>>();
+		disjunktSetFindInt = new HashMap<Set<V>, Integer>();
+		PowersetIterator<V> dts = new PowersetIterator<V>(terminals);
+		int disjunktSetsKey = 0;
+		while (dts.hasNext()) {
+			Set<V> disjunktSet = collectionToSet(dts.next());
+			disjunktSets.add(disjunktSet);
+			intFindDisjunktSet.put(disjunktSetsKey, disjunktSet);
+			disjunktSetFindInt.put(disjunktSet, disjunktSetsKey++);
 		}
 
-		return n;
-	}
-
-	private HashSet<E> getSteinerTree() {
-		System.out.println("Initializing steiner tree algorithm");
-		initialize();
-		System.out.println("Computing streiner tree");
-		compute((1 << this.T) - 1, this.terminals[0]);
-		System.out.println("Returning steiner tree");
-		return constructSolution((1 << this.T) - 1, this.terminals[0]);
-	}
-
-	private void initialize() {
-		for (int s = 0; s < this.touched.length; ++s) {
-			for (int v = 0; v < this.touched[s].length; ++v) {
-				this.touched[s][v] = false;
-			}
+		vertices = new ArrayList<V>(graphSize());
+		intFindVertex = new HashMap<Integer, V>();
+		vertexFindInt = new HashMap<V, Integer>();
+		int verticesKey = 0;
+		for (V v : graph.vertexSet()) {
+			vertices.add(v);
+			intFindVertex.put(verticesKey, v);
+			vertexFindInt.put(v, verticesKey++);
 		}
 	}
 }

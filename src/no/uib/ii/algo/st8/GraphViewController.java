@@ -491,8 +491,11 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultEdge<DefaultVertex>>> steinerAlgo;
 		AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>> algoWrapper;
 
+		final HashSet<DefaultVertex> selected = new HashSet<DefaultVertex>();
+		selected.addAll(userSelectedVertices);
+		
 		steinerAlgo = new SteinerTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph, null);
+				graph, userSelectedVertices);
 		algoWrapper = new AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>>(
 				activity, steinerAlgo) {
 
@@ -501,11 +504,14 @@ public class GraphViewController {
 					Collection<DefaultEdge<DefaultVertex>> result) {
 				clearAll();
 				if (result == null) {
-					return "No steiner tree";
+					return "Computation failed";
 				} else {
 					markedEdges.addAll(result);
+					userSelectedVertices.clear();
+					userSelectedVertices.addAll(selected);
+					
 					redraw();
-					return "Steiner tree highlighted";
+					return "Steiner tree on " + result.size() + " edges highlighted.";
 				}
 			}
 		};
