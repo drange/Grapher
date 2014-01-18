@@ -2,7 +2,6 @@ package no.uib.ii.algo.st8.algorithms;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.util.InducedSubgraph;
@@ -56,16 +55,21 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 		HashSet<V> vital = new HashSet<V>();
 		if (g.edgeSet().size() == 0) {
 			return g.vertexSet();
-		} else {
-			for (V lf : g.vertexSet()) {
-				if (g.degreeOf(lf) == 1) {
-					V lfn = Neighbors.getNeighbor(g, lf);
-					if (!vital.contains(lfn)) {
-						vital.add(lfn);
-					}
-				}
-			}
 		}
+
+		// TODO LEAFS
+
+		// else {
+		// for (V lf : g.vertexSet()) {
+		// if (g.degreeOf(lf) == 1) {
+		// V lfn = Neighbors.getNeighbor(g, lf);
+		// if (!vital.contains(lfn)) {
+		// vital.add(lfn);
+		// }
+		// }
+		// }
+		// }
+		//
 
 		for (int i = 0; i <= g.vertexSet().size(); i++) {
 			progress(i + totalDominated, graph.vertexSet().size());
@@ -85,62 +89,10 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 	/**
 	 * Returns a set
 	 */
-	private HashSet<V> compute(SimpleGraph<V, E> g, int k, HashSet<V> dominators) {
-		if (k < 0)
-			return null;
-		HashSet<V> dominated = new HashSet<V>();
-		dominated.addAll(Neighbors.closedNeighborhood(g, dominators));
-		HashSet<V> undom = new HashSet<V>();
-		for (V v : g.vertexSet()) {
-			if (!dominated.contains(v)) {
-				undom.add(v);
-			}
-		}
-		if (undom.size() == 0) {
-			return dominators;
-		}
-		if (k == 0 || cancelFlag) {
-			return null;
-		}
-
-		// for (V lf : g.vertexSet()) {
-		// if (g.degreeOf(lf) == 1) {
-		// V lfn = Neighbors.getNeighbor(g, lf);
-		// if (!vital.contains(lfn)) {
-		// vital.add(lfn);
-		// }
-		// }
-		// }
-
-		for (V v : undom) {
-			// put v to solution
-			dominators.add(v);
-			HashSet<V> sol1 = compute(g, k - 1, dominators);
-			if (sol1 != null)
-				return sol1;
-			dominators.remove(v);
-
-			List<V> lst = Neighbors.orderedOpenNeighborhood(g, v, true);
-
-			// TODO sort neighborhood by degree?
-			for (V neighbor : lst) {
-				dominators.add(neighbor);
-				HashSet<V> sol2 = compute(g, k - 1, dominators);
-				if (sol2 != null)
-					return sol2;
-				dominators.remove(neighbor);
-			}
-		}
-		return null;
-	}
-
-	/**
-	 * Returns a set
-	 */
 	private HashSet<V> redblue(SimpleGraph<V, E> g, int k, HashSet<V> dominated) {
 		if (k < 0)
 			return null;
-		if (dominated.size() == g.vertexSet().size())
+		if (dominated.containsAll(g.vertexSet()))
 			return new HashSet<V>(0);
 		if (k == 0 || cancelFlag) {
 			return null;
@@ -148,7 +100,7 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 
 		for (V v : g.vertexSet()) {
 			Collection<V> Nv = Neighbors.openNeighborhood(g, v);
-			Collection<V> N2v = Neighbors.openNeighborhood(g, Nv);
+			Collection<V> N2v = Neighbors.closedNeighborhood(g, Nv);
 			N2v.removeAll(Nv);
 			HashSet<V> n1 = new HashSet<V>();
 			for (V nv : Nv) {
@@ -166,18 +118,26 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 			Nv.removeAll(n1);
 			Nv.removeAll(n2);
 
+			// TODO never happens?
 			if (!Nv.isEmpty()) {
+				System.out.println(v + " is vital");
 				// v must be dominator
 				dominated.addAll(n1);
 				dominated.addAll(n2);
 				dominated.addAll(Nv);
 				g.removeVertex(v);
-				return redblue(g, k - 1, dominated);
+				HashSet<V> res = redblue(g, k - 1, dominated);
+				if (res == null)
+					return res;
+				res.add(v);
+				return res;
 			}
 		}
 
+		SimpleGraph<V, E> gclone = (SimpleGraph<V, E>) g.clone();
+
 		// branching
-		for (V v : g.vertexSet()) {
+		for (V v : gclone.vertexSet()) {
 			// put v to solution
 			Collection<V> nv = Neighbors.openNeighborhood(g, v);
 
@@ -187,9 +147,11 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 
 			g.removeVertex(v);
 
-			HashSet<V> sol1 = compute(g, k - 1, dominated);
-			if (sol1 != null)
+			HashSet<V> sol1 = redblue(g, k - 1, dominated);
+			if (sol1 != null) {
+				sol1.add(v);
 				return sol1;
+			}
 
 			dominated.clear();
 			dominated.addAll(oldDom);
@@ -202,9 +164,11 @@ public class RedBlueDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 				Collection<V> nv2 = Neighbors.openNeighborhood(g, neighbor);
 				g.removeVertex(neighbor);
 				dominated.addAll(nv2);
-				HashSet<V> sol2 = compute(g, k - 1, dominated);
-				if (sol2 != null)
+				HashSet<V> sol2 = redblue(g, k - 1, dominated);
+				if (sol2 != null) {
+					sol2.add(neighbor);
 					return sol2;
+				}
 
 				g.addVertex(neighbor);
 				for (V nnn : nv2)

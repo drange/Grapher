@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 
@@ -20,7 +19,7 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 
 	private NChooseKIterator<T> currentIterator;
 
-	public PowersetIterator(Set<T> input) {
+	public PowersetIterator(Collection<T> input) {
 		this.set = new ArrayList<T>(input.size());
 		this.set.addAll(input);
 		n = set.size();
@@ -39,12 +38,10 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException(
-				"Cannot remove a set using this iterator");
+		throw new UnsupportedOperationException("Cannot remove a set using this iterator");
 	}
 
-	public static class PowersetIteratorDescending<S> implements
-			Iterator<Collection<S>> {
+	public static class PowersetIteratorDescending<S> implements Iterator<Collection<S>> {
 
 		private final int n;
 		private int k = 0;
@@ -52,7 +49,7 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 
 		private NChooseKIterator<S> currentIterator;
 
-		public PowersetIteratorDescending(Set<S> input) {
+		public PowersetIteratorDescending(Collection<S> input) {
 			this.set = new ArrayList<S>(input.size());
 			this.set.addAll(input);
 			n = set.size();
@@ -72,8 +69,7 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 		}
 
 		public void remove() {
-			throw new UnsupportedOperationException(
-					"Cannot remove a set using this iterator");
+			throw new UnsupportedOperationException("Cannot remove a set using this iterator");
 		}
 	}
 
@@ -81,8 +77,7 @@ public class PowersetIterator<T> implements Iterator<Collection<T>> {
 		if (n > 31)
 			return -1;
 		if (n < 0)
-			throw new IllegalArgumentException(
-					"Undefined on negative numbers, " + n);
+			throw new IllegalArgumentException("Undefined on negative numbers, " + n);
 		if (n == 0)
 			return 1;
 		return 2 * twoPower(n - 1);

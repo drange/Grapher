@@ -1,6 +1,7 @@
 package no.uib.ii.algo.st8.algorithms;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -30,11 +31,15 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 	}
 
 	public Collection<V> execute() {
+		if (graph == null || graphSize() == 0)
+			return Collections.emptySet();
+		if (graphEdgeSize() == 0)
+			return graph.vertexSet();
+
 		Collection<V> solution = new HashSet<V>();
 		ConnectivityInspector<V, E> ci = new ConnectivityInspector<V, E>(graph);
 		for (Set<V> vertices : ci.connectedSets()) {
-			solution.addAll(execute(InducedSubgraph.inducedSubgraphOf(graph,
-					vertices)));
+			solution.addAll(execute(InducedSubgraph.inducedSubgraphOf(graph, vertices)));
 			if (cancelFlag)
 				return null;
 		}
@@ -44,8 +49,7 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 	public Collection<V> execute(SimpleGraph<V, E> cc) {
 		SimpleGraph<VertexDominated<V>, EdgeDominated> g = new SimpleGraph<VertexDominated<V>, EdgeDominated>(
 				new EdgeFactory<VertexDominated<V>, EdgeDominated>() {
-					public EdgeDominated createEdge(VertexDominated<V> arg0,
-							VertexDominated<V> arg1) {
+					public EdgeDominated createEdge(VertexDominated<V> arg0, VertexDominated<V> arg1) {
 						return new EdgeDominated();
 					}
 				});
@@ -59,12 +63,10 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 		}
 
 		for (E e : cc.edgeSet()) {
-			g.addEdge(map.get(cc.getEdgeSource(e)),
-					map.get(cc.getEdgeTarget(e)), new EdgeDominated());
+			g.addEdge(map.get(cc.getEdgeSource(e)), map.get(cc.getEdgeTarget(e)), new EdgeDominated());
 		}
 
-		PowersetIterator<VertexDominated<V>> pi = new PowersetIterator<VertexDominated<V>>(
-				g.vertexSet());
+		PowersetIterator<VertexDominated<V>> pi = new PowersetIterator<VertexDominated<V>>(g.vertexSet());
 		Collection<VertexDominated<V>> domset = null;
 
 		progress(0, cc.vertexSet().size()); // TODO doesn't work on >1 #cc
@@ -96,17 +98,14 @@ public class ExactDominatingSet<V, E> extends Algorithm<V, E, Collection<V>> {
 		return res;
 	}
 
-	private boolean isDominatingSet(
-			SimpleGraph<VertexDominated<V>, EdgeDominated> graph,
-			Collection<VertexDominated<V>> set) {
+	private boolean isDominatingSet(SimpleGraph<VertexDominated<V>, EdgeDominated> graph, Collection<VertexDominated<V>> set) {
 		for (VertexDominated<V> v : graph.vertexSet()) {
 			v.dominated = false;
 		}
 
 		for (VertexDominated<V> dominator : set) {
 			dominator.dominated = true;
-			for (VertexDominated<V> other : Neighbors.openNeighborhood(graph,
-					dominator)) {
+			for (VertexDominated<V> other : Neighbors.openNeighborhood(graph, dominator)) {
 				other.dominated = true;
 			}
 		}
