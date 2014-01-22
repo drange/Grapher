@@ -475,6 +475,7 @@ public class GraphViewController {
 	}
 
 	public void showSteinerTree() {
+
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultEdge<DefaultVertex>>> steinerAlgo;
 		AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>> algoWrapper;
 
@@ -486,6 +487,8 @@ public class GraphViewController {
 
 			@Override
 			protected String resultText(Collection<DefaultEdge<DefaultVertex>> result) {
+				if (selected.isEmpty())
+					return "Terminal set cannot be empty.";
 				clearAll();
 				if (result == null) {
 					if (!SteinerTree.areTerminalsConnected(graph, selected)) {
