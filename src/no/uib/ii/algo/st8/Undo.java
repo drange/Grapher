@@ -3,9 +3,9 @@ package no.uib.ii.algo.st8;
 import java.util.ArrayList;
 import java.util.Stack;
 
-import no.uib.ii.algo.st8.algorithms.Neighbors;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultVertex;
+import no.uib.ii.algo.st8.util.Neighbors;
 
 import org.jgrapht.graph.SimpleGraph;
 

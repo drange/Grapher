@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.util.InducedSubgraph;
+import no.uib.ii.algo.st8.util.Neighbors;
 import no.uib.ii.algo.st8.util.PowersetIterator;
 
 import org.jgrapht.EdgeFactory;

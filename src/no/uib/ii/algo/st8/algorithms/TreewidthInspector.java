@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+import no.uib.ii.algo.st8.util.Neighbors;
+
 import org.jgrapht.graph.SimpleGraph;
 
 import android.annotation.SuppressLint;

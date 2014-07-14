@@ -5,6 +5,7 @@ import java.util.HashMap;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.util.Coordinate;
+import no.uib.ii.algo.st8.util.Neighbors;
 
 import org.jgrapht.graph.SimpleGraph;
 

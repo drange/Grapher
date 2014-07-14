@@ -2,6 +2,8 @@ package no.uib.ii.algo.st8.algorithms;
 
 import java.util.Set;
 
+import no.uib.ii.algo.st8.util.Neighbors;
+
 import org.jgrapht.graph.SimpleGraph;
 
 public class PowerGraph {

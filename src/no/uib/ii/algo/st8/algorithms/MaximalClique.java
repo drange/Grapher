@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 
+import no.uib.ii.algo.st8.util.Neighbors;
+
 import org.jgrapht.graph.SimpleGraph;
 
 /**

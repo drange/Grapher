@@ -1,4 +1,4 @@
-package no.uib.ii.algo.st8.algorithms;
+package no.uib.ii.algo.st8.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,7 +89,7 @@ public class Neighbors {
 		return set;
 	}
 
-	private static <V, E> V opposite(SimpleGraph<V, E> graph, V vertex, E edge) {
+	public static <V, E> V opposite(SimpleGraph<V, E> graph, V vertex, E edge) {
 		if (graph.getEdgeSource(edge).equals(vertex)) {
 			return graph.getEdgeTarget(edge);
 		}

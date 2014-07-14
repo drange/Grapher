@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import no.uib.ii.algo.st8.util.Neighbors;
+
 import org.jgrapht.graph.SimpleGraph;
 
 public class CycleInspector {
