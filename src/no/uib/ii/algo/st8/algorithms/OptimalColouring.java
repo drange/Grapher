@@ -17,7 +17,7 @@ import org.jgrapht.graph.SimpleGraph;
  * The main purpose is to return a set of sets,
  * where each set can be assigned
  * a separate colour.
- * @author Håvard Haug
+ * @author Hï¿½vard Haug
  *
  * @param <V> node type
  * @param <E> edge type
@@ -61,19 +61,8 @@ public class OptimalColouring<V,E> extends Algorithm<V,E,Set<Set<V>>>{
 			divisions.add(graph.vertexSet());
 			return divisions;
 		}
-		//if k = 2, use bipartite as it is much faster
-		if(k == 2){
-			Set<V> half;
-			half = BipartiteInspector.getBipartition(
-			graph);
-			graph.vertexSet().removeAll(half);
-			Set<V> otherHalf = graph.vertexSet();
-			divisions.add(half);
-			divisions.add(otherHalf);
-			return divisions;
-		}
 		/*
-		 * For k > 2 use the following strategy: 
+		 * For k >= 2 use the following strategy: 
 		 * choose a vertex v, make it universal in the graph.
 		 * Let k be the old chromatic number, 
 		 * k' the chromatic number of the edited graph.
