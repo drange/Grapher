@@ -328,6 +328,10 @@ public class Workspace extends Activity implements OnClickListener,
 			controller.showMaximumClique();
 			return true;
 
+		case R.id.compute_minimal_triangulation:
+			controller.minimalTriangulation();
+			return true;
+				
 		case R.id.compute_steiner_tree:
 			controller.showSteinerTree();
 			return true;

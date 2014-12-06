@@ -34,6 +34,7 @@ import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
 import no.uib.ii.algo.st8.algorithms.HamiltonianPathInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
+import no.uib.ii.algo.st8.algorithms.MinimalTriangulation;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
 import no.uib.ii.algo.st8.algorithms.OptimalColouring;
 import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
@@ -400,6 +401,35 @@ public class GraphViewController {
 	}
 
 
+	public void minimalTriangulation(){
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<DefaultEdge<DefaultVertex>>> minTri;
+		AlgoWrapper<Set<DefaultEdge<DefaultVertex>>> algoWrapper;
+		
+		minTri = new MinimalTriangulation<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Set<DefaultEdge<DefaultVertex>>>(activity, minTri){
+			
+			@Override
+			protected String resultText(Set<DefaultEdge<DefaultVertex>> result){
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Could not compute minimal fill in";
+				} else {
+					ret = "Minimum fill in of size " + result.size();
+					markedEdges.addAll(result);
+					for(DefaultEdge<DefaultVertex> e : result)
+						graphWithMemory.addEdge(e);
+				}
+				redraw();
+				return ret;
+			}
+		};
+		
+		algoWrapper.setTitle("Computing minmal triangulation");
+		algoWrapper.execute();
+		
+		
+	}
 
 	public void chromaticNumber(){
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Integer> chromaticAlgo;
@@ -418,6 +448,7 @@ public class GraphViewController {
 		algoWrapper.execute();		
 	}
 
+	
 	public void showColouring(){
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<Set<DefaultVertex>>> colouring;
 		AlgoWrapper<Set<Set<DefaultVertex>>> algoWrapper;
