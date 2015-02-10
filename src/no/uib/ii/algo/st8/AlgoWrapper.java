@@ -18,8 +18,7 @@ import android.os.AsyncTask;
  * @param <Result>
  *            the return type of the <code>Algorithm</code>
  */
-public abstract class AlgoWrapper<Result> extends
-		AsyncTask<Void, Integer, Result> implements ProgressListener {
+public abstract class AlgoWrapper<Result> extends AsyncTask<Void, Integer, Result> implements ProgressListener {
 	protected final Workspace activity;
 	protected final ProgressDialog pDialog;
 	protected final Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Result> algorithm;
@@ -36,7 +35,6 @@ public abstract class AlgoWrapper<Result> extends
 
 	@Override
 	protected void onPreExecute() {
-		System.gc(); // TODO REMOVE!!!
 		pDialog.setOnCancelListener(new OnCancelListener() {
 
 			@Override
@@ -65,7 +63,6 @@ public abstract class AlgoWrapper<Result> extends
 
 	@Override
 	protected void onCancelled() {
-		System.gc(); // TODO REMOVE!!!
 		pDialog.cancel();
 		GraphViewController.time(false);
 	}
@@ -110,14 +107,13 @@ public abstract class AlgoWrapper<Result> extends
 		pDialog.setIndeterminate(false);
 		pDialog.setCancelable(false);
 		pDialog.setTitle("Computing...");
-		pDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel",
-				new OnClickListener() {
+		pDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "Cancel", new OnClickListener() {
 
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						pDialog.cancel();
-					}
-				});
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				pDialog.cancel();
+			}
+		});
 	}
 
 	/**
@@ -130,15 +126,12 @@ public abstract class AlgoWrapper<Result> extends
 	 * @param algorithm
 	 *            the algorithm this object is wrapping
 	 */
-	public AlgoWrapper(
-			Workspace activity,
-			Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Result> algorithm) {
+	public AlgoWrapper(Workspace activity, Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Result> algorithm) {
 		this.activity = activity;
 		this.algorithm = algorithm;
 		this.pDialog = new ProgressDialog(activity);
 		this.algorithm.setProgressListener(this);
 		setUpProgressDialog();
-		System.gc(); // TODO REMOVE!!!
 	}
 
 	/**
@@ -153,18 +146,14 @@ public abstract class AlgoWrapper<Result> extends
 	 * @param progressTitle
 	 *            the title text of the progress dialog
 	 */
-	public AlgoWrapper(
-			Workspace activity,
-			Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Result> algorithm,
+	public AlgoWrapper(Workspace activity, Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Result> algorithm,
 			String progressTitle) {
 		this(activity, algorithm);
 		pDialog.setTitle(progressTitle);
-		System.gc(); // TODO REMOVE!!!
 	}
 
 	@Override
 	protected Result doInBackground(Void... params) {
-		System.gc(); // TODO REMOVE!!!
 		GraphViewController.time(true);
 		return algorithm.execute();
 	}

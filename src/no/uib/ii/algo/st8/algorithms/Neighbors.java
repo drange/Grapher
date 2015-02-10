@@ -12,8 +12,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class Neighbors {
 
-	public static <V, E> Set<V> closedNNeighborhood(SimpleGraph<V, E> graph,
-			V vertex, int n) {
+	public static <V, E> Set<V> closedNNeighborhood(SimpleGraph<V, E> graph, V vertex, int n) {
 		Set<V> neighbors = new HashSet<V>(graph.degreeOf(vertex));
 		neighbors.add(vertex);
 		for (int i = 0; i < n; i++) {
@@ -26,8 +25,7 @@ public class Neighbors {
 		return neighbors;
 	}
 
-	public static <V, E> Set<V> openNNeighborhood(SimpleGraph<V, E> graph,
-			V vertex, int n) {
+	public static <V, E> Set<V> openNNeighborhood(SimpleGraph<V, E> graph, V vertex, int n) {
 		Set<V> neighbors = new HashSet<V>(graph.degreeOf(vertex));
 		neighbors.add(vertex);
 		for (int i = 0; i < n; i++) {
@@ -41,8 +39,7 @@ public class Neighbors {
 		return neighbors;
 	}
 
-	public static <V, E> Set<V> openNeighborhood(SimpleGraph<V, E> graph,
-			V vertex) {
+	public static <V, E> Set<V> openNeighborhood(SimpleGraph<V, E> graph, V vertex) {
 		Set<V> set = new HashSet<V>(graph.degreeOf(vertex));
 		for (E edge : graph.edgesOf(vertex)) {
 			set.add(opposite(graph, vertex, edge));
@@ -57,8 +54,7 @@ public class Neighbors {
 		return null;
 	}
 
-	public static <V, E> Collection<V> openNeighborhood(
-			SimpleGraph<V, E> graph, Collection<V> vertices) {
+	public static <V, E> Collection<V> openNeighborhood(SimpleGraph<V, E> graph, Collection<V> vertices) {
 		Set<V> set = new HashSet<V>(graph.vertexSet().size());
 		for (V vertex : vertices) {
 			for (E edge : graph.edgesOf(vertex)) {
@@ -71,8 +67,7 @@ public class Neighbors {
 		return set;
 	}
 
-	public static <V, E> Collection<V> closedNeighborhood(
-			SimpleGraph<V, E> graph, Collection<V> vertices) {
+	public static <V, E> Collection<V> closedNeighborhood(SimpleGraph<V, E> graph, Collection<V> vertices) {
 		Set<V> set = new HashSet<V>(graph.vertexSet().size());
 		for (V vertex : vertices) {
 			set.add(vertex);
@@ -84,8 +79,7 @@ public class Neighbors {
 		return set;
 	}
 
-	public static <V, E> Collection<V> closedNeighborhood(
-			SimpleGraph<V, E> graph, V vertex) {
+	public static <V, E> Collection<V> closedNeighborhood(SimpleGraph<V, E> graph, V vertex) {
 		Set<V> set = new HashSet<V>(graph.vertexSet().size());
 		set.add(vertex);
 		for (E edge : graph.edgesOf(vertex)) {
@@ -102,12 +96,21 @@ public class Neighbors {
 		return graph.getEdgeSource(edge);
 	}
 
+	public static <V, E> boolean isIncident(SimpleGraph<V, E> graph, V vertex, E edge) {
+		return vertex.equals(graph.getEdgeSource(edge)) || vertex.equals(graph.getEdgeTarget(edge));
+	}
+
+	public static <V, E> boolean isIncidentEdge(SimpleGraph<V, E> graph, E edge1, E edge2) {
+		V v11 = graph.getEdgeSource(edge1);
+		V v12 = graph.getEdgeTarget(edge1);
+		return isIncident(graph, v11, edge2) || isIncident(graph, v12, edge2);
+	}
+
 	/**
 	 * 
 	 * Ordered descending degree.
 	 */
-	public static <V, E> List<V> orderedOpenNeighborhood(
-			final SimpleGraph<V, E> graph, V vertex, final boolean descending) {
+	public static <V, E> List<V> orderedOpenNeighborhood(final SimpleGraph<V, E> graph, V vertex, final boolean descending) {
 		Collection<V> neighborhood = openNeighborhood(graph, vertex);
 		ArrayList<V> list = new ArrayList<V>(neighborhood.size());
 		list.addAll(neighborhood);

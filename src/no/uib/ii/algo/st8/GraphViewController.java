@@ -107,8 +107,7 @@ public class GraphViewController {
 	public boolean toggleEdgeDraw() {
 		EDGE_DRAW_MODE = !EDGE_DRAW_MODE;
 
-		activity.shortToast(EDGE_DRAW_MODE ? "Draw edges."
-				: "Tap to create vertices.");
+		activity.shortToast(EDGE_DRAW_MODE ? "Draw edges." : "Tap to create vertices.");
 
 		clearAll();
 		redraw();
@@ -127,11 +126,9 @@ public class GraphViewController {
 
 	public GraphViewController(Workspace activity, int width, int height) {
 		this.activity = activity;
-		vibrator = (Vibrator) activity
-				.getSystemService(Context.VIBRATOR_SERVICE);
+		vibrator = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
 
-		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				new DefaultEdgeFactory<DefaultVertex>());
+		graph = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(new DefaultEdgeFactory<DefaultVertex>());
 
 		this.graphWithMemory = new Undo(graph);
 
@@ -264,8 +261,7 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Integer> algorithm;
 		AlgoWrapper<Integer> algoWrapper;
 
-		algorithm = new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
+		algorithm = new TreewidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
 		algoWrapper = new AlgoWrapper<Integer>(activity, algorithm) {
 
 			@Override
@@ -300,8 +296,7 @@ public class GraphViewController {
 	 * 
 	 */
 	public void invertSelectedVertices() {
-		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph
-				.vertexSet().size());
+		Set<DefaultVertex> select = new HashSet<DefaultVertex>(graph.vertexSet().size());
 		for (DefaultVertex v : graph.vertexSet()) {
 			if (!userSelectedVertices.contains(v)) {
 				select.add(v);
@@ -320,10 +315,8 @@ public class GraphViewController {
 	 * @return
 	 */
 	public Set<DefaultVertex> selectAllReachableVertices() {
-		Set<DefaultVertex> reachable = new HashSet<DefaultVertex>(graph
-				.vertexSet().size());
-		Set<DefaultVertex> userselect = new HashSet<DefaultVertex>(
-				userSelectedVertices);
+		Set<DefaultVertex> reachable = new HashSet<DefaultVertex>(graph.vertexSet().size());
+		Set<DefaultVertex> userselect = new HashSet<DefaultVertex>(userSelectedVertices);
 		reachable.addAll(userSelectedVertices);
 		clearAll();
 		ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>> ci = new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
@@ -358,8 +351,7 @@ public class GraphViewController {
 		if (userSelectedVertices == null || userSelectedVertices.size() == 0)
 			return;
 
-		ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph
-				.vertexSet().size());
+		ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph.vertexSet().size());
 		vertices.addAll(userSelectedVertices);
 
 		for (int i = 0; i < vertices.size(); i++) {
@@ -410,10 +402,8 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> perfectCodeAlgo;
 		AlgoWrapper<Collection<DefaultVertex>> algoWrapper;
 
-		perfectCodeAlgo = new PerfectCodeInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
-		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity,
-				perfectCodeAlgo) {
+		perfectCodeAlgo = new PerfectCodeInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity, perfectCodeAlgo) {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -437,8 +427,7 @@ public class GraphViewController {
 	 */
 	public int showSimplicialVertices() {
 		time(true);
-		Collection<DefaultVertex> simplicials = SimplicialInspector
-				.getSimplicialVertices(graph);
+		Collection<DefaultVertex> simplicials = SimplicialInspector.getSimplicialVertices(graph);
 		time(false);
 
 		clearAll();
@@ -457,55 +446,62 @@ public class GraphViewController {
 		redraw();
 		return SimplicialInspector.isChordal(graph);
 	}
-	
-	public void showChordalization() {
-		Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
-		AlgoWrapper<Set<DefaultEdge<DefaultVertex>>> wrapper = new AlgoWrapper<Set<DefaultEdge<DefaultVertex>>>(
-				activity, algo) {
 
-					@Override
-					protected String resultText(
-							Set<DefaultEdge<DefaultVertex>> result) {
-						clearAll();
-						String ret = "";
-						if(result == null) {
-							ret = "Could not compute minimum fill in";
-						}
-						else{
-							ret = "Minimum fill in of size " + result.size();
-							clearAll();
-							for(DefaultEdge<DefaultVertex> e:result){
-								markedEdges.add(e);
-							}
-						}
-						redraw();
-						return ret;
+	public void showChordalization() {
+		Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new Chordalization<DefaultVertex, DefaultEdge<DefaultVertex>>(
+				graph);
+		AlgoWrapper<Set<DefaultEdge<DefaultVertex>>> wrapper = new AlgoWrapper<Set<DefaultEdge<DefaultVertex>>>(activity, algo) {
+
+			@Override
+			protected String resultText(Set<DefaultEdge<DefaultVertex>> result) {
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Could not compute minimum fill in";
+				} else {
+					ret = "Minimum fill in of size " + result.size();
+					clearAll();
+					for (DefaultEdge<DefaultVertex> e : result) {
+						markedEdges.add(e);
 					}
-			
+				}
+				redraw();
+				return ret;
+			}
+
 		};
 		wrapper.setTitle("Computing minimum fill in ...");
 		wrapper.execute();
 	}
 
 	public void showSteinerTree() {
+
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultEdge<DefaultVertex>>> steinerAlgo;
 		AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>> algoWrapper;
 
-		steinerAlgo = new SteinerTree<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph, null);
-		algoWrapper = new AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>>(
-				activity, steinerAlgo) {
+		final HashSet<DefaultVertex> selected = new HashSet<DefaultVertex>();
+		selected.addAll(userSelectedVertices);
+
+		steinerAlgo = new SteinerTree<DefaultVertex, DefaultEdge<DefaultVertex>>(graph, userSelectedVertices);
+		algoWrapper = new AlgoWrapper<Collection<DefaultEdge<DefaultVertex>>>(activity, steinerAlgo) {
 
 			@Override
-			protected String resultText(
-					Collection<DefaultEdge<DefaultVertex>> result) {
+			protected String resultText(Collection<DefaultEdge<DefaultVertex>> result) {
+				if (selected.isEmpty())
+					return "Terminal set cannot be empty.";
 				clearAll();
 				if (result == null) {
-					return "No steiner tree";
+					if (!SteinerTree.areTerminalsConnected(graph, selected)) {
+						return "Terminals are not connected";
+					}
+					return "Computation aborted";
 				} else {
 					markedEdges.addAll(result);
+					userSelectedVertices.clear();
+					userSelectedVertices.addAll(selected);
+
 					redraw();
-					return "Steiner tree highlighted";
+					return "Steiner tree on " + result.size() + " edges highlighted.";
 				}
 			}
 		};
@@ -517,14 +513,11 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> hamPathAlgo;
 		AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> algoWrapper;
 
-		hamPathAlgo = new HamiltonianPathInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
-		algoWrapper = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(
-				activity, hamPathAlgo) {
+		hamPathAlgo = new HamiltonianPathInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(activity, hamPathAlgo) {
 
 			@Override
-			protected String resultText(
-					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+			protected String resultText(GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
 				clearAll();
 				if (result == null) {
 					return "No hamiltonian path";
@@ -543,14 +536,11 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> hamcyc;
 		AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>> alg;
 
-		hamcyc = new HamiltonianCycleInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph);
-		alg = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(
-				activity, hamcyc) {
+		hamcyc = new HamiltonianCycleInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		alg = new AlgoWrapper<GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>>>(activity, hamcyc) {
 
 			@Override
-			protected String resultText(
-					GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+			protected String resultText(GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
 				clearAll();
 				if (result == null) {
 					redraw();
@@ -580,8 +570,7 @@ public class GraphViewController {
 		DefaultVertex s = ite.next();
 		DefaultVertex t = ite.next();
 
-		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).pathExists(s, t)) {
+		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph).pathExists(s, t)) {
 			return 0;
 		}
 
@@ -590,10 +579,8 @@ public class GraphViewController {
 		DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>> dp = new DijkstraShortestPath<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph, s, t);
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> path = dp
-				.getPath();
-		if (path == null || path.getEdgeList() == null
-				|| path.getEdgeList().size() == 0)
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> path = dp.getPath();
+		if (path == null || path.getEdgeList() == null || path.getEdgeList().size() == 0)
 			return 0;
 
 		highlightPath(path);
@@ -611,8 +598,7 @@ public class GraphViewController {
 		DefaultVertex s = ite.next();
 		DefaultVertex t = ite.next();
 
-		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
-				graph).pathExists(s, t)) {
+		if (!new ConnectivityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph).pathExists(s, t)) {
 			clearAll();
 			redraw();
 			return 0;
@@ -620,8 +606,7 @@ public class GraphViewController {
 
 		clearAll();
 
-		Pair<Integer, Collection<DefaultEdge<DefaultVertex>>> flow = FlowInspector
-				.findFlow(graph, s, t);
+		Pair<Integer, Collection<DefaultEdge<DefaultVertex>>> flow = FlowInspector.findFlow(graph, s, t);
 
 		Collection<DefaultEdge<DefaultVertex>> edges = flow.second;
 
@@ -635,8 +620,7 @@ public class GraphViewController {
 	}
 
 	public void constructPower() {
-		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph
-				.constructPowerGraph(graph);
+		SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> power = PowerGraph.constructPowerGraph(graph);
 		for (DefaultEdge<DefaultVertex> edge : power.edgeSet()) {
 			DefaultVertex a = power.getEdgeSource(edge);
 			DefaultVertex b = power.getEdgeTarget(edge);
@@ -651,8 +635,7 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void highlightPath(
-			GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
+	private void highlightPath(GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp) {
 		for (DefaultEdge<DefaultVertex> e : gp.getEdgeList()) {
 			markedEdges.add(e);
 			highlightedVertices.add(e.getSource());
@@ -665,8 +648,7 @@ public class GraphViewController {
 	 * 
 	 * @param gp
 	 */
-	private void highlightGraph(
-			SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> h) {
+	private void highlightGraph(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> h) {
 		for (DefaultEdge<DefaultVertex> e : h.edgeSet()) {
 			DefaultVertex v = e.getSource();
 			DefaultVertex u = e.getTarget();
@@ -704,8 +686,7 @@ public class GraphViewController {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> balsam = new BalancedSeparatorInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
 
-		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity,
-				balsam) {
+		algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity, balsam) {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -732,8 +713,7 @@ public class GraphViewController {
 	public int diameter() {
 		clearAll();
 
-		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector
-				.diameterPath(graph);
+		GraphPath<DefaultVertex, DefaultEdge<DefaultVertex>> gp = DiameterInspector.diameterPath(graph);
 
 		if (gp == null || gp.getEdgeList() == null)
 			return -1;
@@ -811,8 +791,7 @@ public class GraphViewController {
 	 */
 	public int showAllCutVertices() {
 		clearAll();
-		Set<DefaultVertex> cuts = CutAndBridgeInspector
-				.findAllCutVertices(graph);
+		Set<DefaultVertex> cuts = CutAndBridgeInspector.findAllCutVertices(graph);
 		highlightedVertices.addAll(cuts);
 		redraw();
 		return cuts.size();
@@ -844,8 +823,7 @@ public class GraphViewController {
 	 */
 	public int showAllBridges() {
 		clearAll();
-		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector
-				.findAllBridges(graph);
+		Set<DefaultEdge<DefaultVertex>> bridges = CutAndBridgeInspector.findAllBridges(graph);
 		markedEdges.addAll(bridges);
 		return bridges.size();
 	}
@@ -867,8 +845,7 @@ public class GraphViewController {
 				x += v.getCoordinate().getX();
 				y += v.getCoordinate().getY();
 			}
-			pos = new Coordinate(x / deg + USER_MISS_RADIUS, y / deg
-					+ USER_MISS_RADIUS);
+			pos = new Coordinate(x / deg + USER_MISS_RADIUS, y / deg + USER_MISS_RADIUS);
 		}
 
 		DefaultVertex universal = new DefaultVertex(pos);
@@ -896,8 +873,7 @@ public class GraphViewController {
 	 *            vertex u
 	 * @return returns the edge if it is added, null if it is removed
 	 */
-	private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v,
-			DefaultVertex u) {
+	private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v, DefaultVertex u) {
 		DefaultEdge<DefaultVertex> edge = null;
 
 		if (graph.containsEdge(v, u)) {
@@ -927,8 +903,8 @@ public class GraphViewController {
 	public void showRegularityDeletionSet() {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new RegularityInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo, "Regularity Deletion Set") {
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo,
+				"Regularity Deletion Set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -949,8 +925,8 @@ public class GraphViewController {
 	public void showOddCycleTransversal() {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new OddCycleTransversal<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo, "Odd cycle transveral") {
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo,
+				"Odd cycle transveral") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -971,8 +947,8 @@ public class GraphViewController {
 	public void showFeedbackVertexSet() {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new FeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo, "Feedback vertex set") {
+		AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo,
+				"Feedback vertex set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -993,8 +969,8 @@ public class GraphViewController {
 	public void showConnectedFeedbackVertexSet() {
 		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> cfvs = new ConnectedFeedbackVertexSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, cfvs, "Connected feedback vertex set") {
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(activity, cfvs,
+				"Connected feedback vertex set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -1019,8 +995,7 @@ public class GraphViewController {
 	public void showVertexCover() {
 		ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo) {
+		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo) {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -1054,15 +1029,13 @@ public class GraphViewController {
 		AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>> algo = new AlgoWrapper<SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>>(
 				activity, cvc) {
 			@Override
-			protected String resultText(
-					SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
+			protected String resultText(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> result) {
 				clearAll();
 				String ret = "";
 				if (result == null) {
 					ret = "Graph was disconnected, no connected vertex cover exists.";
 				} else {
-					ret = "Connected vertex cover of size "
-							+ result.vertexSet().size();
+					ret = "Connected vertex cover of size " + result.vertexSet().size();
 					highlightGraph(result);
 				}
 				redraw();
@@ -1076,8 +1049,7 @@ public class GraphViewController {
 	public void showMaximumIndependentSet() {
 		ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>> algo = new ExactVertexCover<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, algo) {
+		AlgoWrapper<Collection<DefaultVertex>> wrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo) {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -1086,8 +1058,7 @@ public class GraphViewController {
 				if (result == null) {
 					ret = "Could not compute maximum independent set.";
 				} else {
-					ret = "Maximum independent set of size "
-							+ (graph.vertexSet().size() - result.size());
+					ret = "Maximum independent set of size " + (graph.vertexSet().size() - result.size());
 					clearAll();
 					highlightedVertices.addAll(graph.vertexSet());
 					highlightedVertices.removeAll(result);
@@ -1102,13 +1073,12 @@ public class GraphViewController {
 	}
 
 	public void showMaximumClique() {
-		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<DefaultVertex>> algorithm = new MaximalClique<DefaultVertex, DefaultEdge<DefaultVertex>>(
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algorithm = new MaximalClique<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Set<DefaultVertex>> algoWrapper = new AlgoWrapper<Set<DefaultVertex>>(
-				activity, algorithm) {
+		AlgoWrapper<Collection<DefaultVertex>> algoWrapper = new AlgoWrapper<Collection<DefaultVertex>>(activity, algorithm) {
 
 			@Override
-			protected String resultText(Set<DefaultVertex> result) {
+			protected String resultText(Collection<DefaultVertex> result) {
 				clearAll();
 				highlightedVertices.addAll(result);
 				redraw();
@@ -1122,8 +1092,7 @@ public class GraphViewController {
 	public void showDominatingSet() {
 		ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>> eds = new ExactDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, eds, "Dominating set") {
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(activity, eds, "Dominating set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -1140,8 +1109,7 @@ public class GraphViewController {
 	public void showRedBlueDominatingSet() {
 		RedBlueDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>> eds = new RedBlueDominatingSet<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(
-				activity, eds, "Dominating set") {
+		AlgoWrapper<Collection<DefaultVertex>> algo = new AlgoWrapper<Collection<DefaultVertex>>(activity, eds, "Dominating set") {
 
 			@Override
 			protected String resultText(Collection<DefaultVertex> result) {
@@ -1170,8 +1138,7 @@ public class GraphViewController {
 	public void computeBandwidth() {
 		BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>> bwalgo = new BandwidthInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(
 				graph);
-		AlgoWrapper<Integer> algo = new AlgoWrapper<Integer>(activity, bwalgo,
-				"Bandwidth") {
+		AlgoWrapper<Integer> algo = new AlgoWrapper<Integer>(activity, bwalgo, "Bandwidth") {
 
 			@Override
 			protected String resultText(Integer result) {
@@ -1192,16 +1159,14 @@ public class GraphViewController {
 		if (center == null)
 			return;
 		Matrix transformMatrix = view.getTransformMatrix();
-		Coordinate moveVector = center.getCoordinate().moveVector(
-				CENTER_COORDINATE);
+		Coordinate moveVector = center.getCoordinate().moveVector(CENTER_COORDINATE);
 		transformMatrix.postTranslate(moveVector.getX(), moveVector.getY());
 		redraw();
 		return;
 	}
 
 	public int showClawDeletion() {
-		Collection<DefaultEdge<DefaultVertex>> edges = ClawInspector
-				.minimalClawDeletionSet(graph);
+		Collection<DefaultEdge<DefaultVertex>> edges = ClawInspector.minimalClawDeletionSet(graph);
 		clearAll();
 		if (edges != null) {
 			markedEdges.addAll(edges);
@@ -1223,8 +1188,7 @@ public class GraphViewController {
 	}
 
 	public int showAllCycle4() {
-		Collection<List<DefaultVertex>> cycles = CycleInspector
-				.findAllC4(graph);
+		Collection<List<DefaultVertex>> cycles = CycleInspector.findAllC4(graph);
 		clearAll();
 		for (List<DefaultVertex> cycle : cycles) {
 			for (int i = 0; i < cycle.size(); i++) {
@@ -1236,8 +1200,7 @@ public class GraphViewController {
 					DefaultEdge<DefaultVertex> e = graph.getEdge(v, u);
 					markedEdges.add(e);
 				} else {
-					System.err.println("Strange, lacks edge for v=" + v
-							+ ", u=" + u);
+					System.err.println("Strange, lacks edge for v=" + v + ", u=" + u);
 					System.err.println(cycle);
 				}
 			}
@@ -1266,8 +1229,7 @@ public class GraphViewController {
 		}
 
 		for (DefaultVertex v : graph.vertexSet()) {
-			v.setColor(EDGE_DRAW_MODE ? DEFAULT_VERTEX_COLOR
-					: TOUCHED_VERTEX_COLOR);
+			v.setColor(EDGE_DRAW_MODE ? DEFAULT_VERTEX_COLOR : TOUCHED_VERTEX_COLOR);
 			if (highlightedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
 			}
@@ -1291,8 +1253,7 @@ public class GraphViewController {
 	 */
 	private Coordinate translateCoordinate(Coordinate screenCoordinate) {
 
-		float[] screenPoint = { screenCoordinate.getX(),
-				screenCoordinate.getY() };
+		float[] screenPoint = { screenCoordinate.getX(), screenCoordinate.getY() };
 		Matrix invertedTransformMatrix = new Matrix();
 
 		view.getTransformMatrix().invert(invertedTransformMatrix);
@@ -1331,15 +1292,13 @@ public class GraphViewController {
 		}
 
 		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-				float velocityY) {
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 			trashCan(0);
 			Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 			Coordinate gCoordinate = translateCoordinate(sCoordinate);
 			DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
-			float dist = (float) Math.round(Math.sqrt((velocityX * velocityX)
-					+ (velocityY * velocityY)));
+			float dist = (float) Math.round(Math.sqrt((velocityX * velocityX) + (velocityY * velocityY)));
 
 			if (dist < 4000)
 				return true;
@@ -1362,8 +1321,7 @@ public class GraphViewController {
 
 				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 				Coordinate gCoordinate = translateCoordinate(sCoordinate);
-				DefaultVertex hit = getClosestVertex(gCoordinate,
-						USER_MISS_RADIUS);
+				DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
 				if (hit == null) {
 					clearAll();
@@ -1375,8 +1333,7 @@ public class GraphViewController {
 
 				Coordinate sCoordinate = new Coordinate(e.getX(), e.getY());
 				Coordinate gCoordinate = translateCoordinate(sCoordinate);
-				DefaultVertex hit = getClosestVertex(gCoordinate,
-						USER_MISS_RADIUS);
+				DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
 				if (hit == null) {
 					DefaultVertex newvertex = new DefaultVertex(gCoordinate);
@@ -1404,53 +1361,40 @@ public class GraphViewController {
 		}
 
 		@Override
-		public boolean onScroll(MotionEvent e1, MotionEvent e2,
-				float distanceX, float distanceY) {
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
 			switch (e2.getPointerCount()) {
 			case 2:
 				trashCan(0);
 				if (previousPointerCoords == null || previousPointerCount != 2) {
 					previousPointerCoords = new Coordinate[2];
-					previousPointerCoords[0] = new Coordinate(e2.getX(0),
-							e2.getY(0));
-					previousPointerCoords[1] = new Coordinate(e2.getX(1),
-							e2.getY(1));
+					previousPointerCoords[0] = new Coordinate(e2.getX(0), e2.getY(0));
+					previousPointerCoords[1] = new Coordinate(e2.getX(1), e2.getY(1));
 				} else {
-					Coordinate[] newCoords = {
-							new Coordinate(e2.getX(0), e2.getY(0)),
-							new Coordinate(e2.getX(1), e2.getY(1)) };
-					Coordinate VectorPrevious = previousPointerCoords[1]
-							.subtract(previousPointerCoords[0]);
+					Coordinate[] newCoords = { new Coordinate(e2.getX(0), e2.getY(0)), new Coordinate(e2.getX(1), e2.getY(1)) };
+					Coordinate VectorPrevious = previousPointerCoords[1].subtract(previousPointerCoords[0]);
 					Coordinate VectorNew = newCoords[1].subtract(newCoords[0]);
-					float diffAngle = VectorNew.angle()
-							- VectorPrevious.angle();
+					float diffAngle = VectorNew.angle() - VectorPrevious.angle();
 					float scale = VectorNew.length() / VectorPrevious.length();
 
 					// the transformations
-					view.getTransformMatrix().postTranslate(
-							-previousPointerCoords[0].getX(),
-							-previousPointerCoords[0].getY());
+					view.getTransformMatrix().postTranslate(-previousPointerCoords[0].getX(), -previousPointerCoords[0].getY());
 					view.getTransformMatrix().postRotate(diffAngle);
 					view.getTransformMatrix().postScale(scale, scale);
-					view.getTransformMatrix().postTranslate(
-							newCoords[0].getX(), newCoords[0].getY());
+					view.getTransformMatrix().postTranslate(newCoords[0].getX(), newCoords[0].getY());
 
 					previousPointerCoords = newCoords;
 				}
 				break;
 			case 1:
 				if (EDGE_DRAW_MODE) {
-					Coordinate sCoordinate = new Coordinate(e2.getX(),
-							e2.getY());
+					Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 					Coordinate gCoordinate = translateCoordinate(sCoordinate);
-					DefaultVertex hit = getClosestVertex(gCoordinate,
-							USER_MISS_RADIUS);
+					DefaultVertex hit = getClosestVertex(gCoordinate, USER_MISS_RADIUS);
 
 					if (hit != null) {
 						// System.out.println("HIT " + hit.getId());
 						if (touchedVertex != null && touchedVertex != hit) {
-							DefaultEdge<DefaultVertex> edge = toggleEdge(hit,
-									touchedVertex);
+							DefaultEdge<DefaultVertex> edge = toggleEdge(hit, touchedVertex);
 							userSelectedVertices.remove(touchedVertex);
 							userSelectedVertices.add(hit);
 							markedEdges.clear();
@@ -1469,8 +1413,7 @@ public class GraphViewController {
 
 						trashCan(1);
 
-						Coordinate sCoordinate = new Coordinate(e2.getX(),
-								e2.getY());
+						Coordinate sCoordinate = new Coordinate(e2.getX(), e2.getY());
 
 						if (view.isOnTrashCan(sCoordinate)) {
 							trashCan(2);
@@ -1487,8 +1430,7 @@ public class GraphViewController {
 					} else {
 						trashCan(0);
 						if (previousPointerCount == 1)
-							view.getTransformMatrix().postTranslate(-distanceX,
-									-distanceY);
+							view.getTransformMatrix().postTranslate(-distanceX, -distanceY);
 					}
 
 				}

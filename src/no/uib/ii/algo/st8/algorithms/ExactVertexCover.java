@@ -2,6 +2,7 @@ package no.uib.ii.algo.st8.algorithms;
 
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,8 +28,10 @@ public class ExactVertexCover<V, E> extends Algorithm<V, E, Collection<V>> {
 
 	@Override
 	public Collection<V> execute() {
-		VertexCoverListener listener = new VertexCoverListener(this,
-				progressListener);
+		VertexCoverListener listener = new VertexCoverListener(this, progressListener);
+
+		if (graph == null || graphSize() == 0 || graphEdgeSize() == 0)
+			return Collections.emptySet();
 
 		KVertexCover<V, E> kvc = new KVertexCover<V, E>(graph, listener);
 		return kvc.minVertexCover();
@@ -60,16 +63,14 @@ class KVertexCover<U, F> {
 	private final VertexCoverListener listener;
 
 	public KVertexCover(SimpleGraph<U, F> input, VertexCoverListener listener) {
-		internalGraph = new SimpleGraph<VcVertex<U>, VcEdge<U>>(
-				new EdgeFactory<VcVertex<U>, VcEdge<U>>() {
-					public VcEdge<U> createEdge(VcVertex<U> v, VcVertex<U> u) {
-						return new VcEdge<U>(v, u);
-					}
-				});
+		internalGraph = new SimpleGraph<VcVertex<U>, VcEdge<U>>(new EdgeFactory<VcVertex<U>, VcEdge<U>>() {
+			public VcEdge<U> createEdge(VcVertex<U> v, VcVertex<U> u) {
+				return new VcEdge<U>(v, u);
+			}
+		});
 		this.listener = listener;
 		listener.progress(0, internalGraph.vertexSet().size());
-		HashMap<U, VcVertex<U>> map = new HashMap<U, VcVertex<U>>(input
-				.vertexSet().size());
+		HashMap<U, VcVertex<U>> map = new HashMap<U, VcVertex<U>>(input.vertexSet().size());
 		for (U v : input.vertexSet()) {
 			VcVertex<U> nv = new VcVertex<U>(v);
 			internalGraph.addVertex(nv);
@@ -199,8 +200,7 @@ class KVertexCover<U, F> {
 				return bitSetToNodeSet(kvc);
 			}
 		}
-		throw new IllegalStateException("Could not compute vertex cover: "
-				+ internalGraph.toString());
+		throw new IllegalStateException("Could not compute vertex cover: " + internalGraph.toString());
 	}
 
 	static class VcVertex<W> {
@@ -250,10 +250,8 @@ class KVertexCover<U, F> {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result
-					+ ((source == null) ? 0 : source.hashCode());
-			result = prime * result
-					+ ((target == null) ? 0 : target.hashCode());
+			result = prime * result + ((source == null) ? 0 : source.hashCode());
+			result = prime * result + ((target == null) ? 0 : target.hashCode());
 			return result;
 		}
 

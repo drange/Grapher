@@ -8,14 +8,17 @@ public abstract class Algorithm<V, E, Return> {
 	protected ProgressListener progressListener;
 	protected final SimpleGraph<V, E> graph;
 
-	// these fields are to make sure we do not update progress bar more than ten
+	// these fields are to make sure we do not update progress bar more than n
 	// times per second
-	private long nanoDelay = 200000000L;
+	private long nanoDelay = 0L;// 20000000L;
 	private long nanoPrev = System.nanoTime() - nanoDelay;
+
+	private int progressGoal;
+	private int currentProgress = 0;
 
 	public Algorithm(SimpleGraph<V, E> graph) {
 		this.graph = graph;
-		System.gc(); // TODO REMOVE!!!
+		progressGoal = (int) Math.pow(2, graphSize());
 	}
 
 	public int graphSize() {
@@ -29,7 +32,43 @@ public abstract class Algorithm<V, E, Return> {
 	public void cancel() {
 		System.out.println("We have been cancelled.");
 		cancelFlag = true;
-		System.gc(); // TODO REMOVE!!!
+	}
+
+	protected void setProgressGoal(int progressGoal) {
+		this.progressGoal = progressGoal;
+		currentProgress = Math.min(currentProgress, progressGoal);
+	}
+
+	/**
+	 * Returns true if setting current progress was successful, i.e.,
+	 * currentProgress <= progressGoal
+	 * 
+	 * @param currentProgress
+	 * @return true if update was successful
+	 */
+	protected boolean setCurrentProgress(int currentProgress) {
+		if (currentProgress > progressGoal)
+			return false;
+		this.currentProgress = currentProgress;
+		return true;
+	}
+
+	/**
+	 * Increases current progress, returns true if current progress has reached
+	 * its goal.
+	 * 
+	 * @return true if current >= goal
+	 */
+	protected boolean increaseProgress() {
+		currentProgress++;
+		if (currentProgress > progressGoal) {
+			currentProgress = progressGoal;
+			return true;
+		}
+
+		progress(currentProgress, progressGoal);
+
+		return false;
 	}
 
 	public void setProgressListener(ProgressListener progressListener) {

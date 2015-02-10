@@ -40,8 +40,7 @@ public class Undo {
 				System.out.println("\tadding vertex " + h.vertex.getId());
 				for (DefaultVertex v : h.neighbors) {
 					graph.addEdge(h.vertex, v);
-					System.out.println("\t\tadding edge" + h.vertex.getId()
-							+ " - " + v.getId());
+					System.out.println("\t\tadding edge" + h.vertex.getId() + " - " + v.getId());
 				}
 			} else {
 				graph.removeVertex(h.vertex);
@@ -50,12 +49,10 @@ public class Undo {
 		} else {
 			if (!h.add) {
 				graph.addEdge(h.vertex, h.otherVertex);
-				System.out.println("\tadding edge " + h.vertex.getId() + " - "
-						+ h.otherVertex.getId());
+				System.out.println("\tadding edge " + h.vertex.getId() + " - " + h.otherVertex.getId());
 			} else {
 				graph.removeEdge(h.vertex, h.otherVertex);
-				System.out.println("\tremoving edge " + h.vertex.getId()
-						+ " - " + h.otherVertex.getId());
+				System.out.println("\tremoving edge " + h.vertex.getId() + " - " + h.otherVertex.getId());
 			}
 		}
 		hasChanged = true;
@@ -77,8 +74,11 @@ public class Undo {
 		return graph.addEdge(v, u);
 	}
 
-	public DefaultEdge<DefaultVertex> removeEdge(DefaultVertex v,
-			DefaultVertex u) {
+	public DefaultEdge<DefaultVertex> addEdge(DefaultEdge<DefaultVertex> e) {
+		return addEdge(e.getSource(), e.getTarget());
+	}
+
+	public DefaultEdge<DefaultVertex> removeEdge(DefaultVertex v, DefaultVertex u) {
 		addHistory(v, u, false);
 		return graph.removeEdge(v, u);
 	}
