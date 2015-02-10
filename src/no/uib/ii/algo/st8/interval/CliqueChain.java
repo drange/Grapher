@@ -1,4 +1,5 @@
 package no.uib.ii.algo.st8.interval;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -15,8 +16,7 @@ import java.util.Stack;
  */
 public class CliqueChain {
 
-  private static ArrayList<HashSet<Integer>> getCliqueChain(HashMap<HashSet<Integer>, HashSet<Integer>> tree,
-      BasicGraph graph,
+  private static ArrayList<HashSet<Integer>> getCliqueChain(HashMap<HashSet<Integer>, HashSet<Integer>> tree, BasicGraph graph,
       List<Integer> peo) {
     if (tree.containsKey(null))
       throw new NullPointerException("Tree contains null: " + tree);
@@ -24,7 +24,7 @@ public class CliqueChain {
 
     ArrayList<HashSet<HashSet<Integer>>> L = new ArrayList<HashSet<HashSet<Integer>>>(n);
 
-    HashSet<HashSet<Integer>> maximalCliques = new HashSet<>(tree.size());
+    HashSet<HashSet<Integer>> maximalCliques = new HashSet<HashSet<Integer>>(tree.size());
     maximalCliques.addAll(tree.keySet());
 
     L.add(maximalCliques);

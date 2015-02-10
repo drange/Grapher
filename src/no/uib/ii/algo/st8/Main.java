@@ -6,24 +6,24 @@ import android.content.Intent;
 import android.os.Bundle;
 
 public class Main extends Activity {
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-		DefaultVertex.resetCounter();
+    DefaultVertex.resetCounter();
 
-		System.out.println("Launching workspace");
-		Intent ws = new Intent(this, Workspace.class);
-		startActivityForResult(ws, 1397);
+    System.out.println("Launching workspace");
+    Intent ws = new Intent(this, Workspace.class);
+    startActivityForResult(ws, 1397);
 
-		System.out.println("MAIN main main");
-		System.out.println("finish?");
-	}
+    System.out.println("MAIN main main");
+    System.out.println("finish?");
+  }
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == 1397 && resultCode == 0)
-			finish();
-	}
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    if (requestCode == 1397 && resultCode == 0)
+      finish();
+  }
 }

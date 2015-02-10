@@ -1,4 +1,5 @@
 package no.uib.ii.algo.st8.interval;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,7 @@ public class CliqueTree {
 
   private List<Integer> peo = null;
 
-  private HashMap<HashSet<Integer>, Integer> parentBags = new HashMap<>();
+  private HashMap<HashSet<Integer>, Integer> parentBags = new HashMap<HashSet<Integer>, Integer>();
 
   private final BasicGraph graph;
 
@@ -54,7 +55,8 @@ public class CliqueTree {
     // let r be the root of T ...
     int r = findRoot(T);
 
-    downlinks = new HashMap<>();
+    downlinks = new HashMap<Integer, HashSet<Integer>>();
+
     for (Entry<Integer, Integer> e : T.entrySet()) {
       if (!downlinks.containsKey(e.getValue()))
         downlinks.put(e.getValue(), new HashSet<Integer>());
