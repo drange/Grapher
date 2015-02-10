@@ -18,6 +18,15 @@
         android:title="New graph"/>
 
     <item
+        android:id="@+id/compute_chromatic_number"
+        android:title="Chromatic Number"/>
+    <item
+        android:id="@+id/compute_colouring"
+        android:title="Optimal Colouring"/>
+    <item
+        android:id="@+id/compute_minimal_triangulation"
+        android:title="Minimal Triangulation"/>
+    <item
         android:id="@+id/compute_maximum_clique"
         android:title="Maximum Clique"/>
 
@@ -129,6 +138,9 @@
         android:id="@+id/centralize"
         android:title="Centralize view"/>
 
+    <item
+        android:id="@+id/clear_colours"
+        android:title="Clear Colours"/>
     <item
         android:id="@+id/add_universal_vertex"
         android:title="Add Universal Vertex"/>

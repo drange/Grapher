@@ -61,7 +61,8 @@ public class SteinerTree<V, E> extends Algorithm<V, E, Collection<E>> {
 
 	@Override
 	public Collection<E> execute() {
-		if (terminals.size() <= 1)
+		if (terminals.size() == 1)
+
 			return new HashSet<E>();
 		increaseProgress();
 

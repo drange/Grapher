@@ -315,15 +315,30 @@ public class Workspace extends Activity implements OnClickListener,
 		case R.id.compute_maximum_independent_set:
 			controller.showMaximumIndependentSet();
 			return true;
-
+			
+		case R.id.compute_chromatic_number:
+			controller.chromaticNumber();
+			return true;
+			
+		case R.id.compute_colouring:
+			controller.showColouring();
+			return true;
+			
 		case R.id.compute_maximum_clique:
 			controller.showMaximumClique();
 			return true;
 
+		case R.id.compute_minimal_triangulation:
+			controller.minimalTriangulation();
+			return true;
+				
 		case R.id.compute_steiner_tree:
 			controller.showSteinerTree();
 			return true;
 
+		case R.id.clear_colours:
+			controller.clearAll();
+			return true;
 			
 		case R.id.compute_treewidth:
 			controller.treewidth();

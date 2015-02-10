@@ -2,9 +2,12 @@ package no.uib.ii.algo.st8;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.algorithms.Algorithm;
@@ -13,6 +16,7 @@ import no.uib.ii.algo.st8.algorithms.BandwidthInspector;
 import no.uib.ii.algo.st8.algorithms.BipartiteInspector;
 import no.uib.ii.algo.st8.algorithms.CenterInspector;
 import no.uib.ii.algo.st8.algorithms.Chordalization;
+import no.uib.ii.algo.st8.algorithms.ChromaticNumber;
 import no.uib.ii.algo.st8.algorithms.ClawInspector;
 import no.uib.ii.algo.st8.algorithms.ClawInspector.ClawCollection;
 import no.uib.ii.algo.st8.algorithms.ConnectedFeedbackVertexSet;
@@ -30,7 +34,9 @@ import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.algorithms.HamiltonianCycleInspector;
 import no.uib.ii.algo.st8.algorithms.HamiltonianPathInspector;
 import no.uib.ii.algo.st8.algorithms.MaximalClique;
+import no.uib.ii.algo.st8.algorithms.MinimalTriangulation;
 import no.uib.ii.algo.st8.algorithms.OddCycleTransversal;
+import no.uib.ii.algo.st8.algorithms.OptimalColouring;
 import no.uib.ii.algo.st8.algorithms.PerfectCodeInspector;
 import no.uib.ii.algo.st8.algorithms.PowerGraph;
 import no.uib.ii.algo.st8.algorithms.RedBlueDominatingSet;
@@ -92,7 +98,8 @@ public class GraphViewController {
 	private Set<DefaultVertex> highlightedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultVertex> userSelectedVertices = new HashSet<DefaultVertex>();
 	private Set<DefaultEdge<DefaultVertex>> markedEdges = new HashSet<DefaultEdge<DefaultVertex>>();
-
+	
+	private Map<DefaultVertex, Integer> colourMap = new HashMap<DefaultVertex, Integer>();
 	private DefaultVertex deleteVertex = null;
 
 	// TODO this should depend on screen size and or zoom (scale of matrix)
@@ -233,6 +240,7 @@ public class GraphViewController {
 		markedEdges.clear();
 		userSelectedVertices.clear();
 		highlightedVertices.clear();
+		colourMap.clear();
 		redraw();
 	}
 
@@ -390,6 +398,81 @@ public class GraphViewController {
 	public int induceSubgraph() {
 		invertSelectedVertices();
 		return deleteSelectedVertices();
+	}
+
+
+	public void minimalTriangulation(){
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<DefaultEdge<DefaultVertex>>> minTri;
+		AlgoWrapper<Set<DefaultEdge<DefaultVertex>>> algoWrapper;
+		
+		minTri = new MinimalTriangulation<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Set<DefaultEdge<DefaultVertex>>>(activity, minTri){
+			
+			@Override
+			protected String resultText(Set<DefaultEdge<DefaultVertex>> result){
+				clearAll();
+				String ret = "";
+				if (result == null) {
+					ret = "Could not compute minimal fill in";
+				} else {
+					ret = "Minimum fill in of size " + result.size();
+					markedEdges.addAll(result);
+					for(DefaultEdge<DefaultVertex> e : result)
+						graphWithMemory.addEdge(e);
+				}
+				redraw();
+				return ret;
+			}
+		};
+		
+		algoWrapper.setTitle("Computing minmal triangulation");
+		algoWrapper.execute();
+		
+		
+	}
+
+	public void chromaticNumber(){
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Integer> chromaticAlgo;
+		AlgoWrapper<Integer> algoWrapper;
+
+		chromaticAlgo = new ChromaticNumber<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Integer>(activity, chromaticAlgo){
+
+			@Override
+			protected String resultText(Integer result){
+				return "The chromatic number is " + result;
+			}
+		};
+
+		algoWrapper.setTitle("Computing chromatic number");
+		algoWrapper.execute();		
+	}
+
+	
+	public void showColouring(){
+		Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<Set<DefaultVertex>>> colouring;
+		AlgoWrapper<Set<Set<DefaultVertex>>> algoWrapper;
+		
+		colourMap = new HashMap<DefaultVertex, Integer>();
+		colouring = new OptimalColouring<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+		algoWrapper = new AlgoWrapper<Set<Set<DefaultVertex>>>(activity, colouring){
+
+			@Override
+			protected String resultText(Set<Set<DefaultVertex>> result){
+				for(Set<DefaultVertex> col : result){
+					Random r = new Random();
+					Integer colour = Color.rgb(r.nextInt(256), r.nextInt(256), r.nextInt(256));
+					for(DefaultVertex v : col){
+						colourMap.put(v, colour);
+					}
+				}
+				redraw();
+				return "Here is a colouring of size " + result.size();
+			}
+		};
+		
+		algoWrapper.setTitle("Computing colouring");
+		algoWrapper.execute();
 	}
 
 	/**
@@ -1232,9 +1315,21 @@ public class GraphViewController {
 			v.setColor(EDGE_DRAW_MODE ? DEFAULT_VERTEX_COLOR : TOUCHED_VERTEX_COLOR);
 			if (highlightedVertices.contains(v)) {
 				v.setColor(MARKED_VERTEX_COLOR);
+
+		if(!colourMap.isEmpty()){
+			for(DefaultVertex v : colourMap.keySet()){
+				v.setColor(colourMap.get(v));
+
 			}
-			if (userSelectedVertices.contains(v)) {
-				v.setColor(USERSELECTED_VERTEX_COLOR);
+		} else{
+			for (DefaultVertex v : graph.vertexSet()) {
+				v.setColor(EDGE_DRAW_MODE ? DEFAULT_VERTEX_COLOR : TOUCHED_VERTEX_COLOR);
+				if (highlightedVertices.contains(v)) {
+					v.setColor(MARKED_VERTEX_COLOR);
+				}
+				if (userSelectedVertices.contains(v)) {
+					v.setColor(USERSELECTED_VERTEX_COLOR);
+				}
 			}
 		}
 		for (DefaultEdge<DefaultVertex> e : graph.edgeSet()) {

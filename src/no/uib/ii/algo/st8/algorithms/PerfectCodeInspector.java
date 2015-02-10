@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import no.uib.ii.algo.st8.util.NChooseKIterator;
+import no.uib.ii.algo.st8.util.Neighbors;
 
 import org.jgrapht.graph.SimpleGraph;
 

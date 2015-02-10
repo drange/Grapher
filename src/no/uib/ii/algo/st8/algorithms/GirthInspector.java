@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.util.Neighbors;
 
 import org.jgrapht.EdgeFactory;
 import org.jgrapht.graph.SimpleGraph;

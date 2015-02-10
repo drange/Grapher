@@ -3,6 +3,8 @@ package no.uib.ii.algo.st8.algorithms;
 import java.util.HashSet;
 import java.util.Set;
 
+import no.uib.ii.algo.st8.util.Neighbors;
+
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.SimpleGraph;
 
