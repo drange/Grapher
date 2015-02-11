@@ -20,12 +20,19 @@
     <item
         android:id="@+id/compute_chromatic_number"
         android:title="Chromatic Number"/>
+
     <item
         android:id="@+id/compute_colouring"
         android:title="Optimal Colouring"/>
+
     <item
         android:id="@+id/compute_minimal_triangulation"
         android:title="Minimal Triangulation"/>
+
+    <item
+        android:id="@+id/interval"
+        android:title="Interval recognition"/>
+
     <item
         android:id="@+id/compute_maximum_clique"
         android:title="Maximum Clique"/>
@@ -141,6 +148,7 @@
     <item
         android:id="@+id/clear_colours"
         android:title="Clear Colours"/>
+
     <item
         android:id="@+id/add_universal_vertex"
         android:title="Add Universal Vertex"/>
