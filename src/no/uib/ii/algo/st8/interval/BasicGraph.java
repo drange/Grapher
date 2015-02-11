@@ -428,6 +428,10 @@ public class BasicGraph {
    * @return true if graph is AT-free
    */
   public boolean isATFree() {
+    return getAT() == null;
+  }
+
+  public HashSet<Integer> getAT() {
     ArrayList<Integer> V = new ArrayList<Integer>(vertices);
 
     for (int i = 0; i < order(); i++) {
@@ -439,12 +443,18 @@ public class BasicGraph {
           if (isAT(a, b, c)) {
             // System.out.println("AT: [" + a + ", " + b + ", " + c
             // + "]");
-            return false;
+
+            HashSet<Integer> s = new HashSet<Integer>(3);
+            s.add(a);
+            s.add(b);
+            s.add(c);
+            return s;
+
           }
         }
       }
     }
-    return true;
+    return null;
   }
 
   public boolean isChordal() {

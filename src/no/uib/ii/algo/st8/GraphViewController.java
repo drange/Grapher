@@ -45,6 +45,8 @@ import no.uib.ii.algo.st8.algorithms.SimplicialInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.algorithms.SteinerTree;
 import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
+import no.uib.ii.algo.st8.interval.IntervalGraph;
+import no.uib.ii.algo.st8.interval.SimpleToBasicWrapper;
 import no.uib.ii.algo.st8.model.DefaultEdge;
 import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
 import no.uib.ii.algo.st8.model.DefaultVertex;
@@ -524,6 +526,7 @@ public class GraphViewController {
     clearAll();
     redraw();
     return SimplicialInspector.isChordal(graph);
+
   }
 
   public void showChordalization() {
@@ -551,6 +554,25 @@ public class GraphViewController {
     };
     wrapper.setTitle("Computing minimum fill in ...");
     wrapper.execute();
+  }
+
+  public int showInterval() {
+    clearAll();
+
+    SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>> wrap = new SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>>(
+        getGraph());
+
+    IntervalGraph ig = wrap.getIntervalGraph();
+    if (ig != null) {
+      return 0;
+    } else {
+      if (wrap.isChordal()) {
+        highlightedVertices.addAll(wrap.getAT());
+        redraw();
+        return 1; // has AT
+      }
+      return 2; // is not chordal
+    }
   }
 
   public void showSteinerTree() {
