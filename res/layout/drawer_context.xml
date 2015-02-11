@@ -34,6 +34,10 @@
         android:title="Interval recognition"/>
 
     <item
+        android:id="@+id/threshold"
+        android:title="Threshold recognition"/>
+
+    <item
         android:id="@+id/compute_maximum_clique"
         android:title="Maximum Clique"/>
 
