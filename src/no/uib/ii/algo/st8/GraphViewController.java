@@ -44,6 +44,7 @@ import no.uib.ii.algo.st8.algorithms.RegularityInspector;
 import no.uib.ii.algo.st8.algorithms.SimplicialInspector;
 import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.algorithms.SteinerTree;
+import no.uib.ii.algo.st8.algorithms.ThresholdInspector;
 import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
 import no.uib.ii.algo.st8.interval.IntervalGraph;
 import no.uib.ii.algo.st8.interval.SimpleToBasicWrapper;
@@ -573,6 +574,39 @@ public class GraphViewController {
       }
       return 2; // is not chordal
     }
+  }
+
+  /**
+   * True if threshold graph.
+   * 
+   * @return
+   */
+  public void showThreshold() {
+    Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Set<DefaultVertex>> thresholdAlgo;
+    AlgoWrapper<Set<DefaultVertex>> algoWrapper;
+
+    thresholdAlgo = new ThresholdInspector<DefaultVertex, DefaultEdge<DefaultVertex>>(graph);
+
+    algoWrapper = new AlgoWrapper<Set<DefaultVertex>>(activity, thresholdAlgo) {
+
+      protected String resultText(Set<DefaultVertex> result) {
+
+        clearAll();
+        if (result == null) {
+          return "Computation aborted";
+        } else {
+          if (result.isEmpty()) {
+            return "Graph is threshold";
+          }
+          highlightedVertices.addAll(result);
+          redraw();
+          return "Threshold obstruction highlighted";
+        }
+      }
+    };
+    algoWrapper.setTitle("Recognizing threshold graph ...");
+    algoWrapper.execute();
+
   }
 
   public void showSteinerTree() {

@@ -323,6 +323,10 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       }
       return true;
 
+    case R.id.threshold:
+      controller.showThreshold();
+      return true;
+
     case R.id.compute_maximum_independent_set:
       controller.showMaximumIndependentSet();
       return true;
