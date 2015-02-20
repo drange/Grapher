@@ -190,6 +190,7 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
   }
 
   private void shareTikz() {
+
     String shareBody = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
 
     SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>> wrap = new SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>>(
@@ -201,6 +202,9 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
     }
 
     shareBody += "\n\n% Sent to you by Grapher";
+
+    shareBody += " % INTERVAL ";
+    shareBody += GraphExporter.getTikzIntervalRepresentation(wrap.getIntervalGraph());
 
     Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
     sharingIntent.setType("text/plain");

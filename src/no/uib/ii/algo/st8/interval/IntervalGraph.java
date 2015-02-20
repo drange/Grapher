@@ -1,4 +1,5 @@
 package no.uib.ii.algo.st8.interval;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,6 +25,10 @@ public class IntervalGraph {
 
   public int order() {
     return vertices.size();
+  }
+
+  public ArrayList<Interval> getIntervals() {
+    return new ArrayList<Interval>(vertices.values());
   }
 
   public HashSet<Integer> getNeighborhood(int v) {
