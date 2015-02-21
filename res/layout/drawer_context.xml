@@ -18,6 +18,10 @@
         android:title="New graph"/>
 
     <item
+        android:id="@+id/snap"
+        android:title="Snap"/>
+
+    <item
         android:id="@+id/compute_chromatic_number"
         android:title="Chromatic Number"/>
 
