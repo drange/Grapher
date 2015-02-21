@@ -53,6 +53,7 @@ import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
 import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.model.EdgeStyle;
 import no.uib.ii.algo.st8.util.Coordinate;
+import no.uib.ii.algo.st8.util.SnapToGrid;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.ConnectivityInspector;
@@ -69,6 +70,8 @@ import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.View;
+
+//import android.graphics.Matrix;
 
 public class GraphViewController {
 
@@ -114,6 +117,18 @@ public class GraphViewController {
   private final Vibrator vibrator;
   private final Undo graphWithMemory;
 
+  public void snapToGrid() {
+
+    view.getTransformMatrix().reset();
+
+    System.out.println("SNAP!");
+    new SnapToGrid(graph).snap();
+
+    centralize();
+
+    redraw();
+  }
+
   public boolean toggleEdgeDraw() {
     EDGE_DRAW_MODE = !EDGE_DRAW_MODE;
 
@@ -121,7 +136,9 @@ public class GraphViewController {
 
     clearAll();
     redraw();
+
     return EDGE_DRAW_MODE;
+
   }
 
   public void setEdgeDrawMode(boolean mode) {

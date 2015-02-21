@@ -309,6 +309,10 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       controller.newGraph();
       return true;
 
+    case R.id.snap:
+      controller.snapToGrid();
+      return true;
+
     case R.id.chordalization:
       controller.showChordalization();
       return true;
