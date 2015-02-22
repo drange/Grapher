@@ -2,263 +2,351 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
-        android:id="@+id/finish"
-        android:title="Exit Grapher"/>
+        android:id="@+id/file"
+        android:title="File ...">
 
-    <item
-        android:id="@+id/finish_and_save"
-        android:title="Save and exit"/>
+        <!-- "file" submenu -->
 
-    <item
-        android:id="@+id/toggle_edge_edit"
-        android:title="Draw/Move"/>
+        <menu>
 
-    <item
-        android:id="@+id/new_graph"
-        android:title="New graph"/>
+            <item
+                android:id="@+id/new_graph"
+                android:title="New graph"/>
 
-    <item
-        android:id="@+id/snap"
-        android:title="Snap"/>
+            <item
+                android:id="@+id/finish"
+                android:title="Exit Grapher"/>
 
-    <item
-        android:id="@+id/compute_chromatic_number"
-        android:title="Chromatic Number"/>
+            <item
+                android:id="@+id/finish_and_save"
+                android:title="Save and exit"/>
 
-    <item
-        android:id="@+id/compute_colouring"
-        android:title="Optimal Colouring"/>
+            <item
+                android:id="@+id/save"
+                android:title="Save the current graph"/>
 
-    <item
-        android:id="@+id/compute_minimal_triangulation"
-        android:title="Minimal Triangulation"/>
+            <item
+                android:id="@+id/load"
+                android:title="Load a graph into workspace"/>
 
-    <item
-        android:id="@+id/interval"
-        android:title="Interval recognition"/>
+            <item
+                android:id="@+id/delete"
+                android:title="Delete a saved graph"/>
+        </menu>
+    </item>
 
     <item
-        android:id="@+id/threshold"
-        android:title="Threshold recognition"/>
+        android:id="@+id/mode"
+        android:title="Mode ...">
 
-    <item
-        android:id="@+id/compute_maximum_clique"
-        android:title="Maximum Clique"/>
+        <!-- "mode" submenu -->
 
-    <item
-        android:id="@+id/compute_steiner_tree"
-        android:title="Steiner tree"/>
+        <menu>
 
-    <item
-        android:id="@+id/compute_maximum_independent_set"
-        android:title="Max Independent Set"/>
+            <item
+                android:id="@+id/toggle_edge_edit"
+                android:title="Draw/Move"/>
 
-    <item
-        android:id="@+id/compute_vertex_cover"
-        android:title="Compute Vertex Cover"/>
+            <item
+                android:id="@+id/toggle_label_drawing"
+                android:title="Toggle showing labels"/>
 
-    <item
-        android:id="@+id/compute_connected_vertex_cover"
-        android:title="Compute Connected Vertex Cover"/>
+            <item
+                android:id="@+id/snap"
+                android:title="Snap"/>
 
-    <item
-        android:id="@+id/compute_treewidth"
-        android:title="Compute Treewidth"/>
+            <item
+                android:id="@+id/spring"
+                android:title="Spring (lazy shake)"/>
 
-    <item
-        android:id="@+id/compute_perfect_code"
-        android:title="Compute Perfect Code"/>
+            <item
+                android:id="@+id/centralize"
+                android:title="Centralize view"/>
+        </menu>
+    </item>
 
     <item
-        android:id="@+id/compute_balanced_separator"
-        android:title="Balanced Separator"/>
+        android:id="@+id/algorithms"
+        android:title="Algorithms ...">
 
-    <item
-        android:id="@+id/compute_regularity_deletion_set"
-        android:title="Regularity Deletion Set"/>
+        <!-- "algorithms" submenu -->
 
-    <item
-        android:id="@+id/compute_odd_cycle_transversal"
-        android:title="Odd Cycle Transversal"/>
+        <menu>
 
-    <item
-        android:id="@+id/compute_feedback_vertex_set"
-        android:title="Feedback Vertex Set"/>
+            <item
+                android:id="@+id/paths_n_stuff"
+                android:title="Paths, flows, etc ... ">
 
-    <item
-        android:id="@+id/compute_connected_feedback_vertex_set"
-        android:title="Connected Feedback Vertex Set"/>
+                <!-- "algorithms" submenu -->
 
-    <item
-        android:id="@+id/compute_minimum_red_blue_dominating_set"
-        android:title="Minimum R/B Dominating Set"/>
+                <menu>
 
-    <item
-        android:id="@+id/compute_minimum_dominating_set"
-        android:title="Minimum Dominating Set"/>
+                    <item
+                        android:id="@+id/path"
+                        android:title="Show shortest s-t path"/>
 
-    <item
-        android:id="@+id/compute_mst"
-        android:title="Minimum Spanning Tree"/>
+                    <item
+                        android:id="@+id/flow"
+                        android:title="Max flow"/>
 
-    <item
-        android:id="@+id/compute_simplicial_vertices"
-        android:title="Show simplicial vertices"/>
+                    <item
+                        android:id="@+id/compute_diameter"
+                        android:title="Diameter"/>
 
-    <item
-        android:id="@+id/compute_chordality"
-        android:title="Is chordal?"/>
+                    <item
+                        android:id="@+id/compute_girth"
+                        android:title="Girth"/>
 
-    <item
-        android:id="@+id/chordalization"
-        android:title="Fill In"/>
+                    <item
+                        android:id="@+id/compute_all_cuts"
+                        android:title="Cut vertices"/>
 
-    <item
-        android:id="@+id/compute_claws"
-        android:title="Show all claws"/>
+                    <item
+                        android:id="@+id/compute_all_bridges"
+                        android:title="Bridges"/>
+                </menu>
+            </item>
+
+            <item
+                android:id="@+id/compute_maximum_clique"
+                android:title="Maximum Clique"/>
+
+            <item
+                android:id="@+id/compute_steiner_tree"
+                android:title="Steiner tree"/>
+
+            <item
+                android:id="@+id/compute_maximum_independent_set"
+                android:title="Max Independent Set"/>
+
+            <item
+                android:id="@+id/compute_vertex_cover"
+                android:title="Compute Vertex Cover"/>
+
+            <item
+                android:id="@+id/compute_connected_vertex_cover"
+                android:title="Compute Connected Vertex Cover"/>
+
+            <item
+                android:id="@+id/compute_treewidth"
+                android:title="Compute Treewidth"/>
+
+            <item
+                android:id="@+id/compute_chromatic_number"
+                android:title="Chromatic Number"/>
+
+            <item
+                android:id="@+id/compute_colouring"
+                android:title="Optimal Colouring"/>
+
+            <item
+                android:id="@+id/compute_minimal_triangulation"
+                android:title="Minimal Triangulation"/>
+
+            <item
+                android:id="@+id/interval"
+                android:title="Interval recognition"/>
+
+            <item
+                android:id="@+id/compute_perfect_code"
+                android:title="Compute Perfect Code"/>
 
-    <item
-        android:id="@+id/compute_cycle_4"
-        android:title="Show all C_4s"/>
+            <item
+                android:id="@+id/compute_balanced_separator"
+                android:title="Balanced Separator"/>
 
-    <item
-        android:id="@+id/compute_diameter"
-        android:title="Diameter"/>
+            <item
+                android:id="@+id/compute_regularity_deletion_set"
+                android:title="Regularity Deletion Set"/>
 
-    <item
-        android:id="@+id/compute_girth"
-        android:title="Girth"/>
+            <item
+                android:id="@+id/compute_odd_cycle_transversal"
+                android:title="Odd Cycle Transversal"/>
 
-    <item
-        android:id="@+id/bipartition"
-        android:title="Bipartite"/>
+            <item
+                android:id="@+id/compute_feedback_vertex_set"
+                android:title="Feedback Vertex Set"/>
 
-    <item
-        android:id="@+id/compute_all_cuts"
-        android:title="Cut vertices"/>
+            <item
+                android:id="@+id/compute_connected_feedback_vertex_set"
+                android:title="Connected Feedback Vertex Set"/>
 
-    <item
-        android:id="@+id/compute_all_bridges"
-        android:title="Bridges"/>
+            <!--
+             <item  
+             android:id="@+id/compute_minimum_red_blue_dominating_set" 
+              android:title="Minimum R/B Dominating Set"/>
+            -->
 
-    <item
-        android:id="@+id/test_eulerian"
-        android:title="Euler graph?"/>
+            <item
+                android:id="@+id/compute_minimum_dominating_set"
+                android:title="Minimum Dominating Set"/>
 
-    <item
-        android:id="@+id/show_center"
-        android:title="Compute Center Vertex"/>
+            <item
+                android:id="@+id/compute_mst"
+                android:title="Minimum Spanning Tree"/>
 
-    <item
-        android:id="@+id/centralize"
-        android:title="Centralize view"/>
+            <item
+                android:id="@+id/compute_simplicial_vertices"
+                android:title="Show simplicial vertices"/>
 
-    <item
-        android:id="@+id/clear_colours"
-        android:title="Clear Colours"/>
+            <item
+                android:id="@+id/compute_chordality"
+                android:title="Is chordal?"/>
 
-    <item
-        android:id="@+id/add_universal_vertex"
-        android:title="Add Universal Vertex"/>
+            <item
+                android:id="@+id/chordalization"
+                android:title="Fill In"/>
 
-    <item
-        android:id="@+id/compute_bandwidth"
-        android:title="Compute Bandwidth"/>
+            <item
+                android:id="@+id/compute_claws"
+                android:title="Show all claws"/>
 
-    <item
-        android:id="@+id/spring"
-        android:title="Spring (lazy shake)"/>
+            <item
+                android:id="@+id/threshold"
+                android:title="Threshold recognition"/>
 
-    <item
-        android:id="@+id/hamiltonian_cycle"
-        android:title="Hamiltonian Cycle"/>
+            <item
+                android:id="@+id/compute_cycle_4"
+                android:title="Show all C_4s"/>
 
-    <item
-        android:id="@+id/hamiltonian_path"
-        android:title="Hamiltonian Path"/>
+            <item
+                android:id="@+id/bipartition"
+                android:title="Bipartite"/>
 
-    <item
-        android:id="@+id/compute_claw_deletion"
-        android:title="Claw-free edge deletion"/>
+            <item
+                android:id="@+id/test_eulerian"
+                android:title="Euler graph?"/>
 
-    <item
-        android:id="@+id/path"
-        android:title="Show shortest s-t path"/>
+            <item
+                android:id="@+id/show_center"
+                android:title="Compute Center Vertex"/>
 
-    <item
-        android:id="@+id/flow"
-        android:title="Max flow"/>
+            <item
+                android:id="@+id/clear_colours"
+                android:title="Clear Colours"/>
 
-    <item
-        android:id="@+id/power"
-        android:title="Construct power graph"/>
+            <item
+                android:id="@+id/compute_bandwidth"
+                android:title="Compute Bandwidth"/>
 
-    <item
-        android:id="@+id/tikz_to_clipboard"
-        android:title="Copy Tikz to clipboard"/>
+            <item
+                android:id="@+id/hamiltonian_cycle"
+                android:title="Hamiltonian Cycle"/>
 
-    <item
-        android:id="@+id/metapost_to_clipboard"
-        android:title="Copy Metapost to clipboard"/>
+            <item
+                android:id="@+id/hamiltonian_path"
+                android:title="Hamiltonian Path"/>
 
-    <item
-        android:id="@+id/share_tikz"
-        android:title="Share tikz"/>
+            <item
+                android:id="@+id/compute_claw_deletion"
+                android:title="Claw-free edge deletion"/>
+        </menu>
+    </item>
 
     <item
-        android:id="@+id/share_metapost"
-        android:title="Share metapost"/>
+        android:id="@+id/selections"
+        android:title="Selecting ...">
 
-    <item
-        android:id="@+id/select_all"
-        android:title="Select all vertices"/>
+        <menu>
 
-    <item
-        android:id="@+id/deselect_all"
-        android:title="Deselect all vertices"/>
+            <!-- "selecting" submenu -->
 
-    <item
-        android:id="@+id/select_all_highlighted_vertices"
-        android:title="Select all highlighted vertices"/>
+            <item
+                android:id="@+id/select_all"
+                android:title="Select all vertices"/>
 
-    <item
-        android:id="@+id/invert_selected"
-        android:title="Invert selection of vertices"/>
+            <item
+                android:id="@+id/deselect_all"
+                android:title="Deselect all vertices"/>
 
-    <item
-        android:id="@+id/select_reachable"
-        android:title="Select all reachable vertices"/>
+            <item
+                android:id="@+id/select_all_highlighted_vertices"
+                android:title="Select all highlighted vertices"/>
 
-    <item
-        android:id="@+id/complete_selected"
-        android:title="Complete selected vertices"/>
+            <item
+                android:id="@+id/invert_selected"
+                android:title="Invert selection of vertices"/>
 
-    <item
-        android:id="@+id/complement_selected"
-        android:title="Complement selected subgraph"/>
+            <item
+                android:id="@+id/select_reachable"
+                android:title="Select all reachable vertices"/>
+        </menu>
+    </item>
 
     <item
-        android:id="@+id/delete_selected"
-        android:title="Delete selected vertices"/>
+        android:id="@+id/graph_operations"
+        android:title="Graph modifications ...">
 
-    <item
-        android:id="@+id/induce_subgraph"
-        android:title="Induce subgraph by selected vertices"/>
+        <!-- "modification" submenu -->
 
-    <item
-        android:id="@+id/save"
-        android:title="Save the current graph"/>
+        <menu>
 
-    <item
-        android:id="@+id/load"
-        android:title="Load a graph into workspace"/>
+            <item
+                android:id="@+id/add_universal_vertex"
+                android:title="Add Universal Vertex"/>
 
-    <item
-        android:id="@+id/delete"
-        android:title="Delete a saved graph"/>
+            <item
+                android:id="@+id/local_complement"
+                android:title="Local complement"/>
+
+            <item
+                android:id="@+id/contract"
+                android:title="Contract"/>
+
+            <item
+                android:id="@+id/power"
+                android:title="Construct power graph"/>
+
+            <item
+                android:id="@+id/complete_selected"
+                android:title="Complete selected vertices"/>
+
+            <item
+                android:id="@+id/complement_selected"
+                android:title="Complement selected subgraph"/>
 
+            <item
+                android:id="@+id/delete_selected"
+                android:title="Delete selected vertices"/>
+
+            <item
+                android:id="@+id/induce_subgraph"
+                android:title="Induce subgraph by selected vertices"/>
+        </menu>
+    </item>
+
     <item
-        android:id="@+id/toggle_label_drawing"
-        android:title="Toggle showing labels"/>
+        android:id="@+id/sharing"
+        android:title="Sharing ...">
+
+        <!-- "sharing" submenu -->
+
+        <menu>
+
+            <item
+                android:id="@+id/tikz_to_clipboard"
+                android:title="Copy Tikz to clipboard"/>
+
+            <item
+                android:id="@+id/metapost_to_clipboard"
+                android:title="Copy Metapost to clipboard"/>
+
+            <item
+                android:id="@+id/share_tikz"
+                android:title="Share tikz"/>
+
+            <item
+                android:id="@+id/share_metapost"
+                android:title="Share metapost"/>
+
+            <item
+                android:id="@+id/share_interval"
+                android:title="tikz interval"/>
+
+            <!-- <item -->
+            <!-- android:id="@+id/screenshot" -->
+            <!-- android:title="Save image"/> -->
+        </menu>
+    </item>
 
 </menu>
