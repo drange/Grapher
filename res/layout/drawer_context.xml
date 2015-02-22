@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
+    <!-- FILE MAIN MENU -->
+
     <item
         android:id="@+id/file"
         android:title="File ...">
@@ -34,6 +36,10 @@
                 android:title="Delete a saved graph"/>
         </menu>
     </item>
+    <!-- END OF FILE -->
+
+
+    <!-- MODE MAIN MENU -->
 
     <item
         android:id="@+id/mode"
@@ -64,6 +70,10 @@
                 android:title="Centralize view"/>
         </menu>
     </item>
+    <!-- END OF MODE -->
+
+
+    <!-- ALGORITHM MAIN MENU -->
 
     <item
         android:id="@+id/algorithms"
@@ -73,17 +83,23 @@
 
         <menu>
 
+            <!-- PATHS SUB MENU -->
+
             <item
                 android:id="@+id/paths_n_stuff"
                 android:title="Paths, flows, etc ... ">
 
-                <!-- "algorithms" submenu -->
+                <!-- "paths" submenu -->
 
                 <menu>
 
                     <item
                         android:id="@+id/path"
                         android:title="Show shortest s-t path"/>
+
+                    <item
+                        android:id="@+id/compute_steiner_tree"
+                        android:title="Steiner tree"/>
 
                     <item
                         android:id="@+id/flow"
@@ -106,26 +122,45 @@
                         android:title="Bridges"/>
                 </menu>
             </item>
+            <!-- END OF PATHS, FLOWS, ETC -->
+
+
+            <!-- BASIC ALGORITHMS SUB MENU -->
 
             <item
-                android:id="@+id/compute_maximum_clique"
-                android:title="Maximum Clique"/>
+                android:id="@+id/basics"
+                android:title="Basic algorithms ...">
 
-            <item
-                android:id="@+id/compute_steiner_tree"
-                android:title="Steiner tree"/>
+                <!-- "Basic algorithms" submenu -->
 
-            <item
-                android:id="@+id/compute_maximum_independent_set"
-                android:title="Max Independent Set"/>
+                <menu>
 
-            <item
-                android:id="@+id/compute_vertex_cover"
-                android:title="Compute Vertex Cover"/>
+                    <item
+                        android:id="@+id/compute_maximum_clique"
+                        android:title="Maximum Clique"/>
 
-            <item
-                android:id="@+id/compute_connected_vertex_cover"
-                android:title="Compute Connected Vertex Cover"/>
+                    <item
+                        android:id="@+id/compute_maximum_independent_set"
+                        android:title="Max Independent Set"/>
+
+                    <item
+                        android:id="@+id/compute_vertex_cover"
+                        android:title="Compute Vertex Cover"/>
+
+                    <item
+                        android:id="@+id/compute_connected_vertex_cover"
+                        android:title="Compute Connected Vertex Cover"/>
+
+                    <item
+                        android:id="@+id/compute_minimum_dominating_set"
+                        android:title="Minimum Dominating Set"/>
+
+                    <item
+                        android:id="@+id/compute_perfect_code"
+                        android:title="Compute Perfect Code"/>
+                </menu>
+            </item>
+            <!-- END OF BASIC ALGORITHMS SUB MENU -->
 
             <item
                 android:id="@+id/compute_treewidth"
@@ -148,10 +183,6 @@
                 android:title="Interval recognition"/>
 
             <item
-                android:id="@+id/compute_perfect_code"
-                android:title="Compute Perfect Code"/>
-
-            <item
                 android:id="@+id/compute_balanced_separator"
                 android:title="Balanced Separator"/>
 
@@ -171,16 +202,6 @@
                 android:id="@+id/compute_connected_feedback_vertex_set"
                 android:title="Connected Feedback Vertex Set"/>
 
-            <!--
-             <item  
-             android:id="@+id/compute_minimum_red_blue_dominating_set" 
-              android:title="Minimum R/B Dominating Set"/>
-            -->
-
-            <item
-                android:id="@+id/compute_minimum_dominating_set"
-                android:title="Minimum Dominating Set"/>
-
             <item
                 android:id="@+id/compute_mst"
                 android:title="Minimum Spanning Tree"/>
@@ -194,12 +215,8 @@
                 android:title="Is chordal?"/>
 
             <item
-                android:id="@+id/chordalization"
-                android:title="Fill In"/>
-
-            <item
                 android:id="@+id/compute_claws"
-                android:title="Show all claws"/>
+                android:title="Claw-free?"/>
 
             <item
                 android:id="@+id/threshold"
@@ -222,10 +239,6 @@
                 android:title="Compute Center Vertex"/>
 
             <item
-                android:id="@+id/clear_colours"
-                android:title="Clear Colours"/>
-
-            <item
                 android:id="@+id/compute_bandwidth"
                 android:title="Compute Bandwidth"/>
 
@@ -242,6 +255,7 @@
                 android:title="Claw-free edge deletion"/>
         </menu>
     </item>
+    <!-- END OF ALGORITHMS MAIN MENU -->
 
     <item
         android:id="@+id/selections"
@@ -270,8 +284,13 @@
             <item
                 android:id="@+id/select_reachable"
                 android:title="Select all reachable vertices"/>
+
+            <item
+                android:id="@+id/clear_colours"
+                android:title="Clear Colours"/>
         </menu>
     </item>
+    <!-- SELECTION -->
 
     <item
         android:id="@+id/graph_operations"
@@ -314,6 +333,7 @@
                 android:title="Induce subgraph by selected vertices"/>
         </menu>
     </item>
+    <!-- END OF MODIFICATION -->
 
     <item
         android:id="@+id/sharing"
@@ -343,9 +363,11 @@
                 android:id="@+id/share_interval"
                 android:title="tikz interval"/>
 
-            <!-- <item -->
-            <!-- android:id="@+id/screenshot" -->
-            <!-- android:title="Save image"/> -->
+            <!--
+           <item 
+           android:id="@+id/screenshot"
+           android:title="Save image"/>
+            -->
         </menu>
     </item>
 
