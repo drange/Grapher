@@ -66,6 +66,5 @@ public class SnapToGrid {
       v.setCoordinate(new Coordinate(cx, cy));
       System.out.println("post: " + v + " " + v.getCoordinate());
     }
-
   }
 }

@@ -53,6 +53,7 @@ import no.uib.ii.algo.st8.model.DefaultEdgeFactory;
 import no.uib.ii.algo.st8.model.DefaultVertex;
 import no.uib.ii.algo.st8.model.EdgeStyle;
 import no.uib.ii.algo.st8.util.Coordinate;
+import no.uib.ii.algo.st8.util.Neighbors;
 import no.uib.ii.algo.st8.util.SnapToGrid;
 
 import org.jgrapht.GraphPath;
@@ -62,6 +63,8 @@ import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.SimpleGraph;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.os.Vibrator;
@@ -252,6 +255,13 @@ public class GraphViewController {
     }
   }
 
+  public Bitmap screenShot() {
+    Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap);
+    view.draw(canvas);
+    return bitmap;
+  }
+
   /**
    * Deselects all selected vertices and edges
    */
@@ -354,6 +364,66 @@ public class GraphViewController {
     userSelectedVertices.addAll(reachable);
     redraw();
     return reachable;
+  }
+
+  /**
+   * Contracts the two selected vertices
+   * 
+   * @return true if something happened
+   */
+  public boolean contract() {
+    if (userSelectedVertices.size() != 2)
+      return false;
+    Iterator<DefaultVertex> i = userSelectedVertices.iterator();
+    DefaultVertex v = i.next();
+    DefaultVertex u = i.next();
+    if (graph.containsEdge(v, u)) {
+      Collection<DefaultVertex> neighbors = Neighbors.openNeighborhood(graph, v);
+      neighbors.addAll(Neighbors.openNeighborhood(graph, u));
+      neighbors.remove(v);
+      neighbors.remove(u);
+
+      Coordinate cv = v.getCoordinate();
+      Coordinate cu = u.getCoordinate();
+      Coordinate c = new Coordinate((cv.getX() + cu.getX()) / 2, (cv.getY() + cu.getY()) / 2);
+
+      graphWithMemory.removeVertex(v);
+      graphWithMemory.removeVertex(u);
+      DefaultVertex w = new DefaultVertex(c);
+
+      graphWithMemory.addVertex(w);
+
+      for (DefaultVertex x : neighbors) {
+        graphWithMemory.addEdge(w, x);
+      }
+
+      userSelectedVertices.clear();
+
+      redraw();
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Perform local complement.
+   */
+  public boolean localComplement() {
+    if (userSelectedVertices.isEmpty()) {
+      return false;
+    }
+    for (DefaultVertex v : userSelectedVertices) {
+      ArrayList<DefaultVertex> neigh = new ArrayList<DefaultVertex>(Neighbors.openNeighborhood(graph, v));
+      for (int i = 0; i < neigh.size(); i++) {
+        for (int j = i + 1; j < neigh.size(); j++) {
+          toggleEdge(neigh.get(i), neigh.get(j), false);
+        }
+      }
+    }
+    redraw();
+    return true;
   }
 
   /**
@@ -1016,7 +1086,8 @@ public class GraphViewController {
   }
 
   /**
-   * Toggles edges between given vertex. Redraws as well!
+   * Toggles edges between given vertex with memory. If redraw is set, will
+   * redraw after operation.
    * 
    * @param v
    *          vertex v
@@ -1024,7 +1095,7 @@ public class GraphViewController {
    *          vertex u
    * @return returns the edge if it is added, null if it is removed
    */
-  private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v, DefaultVertex u) {
+  private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v, DefaultVertex u, boolean redraw) {
     DefaultEdge<DefaultVertex> edge = null;
 
     if (graph.containsEdge(v, u)) {
@@ -1033,8 +1104,22 @@ public class GraphViewController {
       edge = graphWithMemory.addEdge(v, u);
     }
 
-    redraw();
+    if (redraw)
+      redraw();
     return edge;
+  }
+
+  /**
+   * Toggles edges between given vertex. Redraws as well! And adds to
+   * 
+   * @param v
+   *          vertex v
+   * @param u
+   *          vertex u
+   * @return returns the edge if it is added, null if it is removed
+   */
+  private DefaultEdge<DefaultVertex> toggleEdge(DefaultVertex v, DefaultVertex u) {
+    return toggleEdge(v, u, true);
   }
 
   public void longShake(int n) {

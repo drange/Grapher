@@ -10,6 +10,7 @@ import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.List;
 
+import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.interval.IntervalGraph;
 import no.uib.ii.algo.st8.interval.SimpleToBasicWrapper;
 import no.uib.ii.algo.st8.model.DefaultEdge;
@@ -193,18 +194,34 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
     String shareBody = GraphExporter.getTikz(controller.getGraph(), controller.getTransformMatrix());
 
+    Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+    sharingIntent.setType("text/plain");
+    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, controller.graphInfo());
+    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+    startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
+
+  }
+
+  private boolean shareInterval() {
+    String shareBody = "\\documentclass{article}\n\\usepackage{tikz}\n\\begin{document}\n\n";
+
     SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>> wrap = new SimpleToBasicWrapper<DefaultVertex, DefaultEdge<DefaultVertex>>(
         controller.getGraph());
 
     IntervalGraph ig = wrap.getIntervalGraph();
-    if (ig != null) {
-      shareBody += "\n\n\nInterval graph:\n" + ig;
-    }
+    if (ig == null)
+      return false;
 
-    shareBody += "\n\n% Sent to you by Grapher";
+    shareBody += "\\begin{figure}[htp]";
+    shareBody += "\\centering";
 
-    shareBody += " % INTERVAL ";
     shareBody += GraphExporter.getTikzIntervalRepresentation(wrap.getIntervalGraph());
+
+    shareBody += "\n\t\\caption{" + GraphInformation.graphInfo(controller.getGraph()) + " (Grapher)}";
+    shareBody += "\n\t\\label{fig:interval}";
+    shareBody += "\n\t\\end{figure}";
+
+    shareBody += "\n\n\\end{document}\n";
 
     Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
     sharingIntent.setType("text/plain");
@@ -212,6 +229,7 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
     sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
     startActivity(Intent.createChooser(sharingIntent, "Share graph with"));
 
+    return true;
   }
 
   private void shareMetapost() {
@@ -240,6 +258,13 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
     return true;
   }
 
+  /**
+   * returns a string containing date and graph info
+   */
+  private String createFileName() {
+    return new Date().toGMTString() + " " + controller.graphInfo();
+  }
+
   @Override
   @SuppressLint("WorldReadableFiles")
   protected void onDestroy() {
@@ -248,8 +273,7 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
     if (controller.getGraph().vertexSet().size() > 0 && saveOnExit) {
       try {
         String json = new FileAccess().save(controller.getGraph());
-        FileOutputStream fOut = openFileOutput(new Date().toGMTString() + " " + controller.graphInfo() + ".json",
-            MODE_WORLD_READABLE);
+        FileOutputStream fOut = openFileOutput(createFileName() + ".json", MODE_WORLD_READABLE);
         OutputStreamWriter osw = new OutputStreamWriter(fOut);
 
         // Write the string to the file
@@ -315,20 +339,6 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
     case R.id.chordalization:
       controller.showChordalization();
-      return true;
-
-    case R.id.interval:
-      int interval = controller.showInterval();
-      switch (interval) {
-      case 0:
-        shortToast("Graph is interval");
-        break;
-      case 1:
-        shortToast("Not interval, AT is highlighted");
-        break;
-      case 2:
-        shortToast("Not chordal");
-      }
       return true;
 
     case R.id.threshold:
@@ -437,18 +447,14 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       controller.showDominatingSet();
       return true;
 
-    case R.id.compute_minimum_red_blue_dominating_set:
-      controller.showRedBlueDominatingSet();
-      return true;
+      // case R.id.compute_minimum_red_blue_dominating_set:
+      // controller.showRedBlueDominatingSet();
+      // return true;
 
     case R.id.spring:
       controller.longShake(300);
       shortToast("Shaken, not stirred");
       return true;
-
-      // TODO case R.id.steiner_tree:
-      // controller.showSteinerTree();
-      // return true;
 
     case R.id.hamiltonian_path:
       controller.showHamiltonianPath();
@@ -590,6 +596,36 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       shareTikz();
       return true;
 
+    case R.id.share_interval:
+      if (shareInterval()) {
+        return true;
+      }
+
+      // DO NOT PUT ANYTHING HERE!
+
+      // THE CASE ABOVE DOES NOT BREAK IF GRAPH NOT INTERVAL
+
+    case R.id.interval:
+      int interval = controller.showInterval();
+      switch (interval) {
+      case 0:
+        shortToast("Graph is interval");
+        break;
+      case 1:
+        shortToast("Not interval, AT is highlighted");
+        break;
+      case 2:
+        shortToast("Not chordal");
+      }
+      return true;
+
+      // TODO SCREENSHOT SAVING MUST SAVE IN EXTERNAL
+      // case R.id.screenshot:
+      // if (!writeScreenshot()) {
+      // longToast("Writing failed.");
+      // }
+      // return true;
+
     case R.id.share_metapost:
       shareMetapost();
       return true;
@@ -612,6 +648,18 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
     case R.id.select_reachable:
       controller.selectAllReachableVertices();
+      return true;
+
+    case R.id.local_complement:
+      if (!controller.localComplement()) {
+        shortToast("Select at least one vertex to perform local complement");
+      }
+      return true;
+
+    case R.id.contract:
+      if (!controller.contract()) {
+        shortToast("Select two adjacent vertices");
+      }
       return true;
 
     case R.id.complete_selected:
@@ -718,6 +766,44 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
     });
 
     alert.show();
+  }
+
+  /**
+   * Write a screenshot to file, calls first controller.screenshot for obtaining
+   * bitmap
+   * 
+   * @return
+   */
+  private boolean writeScreenshot() {
+
+    // TODO this must write to external location
+
+    FileOutputStream out = null;
+    try {
+      out = openFileOutput(createFileName() + ".png", MODE_WORLD_WRITEABLE);
+
+      // bmp is your Bitmap instance
+      Bitmap bmp = controller.screenShot();
+      System.out.println("got bibimbap from controller");
+      bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
+      System.out.println("done compressing bitmap and writing to file " + out.getFD());
+      System.out.println("done writing to " + out);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      try {
+        if (out != null) {
+          out.close();
+          System.out.println("File closed: " + out.getFD());
+          System.out.println("File closed: " + out.toString());
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+        return false;
+      }
+    }
+    return true;
   }
 
   public void delete() {
