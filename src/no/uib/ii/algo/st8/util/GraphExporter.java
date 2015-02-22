@@ -3,6 +3,7 @@ package no.uib.ii.algo.st8.util;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import no.uib.ii.algo.st8.algorithms.GraphInformation;
 import no.uib.ii.algo.st8.interval.Interval;
 import no.uib.ii.algo.st8.interval.IntervalGraph;
 import no.uib.ii.algo.st8.model.DefaultEdge;
@@ -50,16 +51,32 @@ public class GraphExporter {
 
   }
 
+  private static String getBeginDocument() {
+    String res = "\\documentclass{article}";
+    res += "\n\\usepackage{tikz}";
+    res += "\n\\begin{document}\n";
+    return res;
+  }
+
   private static String getBeginFigure() {
     String res = "";
-    res += "\\begin{figure}\n\t\\centering";
+    res += "\n\\begin{figure}\n\t\\centering";
+    return res;
+  }
+
+  private static String getEndDocument() {
+    String res = "";
+    res += "\\end{document}\n";
     return res;
   }
 
   private static String getEndFigure(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
-    // String info = graph.graphInfo();
-    String info = "";
+    String info = GraphInformation.graphInfo(graph);
     String infop = info.replaceAll(" ", "-").replaceAll(",", "-").replaceAll("\\.", "-").toLowerCase();
+    infop = infop.replace("----", "-");
+    infop = infop.replace("---", "-");
+    infop = infop.replace("--", "-");
+
     String res = "";
     res += "\n\t\\caption{" + info + "}\n";
     res += "\t\\label{fig:" + infop + "}\n";
@@ -92,6 +109,8 @@ public class GraphExporter {
         representation.add(row);
       }
     }
+
+    res += "\n";
 
     int y = 0;
     for (ArrayList<Interval> row : representation) {
@@ -131,7 +150,7 @@ public class GraphExporter {
     res += "\n";
     res += "\t\\end{tikzpicture}";
 
-    return getBeginFigure() + res + getEndFigure(graph);
+    return getBeginDocument() + getBeginFigure() + res + getEndFigure(graph) + getEndDocument();
 
   }
 }

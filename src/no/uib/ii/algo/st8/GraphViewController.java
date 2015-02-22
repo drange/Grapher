@@ -1442,6 +1442,11 @@ public class GraphViewController {
     return cycles.size();
   }
 
+  public String makeInfo() {
+    info = GraphInformation.graphInfo(graph);
+    return info;
+  }
+
   public String graphInfo() {
     if (graphWithMemory.graphChangedSinceLastCheck()) {
       info = GraphInformation.graphInfo(graph);

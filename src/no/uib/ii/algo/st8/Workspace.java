@@ -852,7 +852,9 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
           new FileAccess().load(controller.getGraph(), json);
 
+          controller.makeInfo();
           controller.redraw();
+
         } catch (FileNotFoundException e) {
           // TODO Auto-generated catch block
           e.printStackTrace();
