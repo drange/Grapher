@@ -191,6 +191,10 @@
                 android:title="Regularity Deletion Set"/>
 
             <item
+                android:id="@+id/vertex_integrity"
+                android:title="Vertex Integrity"/>
+
+            <item
                 android:id="@+id/compute_odd_cycle_transversal"
                 android:title="Odd Cycle Transversal"/>
 

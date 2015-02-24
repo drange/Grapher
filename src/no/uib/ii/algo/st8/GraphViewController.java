@@ -46,6 +46,7 @@ import no.uib.ii.algo.st8.algorithms.SpringLayout;
 import no.uib.ii.algo.st8.algorithms.SteinerTree;
 import no.uib.ii.algo.st8.algorithms.ThresholdInspector;
 import no.uib.ii.algo.st8.algorithms.TreewidthInspector;
+import no.uib.ii.algo.st8.algorithms.VertexIntegrity;
 import no.uib.ii.algo.st8.interval.IntervalGraph;
 import no.uib.ii.algo.st8.interval.SimpleToBasicWrapper;
 import no.uib.ii.algo.st8.model.DefaultEdge;
@@ -1176,6 +1177,27 @@ public class GraphViewController {
       }
     };
     alg.setTitle("Computing odd cycle transversal ...");
+    alg.execute();
+  }
+
+  public void showVertexIntegrity() {
+    Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new VertexIntegrity<DefaultVertex, DefaultEdge<DefaultVertex>>(
+        graph);
+    AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo, "Vertex integrity") {
+
+      @Override
+      protected String resultText(Collection<DefaultVertex> result) {
+        if (result.size() == 0) {
+          return "X has size 0 ... ";
+        } else {
+          clearAll();
+          highlightedVertices.addAll(result);
+          redraw();
+          return "Vertex integrity deletion set of size " + result.size();
+        }
+      }
+    };
+    alg.setTitle("Computing vertex integrity ...");
     alg.execute();
   }
 

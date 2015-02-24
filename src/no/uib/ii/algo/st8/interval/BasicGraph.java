@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Queue;
 
+import no.uib.ii.algo.st8.model.DefaultEdge;
+import no.uib.ii.algo.st8.model.DefaultVertex;
+import no.uib.ii.algo.st8.util.Coordinate;
+
+import org.jgrapht.EdgeFactory;
+import org.jgrapht.graph.SimpleGraph;
+
 public class BasicGraph {
 
   private final Collection<Integer> vertices = new HashSet<Integer>();
@@ -560,5 +567,29 @@ public class BasicGraph {
     public String toString() {
       return a + "-" + b;
     }
+  }
+
+  public SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> getSimpleGraph(
+      EdgeFactory<DefaultVertex, DefaultEdge<DefaultVertex>> edgeFactory) {
+    int n = vertices.size();
+    SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> sg = new SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>>(
+        edgeFactory);
+    HashMap<Integer, DefaultVertex> map = new HashMap<Integer, DefaultVertex>();
+    for (Integer i : vertices) {
+      int x = i % ((int) Math.sqrt(n) + 1);
+      int y = i - x;
+      DefaultVertex vi = new DefaultVertex(new Coordinate(x, y));
+      sg.addVertex(vi);
+      map.put(i, vi);
+    }
+    for (Integer a : vertices) {
+      for (Integer b : neighborhoods.get(a)) {
+        if (!sg.containsEdge(map.get(a), map.get(b))) {
+          sg.addEdge(map.get(a), map.get(b));
+        }
+      }
+    }
+
+    return sg;
   }
 }

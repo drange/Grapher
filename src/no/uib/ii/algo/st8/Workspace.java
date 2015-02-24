@@ -361,6 +361,10 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       controller.showMaximumClique();
       return true;
 
+    case R.id.vertex_integrity:
+      controller.showVertexIntegrity();
+      return true;
+
     case R.id.compute_minimal_triangulation:
       controller.minimalTriangulation();
       return true;
