@@ -1181,20 +1181,20 @@ public class GraphViewController {
   }
 
   public void showVertexIntegrity() {
-    Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, Collection<DefaultVertex>> algo = new VertexIntegrity<DefaultVertex, DefaultEdge<DefaultVertex>>(
+    Algorithm<DefaultVertex, DefaultEdge<DefaultVertex>, VertexIntegrity.VertexIntegritySolution<DefaultVertex>> algo = new VertexIntegrity<DefaultVertex, DefaultEdge<DefaultVertex>>(
         graph);
-    AlgoWrapper<Collection<DefaultVertex>> alg = new AlgoWrapper<Collection<DefaultVertex>>(activity, algo, "Vertex integrity") {
+    AlgoWrapper<VertexIntegrity.VertexIntegritySolution<DefaultVertex>> alg = new AlgoWrapper<VertexIntegrity.VertexIntegritySolution<DefaultVertex>>(
+        activity, algo, "Vertex integrity") {
 
       @Override
-      protected String resultText(Collection<DefaultVertex> result) {
-        if (result.size() == 0) {
-          return "X has size 0 ... ";
-        } else {
-          clearAll();
-          highlightedVertices.addAll(result);
-          redraw();
-          return "Vertex integrity deletion set of size " + result.size();
-        }
+      protected String resultText(VertexIntegrity.VertexIntegritySolution<DefaultVertex> result) {
+        clearAll();
+
+        System.out.println(result);
+
+        highlightedVertices.addAll(result.X);
+        redraw();
+        return "Vertex integrity is " + result.p;
       }
     };
     alg.setTitle("Computing vertex integrity ...");
