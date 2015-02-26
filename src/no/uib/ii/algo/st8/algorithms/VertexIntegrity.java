@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import no.uib.ii.algo.st8.algorithms.VertexIntegrity.VertexIntegritySolution;
@@ -18,21 +19,37 @@ public class VertexIntegrity<V, E> extends Algorithm<V, E, VertexIntegritySoluti
     setProgressGoal(graph.vertexSet().size());
   }
 
+  private int clique() {
+    MaximalClique<V, E> C = new MaximalClique<V, E>(graph);
+    Collection<V> clique = C.execute();
+    return clique != null ? clique.size() : -1;
+  }
+
   @Override
   public VertexIntegritySolution<V> execute() {
-    if (graph.edgeSet().isEmpty()) {
+    if (graph.vertexSet().isEmpty())
+      return VertexIntegritySolution.make(new HashSet<V>(), 0);
+
+    if (graph.edgeSet().isEmpty())
       return VertexIntegritySolution.make(new HashSet<V>(), 1);
-    }
+
     setProgressGoal(graph.vertexSet().size());
 
-    for (int i = 1; i < graph.vertexSet().size(); i++) {
+    int start = 1;
+    int c = clique();
+    start = Math.max(start, c);
+
+    System.out.println("Starting search at clique size " + start);
+
+    for (int i = start; i < graph.vertexSet().size(); i++) {
       if (cancelFlag)
         return null;
 
       setCurrentProgress(i);
       progress(i, graph.vertexSet().size());
 
-      System.out.println("Vertex integrity iteration " + i + " of " + graph.vertexSet().size());
+      // System.out.println("Vertex integrity iteration " + i + " of " +
+      // graph.vertexSet().size());
 
       Collection<V> X = vertexIntegrity(i, new HashSet<V>(i + 1));
       if (X != null) {
@@ -67,7 +84,12 @@ public class VertexIntegrity<V, E> extends Algorithm<V, E, VertexIntegritySoluti
       return X;
     } else {
       // found large, branch on each of the p+1 vertices
-      for (V v : large) {
+
+      // sorted descending
+      List<V> branchingList = Neighbors.sortByDegree(graph, large, false);
+      // System.out.println("Branching list (" + large.size() + " vs " + (p -
+      // X.size()) + "):\t" + branchingList);
+      for (V v : branchingList) {
         if (X.contains(v)) {
           new IllegalStateException(X.toString() + " contains " + v).printStackTrace();
         }
@@ -153,9 +175,15 @@ public class VertexIntegrity<V, E> extends Algorithm<V, E, VertexIntegritySoluti
         }
       }
       if (currentComponent.size() > p) {
-        // System.out.println("\t\t\tFound large component: " +
-        // currentComponent);
-        // System.out.println(" return " + currentComponent);
+
+        if (currentComponent.size() > (p + 1)) {
+          List<V> ordered = Neighbors.sortByDegree(graph, currentComponent, true);
+          int i = 0;
+          while (currentComponent.size() > (p + 1)) {
+            currentComponent.remove(ordered.get(i++));
+          }
+        }
+
         return currentComponent;
       }
       allVertices.removeAll(visited);

@@ -654,6 +654,10 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
       controller.selectAllReachableVertices();
       return true;
 
+    case R.id.graph_complement:
+      controller.complement();
+      return true;
+
     case R.id.local_complement:
       if (!controller.localComplement()) {
         shortToast("Select at least one vertex to perform local complement");

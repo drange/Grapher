@@ -445,6 +445,24 @@ public class GraphViewController {
    * Between every pair of selected vertices, toggles edge.
    * 
    */
+  public void complement() {
+    ArrayList<DefaultVertex> vertices = new ArrayList<DefaultVertex>(graph.vertexSet().size());
+    vertices.addAll(graph.vertexSet());
+
+    for (int i = 0; i < vertices.size(); i++) {
+      DefaultVertex v = vertices.get(i);
+      for (int j = i + 1; j < vertices.size(); j++) {
+        DefaultVertex u = vertices.get(j);
+        toggleEdge(v, u);
+      }
+    }
+    redraw();
+  }
+
+  /**
+   * Between every pair of selected vertices, toggles edge.
+   * 
+   */
   public void complementSelected() {
     if (userSelectedVertices == null || userSelectedVertices.size() == 0)
       return;
