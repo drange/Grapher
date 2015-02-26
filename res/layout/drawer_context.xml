@@ -309,6 +309,10 @@
                 android:title="Add Universal Vertex"/>
 
             <item
+                android:id="@+id/graph_complement"
+                android:title="Graph complement"/>
+
+            <item
                 android:id="@+id/local_complement"
                 android:title="Local complement"/>
 
