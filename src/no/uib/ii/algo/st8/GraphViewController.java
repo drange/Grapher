@@ -145,6 +145,10 @@ public class GraphViewController {
 
   }
 
+  public void clearMemory() {
+    graphWithMemory.clear(getGraph());
+  }
+
   public void setEdgeDrawMode(boolean mode) {
     if (EDGE_DRAW_MODE != mode)
       toggleEdgeDraw();
@@ -828,7 +832,7 @@ public class GraphViewController {
 
     redraw();
 
-    return path.getEdgeList().size() + 1;
+    return path.getEdgeList().size(); // fixed diameter error: length is #edges
   }
 
   public int showFlow() {
@@ -964,7 +968,7 @@ public class GraphViewController {
 
     redraw();
 
-    return gp.getEdgeList().size() + 1;
+    return gp.getEdgeList().size(); // fixed diameter error: length is #edges
   }
 
   /**

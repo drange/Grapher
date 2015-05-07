@@ -860,6 +860,8 @@ public class Workspace extends Activity implements OnClickListener, SensorEventL
 
           new FileAccess().load(controller.getGraph(), json);
 
+          controller.clearMemory();
+
           controller.makeInfo();
           controller.redraw();
 

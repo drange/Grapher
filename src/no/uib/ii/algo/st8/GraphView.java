@@ -8,6 +8,7 @@ import no.uib.ii.algo.st8.util.Coordinate;
 import org.jgrapht.graph.SimpleGraph;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -15,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.util.TypedValue;
 import android.view.View;
 
 public class GraphView extends View {
@@ -67,6 +69,12 @@ public class GraphView extends View {
     int y = (int) c.getY();
 
     return (x >= trashX && x <= trashX + trashBitmap.getWidth() && y >= trashY && y <= trashY + trashBitmap.getHeight());
+  }
+
+  private int getPixels(int dipValue) {
+    Resources r = getResources();
+    int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, r.getDisplayMetrics());
+    return px;
   }
 
   @Override

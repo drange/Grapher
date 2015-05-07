@@ -10,7 +10,7 @@ import no.uib.ii.algo.st8.util.Neighbors;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Undo {
-  private final SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
+  private SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph;
   private final Stack<History> history = new Stack<History>();
 
   private volatile boolean hasChanged = true;
@@ -23,6 +23,17 @@ public class Undo {
     boolean x = hasChanged;
     hasChanged = false;
     return x;
+  }
+
+  public void clear(SimpleGraph<DefaultVertex, DefaultEdge<DefaultVertex>> graph) {
+
+    System.out.println("Clearing memory ... ");
+
+    this.graph = graph;
+    hasChanged = false;
+    history.clear();
+
+    System.out.println("done");
   }
 
   /**
