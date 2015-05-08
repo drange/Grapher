@@ -2,6 +2,7 @@ package no.uib.ii.algo.st8.algorithms;
 
 import java.util.*;
 
+import no.uib.ii.algo.st8.tests.TestGraph;
 import no.uib.ii.algo.st8.util.Neighbors;
 
 import org.jgrapht.graph.SimpleGraph;
@@ -14,7 +15,7 @@ import org.jgrapht.graph.SimpleGraph;
  * - G\Omega has no full component associated to Omega
  * - Completing each S in Delta(Omega)(minimal separators in Omega) into a clique will make
  *   G[Omega] into a complete graph.
- * @author håvard
+ * @author hï¿½vard
  *
  */
 public class VerifyPMC {
@@ -27,10 +28,11 @@ public class VerifyPMC {
 	 */
 	public static boolean isMinimal(ArrayList<ArrayList<Integer>> G, ArrayList<Integer> V){
 		ArrayList<ArrayList<Integer>> comps = connectedComponents(G,V);
-		for(int i= 0; i<comps.size(); i++){
-			List<Integer> neighbours = new ArrayList<Integer>(oNeighbourhood(G,comps.get(i)));
-			if(neighbours.equals(V))
-				return true;
+        for(int i= 0; i<comps.size(); i++){
+			Set<Integer> neighbours = oNeighbourhood(G,comps.get(i));
+            if(neighbours.containsAll(V)) {
+                return true;
+            }
 		}
 		return false;
 	}
@@ -38,14 +40,15 @@ public class VerifyPMC {
 	/**
 	 * returns true if completing each minimal separator in 
 	 * V into a clique makes the whole graph complete
-	 * @param G Graph
+	 * @param inG Graph
 	 * @param V Separator
 	 * @return True if graph becomes complete, false otherwise
 	 */
 	public static boolean completeGraph(ArrayList<ArrayList<Integer>> inG, ArrayList<Integer> V){
-		for(int i = 0; i<V.size() ;i++){
-		}
-		ArrayList<ArrayList<Integer>> G = (ArrayList<ArrayList<Integer>>) inG.clone();
+		ArrayList<ArrayList<Integer>> G = new ArrayList<ArrayList<Integer>>(inG.size());
+        for(int i = 0; i<inG.size(); i++){
+            G.add(new ArrayList<Integer>(inG.get(i)));
+        }
 		Integer[][] Vmat = new Integer[G.size()][G.size()];
 		for(int i = 0; i<G.size(); i++){
 			for(int j = 0; j<G.size(); j++){
@@ -56,37 +59,45 @@ public class VerifyPMC {
 			for(Integer j : G.get(i))
 				Vmat[i][j] = 1;
 		}
-		Integer[] comp = new Integer[G.size()];
-		int currComp = 0;
-		for(int i = 0; i<G.size(); i++){
-			comp[i] = -1;
-			if(V.contains(i))
-				comp[i] = -2;
-		}
 
-		for(int i = 0; i<G.size(); i++){
-			if(comp[i] != -1)
-				continue;
-			Queue<Integer> q = new LinkedList<Integer>();
-			q.add(i);
-			while(!q.isEmpty()){
-				Integer k = q.poll();
-				comp[k] = currComp;
-				for(int j : G.get(k)){
-					if(comp[j] == -1)
-						q.add(j);
-				}
-			}
-			currComp++;
-		}
-		ArrayList<ArrayList<Integer>> components = new ArrayList<ArrayList<Integer>>(currComp);
-		for(int i = 0; i<currComp; i++){
-			components.add(new ArrayList<Integer>());
-		}
-		for(int i = 0; i<G.size(); i++){
-			if(comp[i] != -2)
-				components.get(comp[i]).add(i);
-		}
+
+
+        Integer[] comp = new Integer[G.size()];
+        int currComp = 0;
+        for(int i = 0; i<G.size(); i++){
+            comp[i] = -1;
+            if(V.contains(i))
+                comp[i] = -2;
+        }
+
+        for(int i = 0; i<G.size(); i++){
+            if(comp[i] != -1)
+                continue;
+            Queue<Integer> q = new LinkedList<Integer>();
+            q.add(i);
+            comp[i] = currComp;
+            while(!q.isEmpty()){
+                Integer k = q.poll();
+                for(int j : G.get(k)){
+                    if(comp[j] == -1) {
+                        comp[j] = currComp;
+                        q.add(j);
+                    }
+                }
+            }
+            currComp++;
+
+        }
+        ArrayList<ArrayList<Integer>> components = new ArrayList<ArrayList<Integer>>(currComp);
+        for(int i = 0; i<currComp; i++){
+            components.add(new ArrayList<Integer>());
+        }
+        for(int i = 0; i<G.size(); i++){
+            if(comp[i] != -2)
+                components.get(comp[i]).add(i);
+        }
+
+
 
 		/*
 		 * For each component C of G\V, find the open neighbourhood of C,
@@ -108,20 +119,20 @@ public class VerifyPMC {
 					continue;
 				Integer k = cc.get(j);
 				stack.add(k);
+                visited[k] = true;
 				while(!stack.isEmpty()){
 					k = stack.pop();
-					visited[k] = true;
 					for(Integer l : G.get(k)){
 						if(!visited[l]){
+                            visited[l] = true;
 							if(Vset.contains(l)){
 								for(Integer ng : oN){
 									Vmat[l][ng] = 1;
+                                    Vmat[ng][l] = 1;
 								}
-								visited[l] = true;
 							} else {
-
 								stack.add(l);
-								visited[l] = true;
+
 							}
 						}
 					}
@@ -164,7 +175,7 @@ public class VerifyPMC {
 
 	/**
 	 * Main function of the class that tests if V is a pmc in G
-	 * @param G Graph
+	 * @param inG Graph
 	 * @param V Vertex set to be tested
 	 * @return True if V is a pmc, false otherwise
 	 */
@@ -183,7 +194,7 @@ public class VerifyPMC {
 		if(isMinimal(G,V))
 			return false;
 		if(!completeGraph(G,V))
-			return false;
+            return false;
 		return true;
 	}
 
@@ -207,16 +218,16 @@ public class VerifyPMC {
 				continue;
 			Integer k = V.get(i);
 			stack.add(k);
+            visited[k] = true;
 			while(!stack.isEmpty()){
 				k = stack.pop();
-				visited[k] = true;
 				for(Integer j : G.get(k)){
 					if(!visited[j]){
+                        visited[j] = true;
 						if(Vset.contains(j)){
 							stack.add(j);
 						} else {
 							neigh.add(j);
-							visited[j] = true;
 						}
 					}
 				}
@@ -246,12 +257,14 @@ public class VerifyPMC {
 				continue;
 			Queue<Integer> q = new LinkedList<Integer>();
 			q.add(i);
+            comp[i] = currComp;
 			while(!q.isEmpty()){
 				Integer k = q.poll();
-				comp[k] = currComp;
 				for(int j : G.get(k)){
-					if(comp[j] == -1)
-						q.add(j);
+					if(comp[j] == -1) {
+                        comp[j] = currComp;
+                        q.add(j);
+                    }
 				}
 			}
 			currComp++;
