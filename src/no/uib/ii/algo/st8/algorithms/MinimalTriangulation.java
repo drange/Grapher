@@ -14,13 +14,15 @@ import org.jgrapht.graph.SimpleGraph;
  * "Maximum Cardinality Search for Computing Minimal Triangulations of Graphs*"
  * by Anne Berry, Jean R. S. Blair and Pinar Heggernes.
  * 
- * @author HÃ¥vard Haug
+ * @author Håvard Haug
  * 
  * @param <V>
  * @param <E>
  */
 public class MinimalTriangulation<V, E> extends Algorithm<V, E, Set<E>> {
 
+  public Map<V,Integer> peoMap;
+  public List<V> peoOrder;
   public MinimalTriangulation(SimpleGraph<V, E> graph) {
     super(graph);
     // TODO Auto-generated constructor stub
@@ -31,10 +33,11 @@ public class MinimalTriangulation<V, E> extends Algorithm<V, E, Set<E>> {
   }
 
   public Set<E> minimalFill() {
+    peoMap = new HashMap<V,Integer>();
+    peoOrder = new ArrayList<V>();
     // SimpleGraph<V, E> filled = new SimpleGraph<V, E>(graph.getEdgeFactory());
     Set<E> FillSet = new HashSet<E>();
     Map<V, Integer> w = new HashMap<V, Integer>();
-
     for (V v : graph.vertexSet()) {
       w.put(v, 0);
     }
@@ -59,6 +62,8 @@ public class MinimalTriangulation<V, E> extends Algorithm<V, E, Set<E>> {
       }
       numbered.put(maxV, i);
       unNumbered.remove(maxV);
+      peoMap.put(maxV, i);
+      peoOrder.add(maxV);
     }
     for (V v : adjList.keySet()) {
       for (V u : adjList.get(v)) {
@@ -66,6 +71,11 @@ public class MinimalTriangulation<V, E> extends Algorithm<V, E, Set<E>> {
           FillSet.add(graph.addEdge(v, u));
       }
     }
+    List<V> revPeo = new ArrayList<V>();
+    for (int i = peoOrder.size()-1; i >= 0 ; i--) {
+          revPeo.add(peoOrder.get(i));
+    }
+    peoOrder = revPeo;
     return FillSet;
 
   }

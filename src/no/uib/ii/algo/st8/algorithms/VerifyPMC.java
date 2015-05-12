@@ -28,6 +28,8 @@ public class VerifyPMC {
 	 */
 	public static boolean isMinimal(ArrayList<ArrayList<Integer>> G, ArrayList<Integer> V){
 		ArrayList<ArrayList<Integer>> comps = connectedComponents(G,V);
+        if(comps.size() <= 1)
+            return false;
         for(int i= 0; i<comps.size(); i++){
 			Set<Integer> neighbours = oNeighbourhood(G,comps.get(i));
             if(neighbours.containsAll(V)) {
@@ -148,6 +150,8 @@ public class VerifyPMC {
 					complete = false;
 			}
 		}
+        if(V.size() == 1)
+            complete = true;
 		/*for(int i = 0; i<G.size(); i++){
 			System.out.print(i + " : ");
 			for(int j = 0; j<G.size(); j++){
@@ -179,22 +183,26 @@ public class VerifyPMC {
 	 * @param V Vertex set to be tested
 	 * @return True if V is a pmc, false otherwise
 	 */
-	public static boolean isPMC(SimpleGraph<Integer, Integer> inG, ArrayList<Integer> V){
-		ArrayList<ArrayList<Integer>> G = new ArrayList<ArrayList<Integer>>();
-		for(int i = 0; i<inG.vertexSet().size(); i++){
-			G.add(new ArrayList<Integer>());
-		}
-		for(Integer v : inG.vertexSet()){
-			ArrayList<Integer> Edges = new ArrayList<Integer>();
-			for(Integer e : inG.edgesOf(v)){
-				Edges.add(Neighbors.opposite(inG, v, e));
-			}
-			G.set(v, Edges);
-		}
-		if(isMinimal(G,V))
-			return false;
-		if(!completeGraph(G,V))
+	public static boolean isPMC(SimpleGraph<Integer, Integer> inG, ArrayList<Integer> V) {
+        ArrayList<ArrayList<Integer>> G = new ArrayList<ArrayList<Integer>>();
+        for (int i = 0; i < inG.vertexSet().size(); i++) {
+            G.add(new ArrayList<Integer>());
+        }
+        for (Integer v : inG.vertexSet()) {
+            ArrayList<Integer> Edges = new ArrayList<Integer>();
+            for (Integer e : inG.edgesOf(v)) {
+                Edges.add(Neighbors.opposite(inG, v, e));
+            }
+            G.set(v, Edges);
+        }
+        if (isMinimal(G, V)) {
+            System.out.println("minimal");
             return false;
+        }
+        if (!completeGraph(G, V)) {
+            System.out.println("not complete");
+            return false;
+        }
 		return true;
 	}
 
