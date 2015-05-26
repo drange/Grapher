@@ -169,5 +169,8 @@ public class IntervalGraph {
     }
     return ig;
   }
-
+  
+  public void deleteVertex(int i){
+	vertices.remove(i);  
+  }
 }
