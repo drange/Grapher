@@ -180,7 +180,7 @@
 
             <item
                 android:id="@+id/interval"
-                android:title="Interval recognition"/>
+                android:title="Change to classic view"/>
 
             <item
                 android:id="@+id/compute_balanced_separator"
@@ -307,10 +307,6 @@
             <item
                 android:id="@+id/add_universal_vertex"
                 android:title="Add Universal Vertex"/>
-            
-            <item
-                android:id="@+id/graph_complement"
-	            android:title="Graph complement"/>
 
             <item
                 android:id="@+id/local_complement"
